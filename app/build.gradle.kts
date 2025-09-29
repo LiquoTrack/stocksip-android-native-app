@@ -1,7 +1,11 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -28,11 +32,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+        }
     }
     buildFeatures {
         compose = true
@@ -41,6 +47,7 @@ android {
 
 dependencies {
 
+    // Base android dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -49,6 +56,35 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Material Icons dependency
+    implementation(libs.androidx.material.icons.extended)
+
+    // Compose Navigation dependency
+    implementation(libs.androidx.navigation.compose)
+
+    // Coil dependency for image loading
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    // Retrofit dependency for web services consumption
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // View Model dependency for usage of view models in the MVVM pattern
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // Room dependency for usage of local database with Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Hilt dependency for injection of dependencies in the app
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Dependencies for testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
