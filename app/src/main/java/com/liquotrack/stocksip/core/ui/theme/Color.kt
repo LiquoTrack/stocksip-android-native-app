@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.ui.theme
+package com.liquotrack.stocksip.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
