@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.core.ui.theme
+package com.liquotrack.stocksip.shared.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

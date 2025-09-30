@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.core.ui.components
+package com.liquotrack.stocksip.shared.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.core.di
+package com.liquotrack.stocksip.shared.di
 
 import dagger.Module
 import dagger.Provides

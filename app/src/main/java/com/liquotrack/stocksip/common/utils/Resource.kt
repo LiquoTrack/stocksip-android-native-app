@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.core.utils
+package com.liquotrack.stocksip.common.utils
 
 /**
  * A generic class that holds a value with its loading status.
@@ -17,4 +17,9 @@ sealed class Resource<T>(
      * Indicates that there is no data available.
      */
     class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
+
+    /**
+     * Indicates that the resource is currently loading.
+     */
+    class Loading<T>(data: T? = null) : Resource<T>(data)
 }
