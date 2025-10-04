@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
-fun Register() {
+fun RegisterUser() {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -300,8 +300,8 @@ fun Register() {
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterPreview() {
+fun RegisterUserPreview() {
     StockSipTheme {
-        Register()
+        RegisterUser()
     }
 }
