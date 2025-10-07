@@ -285,7 +285,7 @@ fun RegisterUser() {
                     shape = RoundedCornerShape(28.dp)
                 ) {
                     Text(
-                        text = "Sign Up",
+                        text = "Next",
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
