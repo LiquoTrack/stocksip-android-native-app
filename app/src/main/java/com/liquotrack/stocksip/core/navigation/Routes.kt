@@ -7,6 +7,12 @@ sealed class Route(val route: String) {
     // Route for the login screen
     object Login : Route(route = "login")
 
+    // Route for the sign-up user screen
+    object SignUpUser : Route(route = "signup-user")
+
+    // Route for the sign-up account screen
+    object  SignUpAccount : Route(route = "signup-account")
+
     // Route for the main screen
     object Main : Route(route = "main")
 

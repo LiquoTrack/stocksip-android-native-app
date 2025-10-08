@@ -7,6 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
+import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterAccount
+import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
 
 /**
@@ -29,8 +31,48 @@ fun AppNavigation() {
         // Define the route for Login screen
         composable (route = Route.Login.route) {
             Login(
+                onNavigateToRegister = {
+                    navController.navigate(Route.SignUpUser.route)
+                },
                 onLoginSuccess = {
                     navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(route = Route.SignUpUser.route) {
+            RegisterUser(
+                onNavigateToAccountRegistration = { email, username, password ->
+                    navController.navigate(
+                        "${Route.SignUpAccount.route}?email=$email&username=$username&password=$password"
+                    )
+                },
+                onBackToLogin = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route = "${Route.SignUpAccount.route}?email={email}&username={username}&password={password}",
+            arguments = listOf(
+                navArgument("email") { defaultValue = "" },
+                navArgument("username") { defaultValue = "" },
+                navArgument("password") { defaultValue = "" }
+            )
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+            val password = backStackEntry.arguments?.getString("password") ?: ""
+
+            RegisterAccount(
+                email = email,
+                username = username,
+                password = password,
+                onRegistrationSuccess = {
+                    navController.navigate(Route.Login.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
                 }
