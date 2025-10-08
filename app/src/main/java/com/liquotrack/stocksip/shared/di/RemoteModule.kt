@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.shared.di
 
+import com.liquotrack.stocksip.features.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
@@ -62,5 +63,11 @@ object RemoteModule {
     @Singleton
     fun provideProfileApiService(retrofit: Retrofit): ProfileService {
         return retrofit.create(ProfileService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserApiService(retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
     }
 }

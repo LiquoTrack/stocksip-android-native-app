@@ -5,7 +5,7 @@ import com.liquotrack.stocksip.common.utils.Resource
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
-import com.liquotrack.stocksip.features.authentication.login.domain.model.User
+import com.liquotrack.stocksip.shared.domain.model.User
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
@@ -154,8 +155,14 @@ fun AppNavigation() {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString(Route.UserManagement.argument)
-            // TODO: Implement UserManagementScreen
+            val userId = backStackEntry.arguments?.getString(Route.UserManagement.argument) ?: ""
+
+            AdminPanel(
+                username = "Admin User", // TODO: Replace with actual username
+                onNavigate = { route ->
+                    navController.navigateFromDrawer(route, userId)
+                }
+            )
         }
 
         // Profile screen
