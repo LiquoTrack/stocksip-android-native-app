@@ -3,7 +3,6 @@ package com.liquotrack.stocksip.features.authentication.login.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.common.utils.Resource
-import com.liquotrack.stocksip.features.authentication.login.data.remote.model.UserDto
 import com.liquotrack.stocksip.features.authentication.login.domain.model.User
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
