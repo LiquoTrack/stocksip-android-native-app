@@ -68,28 +68,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun forgotPassword() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
-
-            val resource = repository.forgotPassword(_email.value)
-
-            when (resource) {
-                is Resource.Success -> {
-                    _errorMessage.value = "Email sent. Please check your inbox."
-                }
-                is Resource.Error -> {
-                    _errorMessage.value = resource.message
-                }
-                is Resource.Loading -> {
-                }
-            }
-
-            _isLoading.value = false
-        }
-    }
-
     fun clearError() {
         _errorMessage.value = null
     }
