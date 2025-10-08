@@ -2,6 +2,7 @@ package com.liquotrack.stocksip.features.authentication.login.data.repositories
 
 import com.liquotrack.stocksip.common.utils.Resource
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInRequestDto
+import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
 import com.liquotrack.stocksip.features.authentication.login.domain.model.User
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
@@ -37,6 +38,39 @@ class AuthRepositoryImpl @Inject constructor(
                 return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
             }
         }
+
+    override suspend fun register(
+        email: String,
+        username: String,
+        password: String,
+        userRole: String
+    ): Resource<User> = withContext(Dispatchers.IO) {
+        try {
+            val request = SignUpRequestDto(
+                email = email,
+                username = username,
+                password = password,
+                userRole = userRole
+            )
+            val response = service.register(request)
+
+            if (response.isSuccessful) {
+                response.body()?.let { registerResponse ->
+                    val user = User(
+                        email = registerResponse.user.email,
+                        username = registerResponse.user.username,
+                        userRole = registerResponse.user.userRole,
+                        accountId = registerResponse.user.accountId
+                    )
+                    tokenManager.saveToken(registerResponse.token)
+                    return@withContext Resource.Success(data = user)
+                }
+            }
+            return@withContext Resource.Error("Registration failed")
+        } catch (e: Exception) {
+            return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
+        }
+    }
 
     override suspend fun logout(): Resource<Unit> =
         withContext(Dispatchers.IO) {

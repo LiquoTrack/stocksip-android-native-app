@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -17,15 +18,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,12 +42,49 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
-fun RegisterAccount() {
-    var selectedRole by remember { mutableStateOf("Liquor Store Owner") }
-    var businessName by remember { mutableStateOf("") }
+fun RegisterAccount(
+    email: String = "",
+    username: String = "",
+    password: String = "",
+    viewModel: RegisterAccountViewModel = hiltViewModel(),
+    onRegistrationSuccess: () -> Unit = {}
+) {
+    val selectedRole by viewModel.selectedRole.collectAsState()
+    val businessName by viewModel.businessName.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val validationError by viewModel.validationError.collectAsState()
+    val registrationSuccess by viewModel.registrationSuccess.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Navigate on successful registration
+    LaunchedEffect(registrationSuccess) {
+        if (registrationSuccess) {
+            onRegistrationSuccess()
+            viewModel.resetRegistrationSuccess()
+        }
+    }
+
+    // Show error messages
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
+        }
+    }
+
+    // Show validation errors
+    LaunchedEffect(validationError) {
+        validationError?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
+        }
+    }
 
     StockSipTheme {
         Box(
@@ -91,7 +133,6 @@ fun RegisterAccount() {
 
                 Spacer(modifier = Modifier.height(80.dp))
 
-
                 // Role Selection
                 Text(
                     text = buildAnnotatedString {
@@ -111,28 +152,29 @@ fun RegisterAccount() {
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
-                        onClick = { selectedRole = "Liquor Store Owner" },
+                        onClick = { viewModel.updateSelectedRole("Owner") },
                         modifier = Modifier
                             .weight(1f)
                             .height(40.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedRole == "Liquor Store Owner") Color(0xFF4A1B2A) else Color.Transparent
+                            containerColor = if (selectedRole == "Owner") Color(0xFF4A1B2A) else Color.Transparent
                         ),
-                        border = if (selectedRole != "Liquor Store Owner") {
+                        border = if (selectedRole != "Owner") {
                             androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                         } else null,
-                        shape = RoundedCornerShape(20.dp)
+                        shape = RoundedCornerShape(20.dp),
+                        enabled = !isLoading
                     ) {
                         Text(
                             text = "Liquor Store Owner",
                             color = Color.White,
                             fontSize = 12.sp,
-                            fontWeight = if (selectedRole == "Liquor Store Owner") FontWeight.Medium else FontWeight.Normal
+                            fontWeight = if (selectedRole == "Owner") FontWeight.Medium else FontWeight.Normal
                         )
                     }
 
                     Button(
-                        onClick = { selectedRole = "Supplier" },
+                        onClick = { viewModel.updateSelectedRole("Supplier") },
                         modifier = Modifier
                             .weight(1f)
                             .height(40.dp),
@@ -142,7 +184,8 @@ fun RegisterAccount() {
                         border = if (selectedRole != "Supplier") {
                             androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                         } else null,
-                        shape = RoundedCornerShape(20.dp)
+                        shape = RoundedCornerShape(20.dp),
+                        enabled = !isLoading
                     ) {
                         Text(
                             text = "Supplier",
@@ -172,7 +215,7 @@ fun RegisterAccount() {
                 // Business Name TextField
                 OutlinedTextField(
                     value = businessName,
-                    onValueChange = { businessName = it },
+                    onValueChange = viewModel::updateBusinessName,
                     placeholder = {
                         Text(
                             text = "Business Name",
@@ -198,35 +241,56 @@ fun RegisterAccount() {
                         unfocusedTextColor = Color.Black
                     ),
                     shape = RoundedCornerShape(28.dp),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-
 
                 Spacer(modifier = Modifier.height(80.dp))
 
                 // Sign Up Button
                 Button(
-                    onClick = { /* Handle sign up */ },
+                    onClick = {
+                        viewModel.register(email, username, password)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF4A1B2A)
                     ),
-                    shape = RoundedCornerShape(28.dp)
+                    shape = RoundedCornerShape(28.dp),
+                    enabled = !isLoading && businessName.isNotBlank()
                 ) {
-                    Text(
-                        text = "Sign Up",
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Sign Up",
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))
+            }
+
+            // Snackbar for errors
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color(0xFFE53E3E),
+                    contentColor = Color.White
+                )
             }
         }
     }
