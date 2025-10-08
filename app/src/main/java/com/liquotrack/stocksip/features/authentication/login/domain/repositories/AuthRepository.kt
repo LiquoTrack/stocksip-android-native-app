@@ -23,9 +23,4 @@ interface AuthRepository {
      * Logs out the current user
      */
     suspend fun logout(): Resource<Unit>
-
-    /**
-     * Sends password recovery email
-     */
-    suspend fun forgotPassword(email: String): Resource<Unit>
 }

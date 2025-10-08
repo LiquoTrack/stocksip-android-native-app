@@ -81,18 +81,4 @@ class AuthRepositoryImpl @Inject constructor(
                 return@withContext Resource.Error(e.localizedMessage ?: "Error logging out")
             }
         }
-
-    override suspend fun forgotPassword(email: String): Resource<Unit> =
-        withContext(Dispatchers.IO) {
-            try {
-                val response = service.forgotPassword(email)
-
-                if (response.isSuccessful) {
-                    return@withContext Resource.Success(Unit)
-                }
-                return@withContext Resource.Error("Failed to send recovery email")
-            } catch (e: Exception) {
-                return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
-            }
-        }
 }
