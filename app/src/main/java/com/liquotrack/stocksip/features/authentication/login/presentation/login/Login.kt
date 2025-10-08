@@ -20,16 +20,20 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,15 +48,41 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 
 @Composable
-fun Login() {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+fun Login(
+    viewModel: LoginViewModel = hiltViewModel(),
+    onNavigateToRegister: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {}
+) {
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val passwordVisible by viewModel.passwordVisible.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val user by viewModel.user.collectAsState()
+
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Navigate on successful login
+    LaunchedEffect(user) {
+        user?.let {
+            onLoginSuccess()
+        }
+    }
+
+    // Show error messages in Snackbar
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -73,6 +103,7 @@ fun Login() {
                 .align(Alignment.BottomCenter)
                 .background(Color(0xFFF4ECEC))
         )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -111,7 +142,7 @@ fun Login() {
             // Email TextField
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = viewModel::updateEmail,
                 placeholder = {
                     Text(
                         text = "Email",
@@ -137,7 +168,8 @@ fun Login() {
                     unfocusedTextColor = onSurfaceLight
                 ),
                 shape = RoundedCornerShape(28.dp),
-                singleLine = true
+                singleLine = true,
+                enabled = !isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -145,7 +177,7 @@ fun Login() {
             // Password TextField
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = viewModel::updatePassword,
                 placeholder = {
                     Text(
                         text = "Password",
@@ -160,7 +192,7 @@ fun Login() {
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = viewModel::togglePasswordVisibility) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
@@ -181,7 +213,8 @@ fun Login() {
                     unfocusedTextColor = onSurfaceLight
                 ),
                 shape = RoundedCornerShape(28.dp),
-                singleLine = true
+                singleLine = true,
+                enabled = !isLoading
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -208,7 +241,9 @@ fun Login() {
                         start = offset,
                         end = offset
                     ).firstOrNull()?.let {
-                        // Handle forgot password click
+                        if (!isLoading) {
+                            viewModel.forgotPassword()
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -219,21 +254,29 @@ fun Login() {
 
             // Login Button
             Button(
-                onClick = { /* Handle login */ },
+                onClick = viewModel::login,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4A1B2A)
                 ),
-                shape = RoundedCornerShape(28.dp)
+                shape = RoundedCornerShape(28.dp),
+                enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
             ) {
-                Text(
-                    text = "Sign In",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Sign In",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -263,12 +306,28 @@ fun Login() {
                         start = offset,
                         end = offset
                     ).firstOrNull()?.let {
-                        // Handle register click
+                        if (!isLoading) {
+                            onNavigateToRegister()
+                        }
                     }
                 }
             )
 
             Spacer(modifier = Modifier.height(40.dp))
+        }
+
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+        ) { data ->
+            Snackbar(
+                snackbarData = data,
+                containerColor = Color(0xFFE53E3E),
+                contentColor = Color.White
+            )
         }
     }
 }
