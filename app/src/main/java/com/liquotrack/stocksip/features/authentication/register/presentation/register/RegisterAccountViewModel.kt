@@ -86,10 +86,12 @@ class RegisterAccountViewModel @Inject constructor(
             _errorMessage.value = null
 
             val resource = repository.register(
+                // TODO: Implement the sign up process with business name and role
                 email = email,
                 username = username,
                 password = password,
-                userRole = _selectedRole.value
+                "",
+                ""
             )
 
             when (resource) {

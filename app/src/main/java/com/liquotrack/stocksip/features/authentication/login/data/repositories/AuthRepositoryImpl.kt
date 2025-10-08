@@ -24,15 +24,16 @@ class AuthRepositoryImpl @Inject constructor(
                 if (response.isSuccessful) {
                     response.body()?.let { loginResponse ->
                         val user = User(
-                            email = loginResponse.user.email,
-                            username = loginResponse.user.username,
-                            userRole = loginResponse.user.userRole,
-                            accountId = loginResponse.user.accountId
+                            userId = loginResponse.userId,
+                            email = loginResponse.email,
+                            username = loginResponse.userName,
+                            token = loginResponse.token
                         )
                         tokenManager.saveToken(loginResponse.token)
                         return@withContext Resource.Success(data = user)
                     }
                 }
+
                 return@withContext Resource.Error("Unknown error")
             } catch (e: Exception) {
                 return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
@@ -43,24 +44,26 @@ class AuthRepositoryImpl @Inject constructor(
         email: String,
         username: String,
         password: String,
-        userRole: String
+        businessName: String,
+        role: String
     ): Resource<User> = withContext(Dispatchers.IO) {
         try {
             val request = SignUpRequestDto(
                 email = email,
                 username = username,
                 password = password,
-                userRole = userRole
+                businessName = businessName,
+                role = role
             )
             val response = service.register(request)
 
             if (response.isSuccessful) {
                 response.body()?.let { registerResponse ->
                     val user = User(
-                        email = registerResponse.user.email,
-                        username = registerResponse.user.username,
-                        userRole = registerResponse.user.userRole,
-                        accountId = registerResponse.user.accountId
+                        userId = registerResponse.userId,
+                        email = registerResponse.email,
+                        username = registerResponse.userName,
+                        token = registerResponse.token,
                     )
                     tokenManager.saveToken(registerResponse.token)
                     return@withContext Resource.Success(data = user)

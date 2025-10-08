@@ -12,12 +12,7 @@ interface AuthRepository {
     /**
      * Registers a new user with account information
      */
-    suspend fun register(
-        email: String,
-        username: String,
-        password: String,
-        userRole: String
-    ): Resource<User>
+    suspend fun register(email: String, username: String, password: String, businessName: String, role: String): Resource<User>
 
     /**
      * Logs out the current user
