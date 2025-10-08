@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.shared.di
 
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +26,7 @@ object RemoteModule {
     @Singleton
     @Named("url")
     fun provideApiBaseUrl(): String {
-        return "https://dummyjson.com/"
+        return "http://10.0.2.2:5283/api/v1/"
     }
 
     /**
@@ -38,5 +39,14 @@ object RemoteModule {
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    /**
+     *
+     */
+    @Provides
+    @Singleton
+    fun provideWarehouseService(retrofit: Retrofit) : WarehouseService {
+        return retrofit.create(WarehouseService::class.java)
     }
 }

@@ -2,6 +2,7 @@ package com.liquotrack.stocksip.shared.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val background = Color(0xFFF4ECEC)
 val primaryLight = Color(0xFF8D4959)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFFFD9DF)
