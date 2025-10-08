@@ -1,10 +1,12 @@
 package com.liquotrack.stocksip.shared.di
 
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
+import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
@@ -29,24 +31,24 @@ object RemoteModule {
         return "http://10.0.2.2:5283/api/v1/"
     }
 
-    /**
-     * Provides a singleton Retrofit instance configured with the base URL and Gson converter.
-     */
     @Provides
     @Singleton
-    fun provideRetrofit(@Named("url") baseUrl: String): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .build()
     }
 
-    /**
-     *
-     */
     @Provides
     @Singleton
-    fun provideWarehouseService(retrofit: Retrofit) : WarehouseService {
-        return retrofit.create(WarehouseService::class.java)
+    fun provideRetrofit(
+        @Named("url") baseUrl: String,
+        okHttpClient: OkHttpClient
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
 }

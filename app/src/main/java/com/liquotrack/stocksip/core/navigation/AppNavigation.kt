@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
 
 /**
  * Composable function that sets up the navigation for the application.
@@ -21,12 +23,18 @@ fun AppNavigation() {
 
         // Define the route for Main screen
         composable (route = Route.Main.route) {
-
+            WarehouseView()
         }
 
         // Define the route for Login screen
         composable (route = Route.Login.route) {
-
+            Login(
+                onLoginSuccess = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                }
+            )
         }
 
         // Define the route for Warehouses screen
