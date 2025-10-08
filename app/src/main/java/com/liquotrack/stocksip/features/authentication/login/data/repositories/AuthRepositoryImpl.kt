@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.authentication.login.data.repositories
 
+import android.util.Log
 import com.liquotrack.stocksip.common.utils.Resource
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
@@ -31,10 +32,11 @@ class AuthRepositoryImpl @Inject constructor(
                             accountId = loginResponse.accountId
                         )
                         tokenManager.saveToken(loginResponse.token)
+                        tokenManager.saveAccountId(loginResponse.accountId)
+
                         return@withContext Resource.Success(data = user)
                     }
                 }
-
                 return@withContext Resource.Error("Unknown error")
             } catch (e: Exception) {
                 return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
@@ -67,7 +69,13 @@ class AuthRepositoryImpl @Inject constructor(
                         token = registerResponse.token,
                         accountId = registerResponse.accountId
                     )
+
+                    // Save token
                     tokenManager.saveToken(registerResponse.token)
+
+                    // Save account ID
+                    tokenManager.saveAccountId(registerResponse.accountId)
+
                     return@withContext Resource.Success(data = user)
                 }
             }
