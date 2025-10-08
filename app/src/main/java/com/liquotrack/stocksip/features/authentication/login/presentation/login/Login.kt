@@ -76,7 +76,7 @@ fun Login(
         }
     }
 
-    // Show error messages in Snackbar
+    // Show error messages in Snack bar
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -241,9 +241,7 @@ fun Login(
                         start = offset,
                         end = offset
                     ).firstOrNull()?.let {
-                        if (!isLoading) {
-                            viewModel.forgotPassword()
-                        }
+                        // Handle forgot password click
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
