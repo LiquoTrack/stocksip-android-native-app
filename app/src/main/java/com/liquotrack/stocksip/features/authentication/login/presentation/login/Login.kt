@@ -241,9 +241,7 @@ fun Login(
                         start = offset,
                         end = offset
                     ).firstOrNull()?.let {
-                        if (!isLoading) {
-                            viewModel.forgotPassword()
-                        }
+                        // Handle forgot password click
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

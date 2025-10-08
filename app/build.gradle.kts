@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.compose.ui.text.google.fonts)
+    implementation(libs.androidx.compose.material3)
     ksp(libs.androidx.room.compiler)
 
     // Hilt dependency for injection of dependencies in the app
