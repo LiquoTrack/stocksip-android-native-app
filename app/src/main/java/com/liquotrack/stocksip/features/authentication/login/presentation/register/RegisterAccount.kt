@@ -1,5 +1,6 @@
-package com.liquotrack.stocksip.features.authentication.register.presentation.register
+package com.liquotrack.stocksip.features.authentication.login.presentation.register
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -160,7 +161,7 @@ fun RegisterAccount(
                             containerColor = if (selectedRole == "Owner") Color(0xFF4A1B2A) else Color.Transparent
                         ),
                         border = if (selectedRole != "Owner") {
-                            androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
+                            BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                         } else null,
                         shape = RoundedCornerShape(20.dp),
                         enabled = !isLoading
@@ -182,7 +183,7 @@ fun RegisterAccount(
                             containerColor = if (selectedRole == "Supplier") Color(0xFF4A1B2A) else Color.Transparent
                         ),
                         border = if (selectedRole != "Supplier") {
-                            androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
+                            BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                         } else null,
                         shape = RoundedCornerShape(20.dp),
                         enabled = !isLoading

@@ -1,5 +1,6 @@
-package com.liquotrack.stocksip.features.authentication.register.presentation.register
+package com.liquotrack.stocksip.features.authentication.login.presentation.register
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -145,7 +146,7 @@ class RegisterUserViewModel @Inject constructor(
      * Validates email format
      */
     private fun isValidEmail(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     /**

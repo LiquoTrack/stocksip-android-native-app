@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.authentication.register.presentation.register
+package com.liquotrack.stocksip.features.authentication.login.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
