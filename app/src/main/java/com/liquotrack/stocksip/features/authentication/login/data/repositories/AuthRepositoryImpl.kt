@@ -27,7 +27,8 @@ class AuthRepositoryImpl @Inject constructor(
                             userId = loginResponse.userId,
                             email = loginResponse.email,
                             username = loginResponse.userName,
-                            token = loginResponse.token
+                            token = loginResponse.token,
+                            accountId = loginResponse.accountId
                         )
                         tokenManager.saveToken(loginResponse.token)
                         return@withContext Resource.Success(data = user)
@@ -64,6 +65,7 @@ class AuthRepositoryImpl @Inject constructor(
                         email = registerResponse.email,
                         username = registerResponse.userName,
                         token = registerResponse.token,
+                        accountId = registerResponse.accountId
                     )
                     tokenManager.saveToken(registerResponse.token)
                     return@withContext Resource.Success(data = user)

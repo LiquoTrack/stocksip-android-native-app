@@ -6,12 +6,13 @@ package com.liquotrack.stocksip.features.authentication.login.domain.model
  * @property userId The unique identifier for the user.
  * @property email The user's email address.
  * @property username The user's display name.
- * @property businessName The name of the user's business.
- * @property userRole The role of the user (e.g., "Liquor Store Owner" or "Supplier").
+ * @property token The authentication token for the user.
+ * @property accountId The account identifier associated with the user.
  */
 data class User(
     val userId: String,
     val email: String,
     val username: String,
     val token: String,
+    val accountId: String
 )

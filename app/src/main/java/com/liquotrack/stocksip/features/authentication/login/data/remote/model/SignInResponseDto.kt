@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName
  * @param userId The unique identifier of the user.
  * @param email The email address of the user.
  * @param userName The username of the user.
+ * @param accountId The account identifier associated with the user.
  */
 data class SignInResponseDto(
 
@@ -23,4 +24,7 @@ data class SignInResponseDto(
 
     @SerializedName("username")
     val userName: String,
+
+    @SerializedName("accountId")
+    val accountId: String
 )
