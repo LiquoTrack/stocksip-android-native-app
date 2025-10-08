@@ -16,22 +16,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,14 +32,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.liquotrack.stocksip.shared.ui.components.TopBar
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(
     viewModel: ProfileViewModel = hiltViewModel(),
@@ -71,40 +61,16 @@ fun Profile(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Profile",
-                        color = Color(0xFF4A1B2A),
-                        fontWeight = FontWeight.Medium
-                    )
-                },
-                navigationIcon = {
-                    if (isEditMode) {
-                        IconButton(onClick = {
-                            if (!isSaving) {
-                                viewModel.toggleEditMode()
-                            }
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color(0xFF4A1B2A)
-                            )
-                        }
-                    } else {
-                        IconButton(onClick = onMenuClick) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu",
-                                tint = Color(0xFF4A1B2A)
-                            )
-                        }
+            TopBar(
+                title = "Profile",
+                showBackButton = isEditMode,
+                onNavigationClick = {
+                    if (isEditMode && !isSaving) {
+                        viewModel.toggleEditMode()
+                    } else if (!isEditMode) {
+                        onMenuClick()
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF4ECEC)
-                )
+                }
             )
         },
         containerColor = Color(0xFFF4ECEC)
@@ -242,61 +208,6 @@ fun Profile(
     }
 }
 
-@Composable
-private fun ProfileField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    isEditMode: Boolean,
-    enabled: Boolean = true
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            color = Color(0xFF4A1B2A),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        if (isEditMode) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedBorderColor = Color(0xFFD1C4C4),
-                    unfocusedBorderColor = Color(0xFFD1C4C4),
-                    focusedTextColor = Color(0xFF4A1B2A),
-                    unfocusedTextColor = Color(0xFF4A1B2A)
-                ),
-                shape = RoundedCornerShape(8.dp),
-                singleLine = true,
-                enabled = enabled
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .background(Color.White, RoundedCornerShape(8.dp))
-                    .border(1.dp, Color(0xFFD1C4C4), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
-            ) {
-                Text(
-                    text = value.ifEmpty { "Not set" },
-                    color = if (value.isEmpty()) Color.Gray else Color(0xFF4A1B2A),
-                    fontSize = 16.sp
-                )
-            }
-        }
-    }
-}
-@Preview
 @Composable
 fun ProfilePreview() {
     StockSipTheme {
