@@ -54,6 +54,7 @@ import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
 fun RegisterUser(
+    onBackToLogin: () -> Unit = {},
     viewModel: RegisterUserViewModel = hiltViewModel(),
     onNavigateToAccountRegistration: (email: String, username: String, password: String) -> Unit = { _, _, _ -> }
 ) {
@@ -67,12 +68,12 @@ fun RegisterUser(
     val validationError by viewModel.validationError.collectAsState()
     val canProceed by viewModel.canProceed.collectAsState()
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
 
     // Show validation errors
     LaunchedEffect(validationError) {
         validationError?.let {
-            snackbarHostState.showSnackbar(it)
+            snackBarHostState.showSnackbar(it)
             viewModel.clearError()
         }
     }
@@ -337,9 +338,9 @@ fun RegisterUser(
                 Spacer(modifier = Modifier.height(40.dp))
             }
 
-            // Snackbar for validation errors
+            // Snack bar for validation errors
             SnackbarHost(
-                hostState = snackbarHostState,
+                hostState = snackBarHostState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)

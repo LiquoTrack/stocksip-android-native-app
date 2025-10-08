@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.features.authentication.login.data.remote.servic
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInResponseDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
+import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpResponseDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -29,5 +30,5 @@ interface AuthService {
      * @return A response containing the sign-up result.
      */
     @POST("sign-up")
-    suspend fun register(@Body request: SignUpRequestDto): Response<SignInResponseDto>
+    suspend fun register(@Body request: SignUpRequestDto): Response<SignUpResponseDto>
 }

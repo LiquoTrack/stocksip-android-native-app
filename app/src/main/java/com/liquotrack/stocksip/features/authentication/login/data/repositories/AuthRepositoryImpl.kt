@@ -49,7 +49,7 @@ class AuthRepositoryImpl @Inject constructor(
         password: String,
         businessName: String,
         role: String
-    ): Resource<User> = withContext(Dispatchers.IO) {
+    ): Resource<String> = withContext(Dispatchers.IO) {
         try {
             val request = SignUpRequestDto(
                 email = email,
@@ -62,21 +62,7 @@ class AuthRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let { registerResponse ->
-                    val user = User(
-                        userId = registerResponse.userId,
-                        email = registerResponse.email,
-                        username = registerResponse.userName,
-                        token = registerResponse.token,
-                        accountId = registerResponse.accountId
-                    )
-
-                    // Save token
-                    tokenManager.saveToken(registerResponse.token)
-
-                    // Save account ID
-                    tokenManager.saveAccountId(registerResponse.accountId)
-
-                    return@withContext Resource.Success(data = user)
+                    return@withContext Resource.Success(data = registerResponse.message)
                 }
             }
             return@withContext Resource.Error("Registration failed")
