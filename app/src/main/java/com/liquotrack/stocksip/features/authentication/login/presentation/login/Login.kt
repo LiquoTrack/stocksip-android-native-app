@@ -2,6 +2,7 @@ package com.liquotrack.stocksip.features.authentication.login.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,7 @@ import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit = {},
+    onNavigateToRecovery: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
     val email by viewModel.email.collectAsState()
@@ -219,35 +221,16 @@ fun Login(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Forgot Password text
-            val forgotPasswordText = buildAnnotatedString {
-                pushStringAnnotation(tag = "FORGOT_PASSWORD", annotation = "forgot_password")
-                withStyle(
-                    style = SpanStyle(
-                        color = Color(0xFFE53E3E),
-                        fontSize = 14.sp
-                    )
-                ) {
-                    append("Forgot Password?")
-                }
-                pop()
-            }
-
-            ClickableText(
-                text = forgotPasswordText,
-                onClick = { offset ->
-                    forgotPasswordText.getStringAnnotations(
-                        tag = "FORGOT_PASSWORD",
-                        start = offset,
-                        end = offset
-                    ).firstOrNull()?.let {
-                        if (!isLoading) {
-                            viewModel.forgotPassword()
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                style = androidx.compose.ui.text.TextStyle(textAlign = TextAlign.End)
+            // "Forgot Password?" clickable text -> navigates to PasswordRecover screen
+            Text(
+                text = "Forgot Password?",
+                color = Color(0xFFE53E3E),
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable(
+                    enabled = !isLoading,
+                    onClick = onNavigateToRecovery
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))

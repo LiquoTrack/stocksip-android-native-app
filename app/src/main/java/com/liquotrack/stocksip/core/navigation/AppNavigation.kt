@@ -25,7 +25,7 @@ fun AppNavigation() {
 
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = Route.Main.route) {
+    NavHost(navController, startDestination = Route.Login.route) {
 
         // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
