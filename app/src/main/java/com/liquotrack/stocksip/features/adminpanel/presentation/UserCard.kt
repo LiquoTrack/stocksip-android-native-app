@@ -92,12 +92,7 @@ fun UserCard(
                     .background(Color(0xFFF4ECEC), RoundedCornerShape(6.dp))
                     .padding(6.dp)
             ) {
-                Text(
-                    text = user.userRole,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF4A1B2A)
-                )
+
             }
         }
     }

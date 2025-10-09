@@ -137,9 +137,10 @@ fun NewUserDialog(
                 onClick = {
                     onSave(
                         User(
+                            userId = "",
                             email = email,
                             username = name,
-                            userRole = selectedRole,
+                            token = "",
                             accountId = ""
                         )
                     )
@@ -173,7 +174,6 @@ fun EditUserDialog(
 ) {
     var name by remember { mutableStateOf(user.username) }
     var email by remember { mutableStateOf(user.email) }
-    var selectedRole by remember { mutableStateOf(user.userRole) }
     var showRoleDropdown by remember { mutableStateOf(false) }
 
     val roles = listOf("Admin", "Manager", "Cashier", "Worker")
@@ -235,45 +235,7 @@ fun EditUserDialog(
 
                 Text("Role assigned", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE53E3E))
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = selectedRole,
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showRoleDropdown = true },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color(0xFFD1C4C4),
-                            unfocusedBorderColor = Color(0xFFD1C4C4)
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Dropdown",
-                                tint = Color(0xFF4A1B2A)
-                            )
-                        }
-                    )
 
-                    DropdownMenu(
-                        expanded = showRoleDropdown,
-                        onDismissRequest = { showRoleDropdown = false }
-                    ) {
-                        roles.forEach { role ->
-                            DropdownMenuItem(
-                                text = { Text(role) },
-                                onClick = {
-                                    selectedRole = role
-                                    showRoleDropdown = false
-                                }
-                            )
-                        }
-                    }
-                }
             }
         },
         confirmButton = {
@@ -282,8 +244,7 @@ fun EditUserDialog(
                     onSave(
                         user.copy(
                             email = email,
-                            username = name,
-                            userRole = selectedRole
+                            username = name
                         )
                     )
                 },

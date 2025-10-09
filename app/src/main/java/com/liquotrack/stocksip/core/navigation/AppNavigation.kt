@@ -8,10 +8,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
+import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterAccount
+import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
-import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
-import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
