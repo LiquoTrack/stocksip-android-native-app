@@ -9,16 +9,16 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface UserService {
-    @GET("api/admin/users")
+    @GET("api/v1/users")
     suspend fun getAllUsers(): GetUsersResponse
 
-    @POST("api/admin/users")
+    @POST("api/v1/users")
     suspend fun createUser(@Body user: User)
 
-    @PUT("api/admin/users")
+    @PUT("api/v1/users")
     suspend fun updateUser(@Body user: User)
 
-    @DELETE("api/admin/users/{id}")
+    @DELETE("api/v1/users/{id}")
     suspend fun deleteUser(@Path("id") userId: String)
 }
 
