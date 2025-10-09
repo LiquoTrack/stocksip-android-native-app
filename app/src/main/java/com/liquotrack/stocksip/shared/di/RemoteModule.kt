@@ -2,6 +2,7 @@ package com.liquotrack.stocksip.shared.di
 
 import com.liquotrack.stocksip.features.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
+import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuideService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
 import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
@@ -17,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Module to provide remote dependencies like Retrofit instance.
- * Configures Retrofit with the base API URL and Gson converter.
+ * Configures Retrofit with the base API URL and gson converter.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -35,7 +36,7 @@ object RemoteModule {
     }
 
     /**
-     * Provides a singleton Retrofit instance configured with the base URL and Gson converter.
+     * Provides a singleton Retrofit instance configured with the base URL and gson converter.
      */
     @Provides
     @Singleton
@@ -80,5 +81,11 @@ object RemoteModule {
     @Singleton
     fun provideUserApiService(retrofit: Retrofit): UserService {
         return retrofit.create(UserService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCareGuideService(retrofit: Retrofit): CareGuideService {
+        return retrofit.create(CareGuideService::class.java)
     }
 }

@@ -8,12 +8,19 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
+<<<<<<< HEAD
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterAccount
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
+=======
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUser
+import com.liquotrack.stocksip.features.careguides.presentation.CareGuideCreate
+import com.liquotrack.stocksip.features.careguides.presentation.CareGuides
+>>>>>>> a7be134 (feat(care-guide): add ui/ux in the section of care guide)
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
 /**
@@ -44,6 +51,19 @@ fun AppNavigation() {
             )
         }
 
+<<<<<<< HEAD
+=======
+        // Care Guide Create screen
+        composable(route = Route.CareGuideCreate.route) {
+            CareGuideCreate(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // Register screen (User Info)
+>>>>>>> a7be134 (feat(care-guide): add ui/ux in the section of care guide)
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -106,7 +126,47 @@ fun AppNavigation() {
 
         // MAIN FLOW
         composable(route = Route.Main.route) {
+<<<<<<< HEAD
             HomeView(
+=======
+            // TODO: Implement HomeScreen
+        }
+
+        // Warehouses screen
+        composable(route = Route.Warehouses.route) {
+            // TODO: Implement WarehousesScreen
+        }
+
+        // Products/Storage screen
+        composable(route = Route.Products.route) {
+            // TODO: Implement ProductsScreen
+        }
+
+        // Alerts screen
+        composable(route = Route.Alerts.route) {
+            // TODO: Implement AlertsScreen
+        }
+
+        // Catalog screen
+        composable(route = Route.Catalogs.route) {
+            // TODO: Implement CatalogsScreen
+        }
+
+        // Care Guides screen
+        composable(route = Route.CareGuides.route) {
+            CareGuides(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        // User Management screen (Admin Panel)
+        composable(route = Route.UserManagement.route) {
+            AdminPanel(
+>>>>>>> a7be134 (feat(care-guide): add ui/ux in the section of care guide)
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
