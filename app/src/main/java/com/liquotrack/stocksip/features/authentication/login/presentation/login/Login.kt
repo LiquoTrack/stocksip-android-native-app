@@ -2,11 +2,9 @@ package com.liquotrack.stocksip.features.authentication.login.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,7 +57,6 @@ import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit = {},
-    onNavigateToRecovery: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
     val email by viewModel.email.collectAsState()
@@ -69,14 +66,17 @@ fun Login(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val user by viewModel.user.collectAsState()
 
+
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Navigate to the next screen when login succeeds
+    // Navigate on successful login
     LaunchedEffect(user) {
-        user?.let { onLoginSuccess() }
+        user?.let {
+            onLoginSuccess()
+        }
     }
 
-    // Display errors as snackbars
+    // Show error messages in Snackbar
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -84,8 +84,10 @@ fun Login(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Top background section
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Top Background
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,7 +95,7 @@ fun Login(
                 .background(Color(0xFF2B000D))
         )
 
-        // Bottom background section
+        // Bottom Background
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -112,7 +114,7 @@ fun Login(
 
             Spacer(modifier = Modifier.height(60.dp))
 
-            // App logo
+            // Logo Image
             Image(
                 painter = painterResource(id = R.drawable.stocksip_logo1),
                 contentDescription = "StockSip Logo",
@@ -121,21 +123,15 @@ fun Login(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // App name text
+            // App Name
             Text(
                 text = buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            color = Color(0xFFE53E3E),
-                            fontWeight = FontWeight.Bold
-                        )
-                    ) { append("Stock") }
-                    withStyle(
-                        style = SpanStyle(
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    ) { append("Sip") }
+                    withStyle(style = SpanStyle(color = Color(0xFFE53E3E), fontWeight = FontWeight.Bold)) {
+                        append("Stock")
+                    }
+                    withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                        append("Sip")
+                    }
                 },
                 fontSize = 60.sp,
                 textAlign = TextAlign.Center
@@ -143,13 +139,22 @@ fun Login(
 
             Spacer(modifier = Modifier.height(80.dp))
 
-            // Email input field
+            // Email TextField
             OutlinedTextField(
                 value = email,
                 onValueChange = viewModel::updateEmail,
-                placeholder = { Text("Email", color = Color(0xFF8B7375)) },
+                placeholder = {
+                    Text(
+                        text = "Email",
+                        color = Color(0xFF8B7375)
+                    )
+                },
                 leadingIcon = {
-                    Icon(Icons.Default.Email, contentDescription = "Email", tint = Color(0xFF8B7375))
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = "Email Icon",
+                        tint = Color(0xFF8B7375)
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,13 +174,22 @@ fun Login(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password input field
+            // Password TextField
             OutlinedTextField(
                 value = password,
                 onValueChange = viewModel::updatePassword,
-                placeholder = { Text("Password", color = Color(0xFF8B7375)) },
+                placeholder = {
+                    Text(
+                        text = "Password",
+                        color = Color(0xFF8B7375)
+                    )
+                },
                 leadingIcon = {
-                    Icon(Icons.Default.Lock, contentDescription = "Password", tint = Color(0xFF8B7375))
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Lock Icon",
+                        tint = Color(0xFF8B7375)
+                    )
                 },
                 trailingIcon = {
                     IconButton(onClick = viewModel::togglePasswordVisibility) {
@@ -205,21 +219,40 @@ fun Login(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // "Forgot Password?" clickable text -> navigates to PasswordRecover screen
-            Text(
-                text = "Forgot Password?",
-                color = Color(0xFFE53E3E),
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-                modifier = Modifier.clickable(
-                    enabled = !isLoading,
-                    onClick = onNavigateToRecovery
-                )
+            // Forgot Password text
+            val forgotPasswordText = buildAnnotatedString {
+                pushStringAnnotation(tag = "FORGOT_PASSWORD", annotation = "forgot_password")
+                withStyle(
+                    style = SpanStyle(
+                        color = Color(0xFFE53E3E),
+                        fontSize = 14.sp
+                    )
+                ) {
+                    append("Forgot Password?")
+                }
+                pop()
+            }
+
+            ClickableText(
+                text = forgotPasswordText,
+                onClick = { offset ->
+                    forgotPasswordText.getStringAnnotations(
+                        tag = "FORGOT_PASSWORD",
+                        start = offset,
+                        end = offset
+                    ).firstOrNull()?.let {
+                        if (!isLoading) {
+                            viewModel.forgotPassword()
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                style = androidx.compose.ui.text.TextStyle(textAlign = TextAlign.End)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sign-in button
+            // Login Button
             Button(
                 onClick = viewModel::login,
                 modifier = Modifier
@@ -248,33 +281,42 @@ fun Login(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sign-up navigation text
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Don't have an account? ",
-                    color = Color.Black,
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = "Sign Up",
-                    color = Color(0xFFE53E3E),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    modifier = Modifier.clickable(
-                        enabled = !isLoading,
-                        onClick = onNavigateToRegister
+            // Register text
+            val annotatedText = buildAnnotatedString {
+                withStyle(style = SpanStyle(color = Color.Black)) {
+                    append("Don't have an account? ")
+                }
+                pushStringAnnotation(tag = "REGISTER", annotation = "register")
+                withStyle(
+                    style = SpanStyle(
+                        color = Color(0xFFE53E3E),
+                        fontWeight = FontWeight.Medium
                     )
-                )
+                ) {
+                    append("Sign Up")
+                }
+                pop()
             }
+
+            ClickableText(
+                text = annotatedText,
+                onClick = { offset ->
+                    annotatedText.getStringAnnotations(
+                        tag = "REGISTER",
+                        start = offset,
+                        end = offset
+                    ).firstOrNull()?.let {
+                        if (!isLoading) {
+                            onNavigateToRegister()
+                        }
+                    }
+                }
+            )
 
             Spacer(modifier = Modifier.height(40.dp))
         }
 
-        // Snackbar for showing error messages
+
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
