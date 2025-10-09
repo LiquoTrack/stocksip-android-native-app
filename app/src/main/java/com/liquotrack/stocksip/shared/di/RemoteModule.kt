@@ -1,5 +1,9 @@
 package com.liquotrack.stocksip.shared.di
 
+import com.liquotrack.stocksip.features.adminpanel.data.remote.services.UserService
+import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
+import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +29,7 @@ object RemoteModule {
     @Singleton
     @Named("url")
     fun provideApiBaseUrl(): String {
-        return "https://dummyjson.com/"
+        return "http://localhost:5283/"
     }
 
     /**
@@ -38,5 +42,32 @@ object RemoteModule {
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    /**
+     *
+     */
+    @Provides
+    @Singleton
+    fun provideWarehouseService(retrofit: Retrofit) : WarehouseService {
+        return retrofit.create(WarehouseService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthService(retrofit: Retrofit): AuthService {
+        return retrofit.create(AuthService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileApiService(retrofit: Retrofit): ProfileService {
+        return retrofit.create(ProfileService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserApiService(retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
     }
 }

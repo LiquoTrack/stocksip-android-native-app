@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,16 +21,20 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,16 +49,33 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
-fun RegisterUser() {
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+fun RegisterUser(
+    viewModel: RegisterUserViewModel = hiltViewModel(),
+    onNavigateToAccountRegistration: (email: String, username: String, password: String) -> Unit = { _, _, _ -> }
+) {
+    val fullName by viewModel.fullName.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val confirmPassword by viewModel.confirmPassword.collectAsState()
+    val passwordVisible by viewModel.passwordVisible.collectAsState()
+    val confirmPasswordVisible by viewModel.confirmPasswordVisible.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val validationError by viewModel.validationError.collectAsState()
+    val canProceed by viewModel.canProceed.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Show validation errors
+    LaunchedEffect(validationError) {
+        validationError?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
+        }
+    }
 
     StockSipTheme {
         Box(
@@ -102,7 +124,7 @@ fun RegisterUser() {
 
                 Spacer(modifier = Modifier.height(80.dp))
 
-                // App Name
+                // User Info Title
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = Color.LightGray, fontWeight = FontWeight.Bold)) {
@@ -119,7 +141,7 @@ fun RegisterUser() {
                 // Full Name TextField
                 OutlinedTextField(
                     value = fullName,
-                    onValueChange = { fullName = it },
+                    onValueChange = viewModel::updateFullName,
                     placeholder = {
                         Text(
                             text = "Full Name",
@@ -145,7 +167,8 @@ fun RegisterUser() {
                         unfocusedTextColor = Color.Black
                     ),
                     shape = RoundedCornerShape(28.dp),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -153,7 +176,7 @@ fun RegisterUser() {
                 // Email TextField
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = viewModel::updateEmail,
                     placeholder = {
                         Text(
                             text = "Email",
@@ -180,7 +203,8 @@ fun RegisterUser() {
                     ),
                     shape = RoundedCornerShape(28.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -188,7 +212,7 @@ fun RegisterUser() {
                 // Password TextField
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = viewModel::updatePassword,
                     placeholder = {
                         Text(
                             text = "Password",
@@ -203,7 +227,7 @@ fun RegisterUser() {
                         )
                     },
                     trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = viewModel::togglePasswordVisibility) {
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                 contentDescription = if (passwordVisible) "Hide password" else "Show password",
@@ -224,7 +248,8 @@ fun RegisterUser() {
                         unfocusedTextColor = Color.Black
                     ),
                     shape = RoundedCornerShape(28.dp),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -232,7 +257,7 @@ fun RegisterUser() {
                 // Confirm Password TextField
                 OutlinedTextField(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    onValueChange = viewModel::updateConfirmPassword,
                     placeholder = {
                         Text(
                             text = "Confirm Password",
@@ -247,7 +272,7 @@ fun RegisterUser() {
                         )
                     },
                     trailingIcon = {
-                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        IconButton(onClick = viewModel::toggleConfirmPasswordVisibility) {
                             Icon(
                                 imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                 contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
@@ -268,31 +293,62 @@ fun RegisterUser() {
                         unfocusedTextColor = Color.Black
                     ),
                     shape = RoundedCornerShape(28.dp),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(80.dp))
 
-                // Sign Up Button
+                // Next Button
                 Button(
-                    onClick = { /* Handle sign up */ },
+                    onClick = {
+                        if (viewModel.proceedToAccountRegistration()) {
+                            onNavigateToAccountRegistration(
+                                email,
+                                viewModel.getUsername(),
+                                password
+                            )
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF4A1B2A)
                     ),
-                    shape = RoundedCornerShape(28.dp)
+                    shape = RoundedCornerShape(28.dp),
+                    enabled = !isLoading && canProceed
                 ) {
-                    Text(
-                        text = "Sign Up",
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Next",
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))
+            }
+
+            // Snackbar for validation errors
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color(0xFFE53E3E),
+                    contentColor = Color.White
+                )
             }
         }
     }
