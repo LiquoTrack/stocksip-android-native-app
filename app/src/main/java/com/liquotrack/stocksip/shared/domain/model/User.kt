@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.authentication.login.domain.model
+package com.liquotrack.stocksip.shared.domain.model
 
 import com.google.gson.annotations.SerializedName
 

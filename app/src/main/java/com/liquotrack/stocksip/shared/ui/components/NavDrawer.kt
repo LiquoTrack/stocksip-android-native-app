@@ -39,17 +39,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * StockSip Navigation Drawer Component
- *
- * @param username User's display name
+ * Navigation Drawer Component - Simplified for routes without arguments
  * @param currentRoute Currently selected route
  * @param onNavigate Callback for navigation with route destination
  * @param onClose Callback to close the drawer
  */
 @Composable
 fun NavDrawer(
-    username: String = "Username",
-    currentRoute: String = "home",
+    currentRoute: String,
     onNavigate: (String) -> Unit = {},
     onClose: () -> Unit = {}
 ) {
@@ -63,78 +60,78 @@ fun NavDrawer(
                 .padding(16.dp)
         ) {
             // Header Section
-            DrawerHeader(username = username)
+            DrawerHeader()
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // Navigation Items
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.Home,
                 title = "Home",
-                route = "home",
+                route = "main",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("home")
+                    onNavigate("main")
                     onClose()
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.Warehouse,
                 title = "Warehouse",
-                route = "warehouse",
+                route = "warehouses",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("warehouse")
+                    onNavigate("warehouses")
                     onClose()
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.AutoMirrored.Filled.MenuBook,
                 title = "Care Guides",
-                route = "care_guides",
+                route = "care_guide",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("care_guides")
+                    onNavigate("care_guide")
                     onClose()
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.ShoppingCart,
                 title = "Orders",
-                route = "orders",
+                route = "making_orders",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("orders")
+                    onNavigate("making_orders")
                     onClose()
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.Inventory,
                 title = "Products",
-                route = "products",
+                route = "products_storage",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("products")
+                    onNavigate("products_storage")
                     onClose()
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.LocalOffer,
                 title = "Catalog",
-                route = "catalog",
+                route = "catalogs",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("catalog")
+                    onNavigate("catalogs")
                     onClose()
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.CardMembership,
                 title = "Plans",
                 route = "plans",
@@ -145,18 +142,18 @@ fun NavDrawer(
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.AdminPanelSettings,
                 title = "Admin Panel",
-                route = "admin",
+                route = "user",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("admin")
+                    onNavigate("user")
                     onClose()
                 }
             )
 
-            DrawerNavigationItem(
+            NavDrawerItem(
                 icon = Icons.Default.Person,
                 title = "Profile",
                 route = "profile",
@@ -173,7 +170,7 @@ fun NavDrawer(
 }
 
 @Composable
-private fun DrawerHeader(username: String) {
+private fun DrawerHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,11 +183,7 @@ private fun DrawerHeader(username: String) {
             // App Name
             Text(
                 text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(
-                        color = Color(0xFFE53E3E),
-                        fontWeight = FontWeight.Bold
-                    )
-                    ) {
+                    withStyle(style = SpanStyle(color = Color(0xFFE53E3E), fontWeight = FontWeight.Bold)) {
                         append("Stock")
                     }
                     withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
@@ -210,20 +203,11 @@ private fun DrawerHeader(username: String) {
                 modifier = Modifier.size(24.dp)
             )
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Username
-        Text(
-            text = username,
-            color = Color.White.copy(alpha = 0.7f),
-            fontSize = 14.sp
-        )
     }
 }
 
 @Composable
-private fun DrawerNavigationItem(
+private fun NavDrawerItem(
     icon: ImageVector,
     title: String,
     route: String,

@@ -49,7 +49,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun Profile(
     viewModel: ProfileViewModel = hiltViewModel(),
-    username: String = "John Doe",
     onNavigate: (String) -> Unit = {}
 ) {
     val name by viewModel.name.collectAsState()
@@ -73,7 +72,6 @@ fun Profile(
         drawerState = drawerState,
         drawerContent = {
             NavDrawer(
-                username = username,
                 currentRoute = "profile",
                 onNavigate = onNavigate,
                 onClose = {
