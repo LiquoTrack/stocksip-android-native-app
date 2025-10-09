@@ -59,6 +59,7 @@ import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit = {},
+    onNavigateToRecovery: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
     val email by viewModel.email.collectAsState()
@@ -68,17 +69,14 @@ fun Login(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val user by viewModel.user.collectAsState()
 
-
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Navigate on successful login
+    // Navigate to the next screen when login succeeds
     LaunchedEffect(user) {
-        user?.let {
-            onLoginSuccess()
-        }
+        user?.let { onLoginSuccess() }
     }
 
-    // Show error messages in Snackbar
+    // Display errors as snackbars
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -86,10 +84,8 @@ fun Login(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Top Background
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Top background section
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,7 +93,7 @@ fun Login(
                 .background(Color(0xFF2B000D))
         )
 
-        // Bottom Background
+        // Bottom background section
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,7 +112,7 @@ fun Login(
 
             Spacer(modifier = Modifier.height(60.dp))
 
-            // Logo Image
+            // App logo
             Image(
                 painter = painterResource(id = R.drawable.stocksip_logo1),
                 contentDescription = "StockSip Logo",
@@ -125,15 +121,21 @@ fun Login(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // App Name
+            // App name text
             Text(
                 text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = Color(0xFFE53E3E), fontWeight = FontWeight.Bold)) {
-                        append("Stock")
-                    }
-                    withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
-                        append("Sip")
-                    }
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color(0xFFE53E3E),
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) { append("Stock") }
+                    withStyle(
+                        style = SpanStyle(
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) { append("Sip") }
                 },
                 fontSize = 60.sp,
                 textAlign = TextAlign.Center
@@ -141,22 +143,13 @@ fun Login(
 
             Spacer(modifier = Modifier.height(80.dp))
 
-            // Email TextField
+            // Email input field
             OutlinedTextField(
                 value = email,
                 onValueChange = viewModel::updateEmail,
-                placeholder = {
-                    Text(
-                        text = "Email",
-                        color = Color(0xFF8B7375)
-                    )
-                },
+                placeholder = { Text("Email", color = Color(0xFF8B7375)) },
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = "Email Icon",
-                        tint = Color(0xFF8B7375)
-                    )
+                    Icon(Icons.Default.Email, contentDescription = "Email", tint = Color(0xFF8B7375))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -176,22 +169,13 @@ fun Login(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password TextField
+            // Password input field
             OutlinedTextField(
                 value = password,
                 onValueChange = viewModel::updatePassword,
-                placeholder = {
-                    Text(
-                        text = "Password",
-                        color = Color(0xFF8B7375)
-                    )
-                },
+                placeholder = { Text("Password", color = Color(0xFF8B7375)) },
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Lock Icon",
-                        tint = Color(0xFF8B7375)
-                    )
+                    Icon(Icons.Default.Lock, contentDescription = "Password", tint = Color(0xFF8B7375))
                 },
                 trailingIcon = {
                     IconButton(onClick = viewModel::togglePasswordVisibility) {
@@ -221,38 +205,21 @@ fun Login(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Forgot Password text
-            val forgotPasswordText = buildAnnotatedString {
-                pushStringAnnotation(tag = "FORGOT_PASSWORD", annotation = "forgot_password")
-                withStyle(
-                    style = SpanStyle(
-                        color = Color(0xFFE53E3E),
-                        fontSize = 14.sp
-                    )
-                ) {
-                    append("Forgot Password?")
-                }
-                pop()
-            }
-
-            ClickableText(
-                text = forgotPasswordText,
-                onClick = { offset ->
-                    forgotPasswordText.getStringAnnotations(
-                        tag = "FORGOT_PASSWORD",
-                        start = offset,
-                        end = offset
-                    ).firstOrNull()?.let {
-                        // Handle forgot password click
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                style = androidx.compose.ui.text.TextStyle(textAlign = TextAlign.End)
+            // "Forgot Password?" clickable text -> navigates to PasswordRecover screen
+            Text(
+                text = "Forgot Password?",
+                color = Color(0xFFE53E3E),
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable(
+                    enabled = !isLoading,
+                    onClick = onNavigateToRecovery
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Login Button
+            // Sign-in button
             Button(
                 onClick = viewModel::login,
                 modifier = Modifier
@@ -281,7 +248,7 @@ fun Login(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Register text
+            // Sign-up navigation text
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -292,7 +259,6 @@ fun Login(
                     color = Color.Black,
                     fontSize = 14.sp
                 )
-
                 Text(
                     text = "Sign Up",
                     color = Color(0xFFE53E3E),
@@ -308,7 +274,7 @@ fun Login(
             Spacer(modifier = Modifier.height(40.dp))
         }
 
-
+        // Snackbar for showing error messages
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
