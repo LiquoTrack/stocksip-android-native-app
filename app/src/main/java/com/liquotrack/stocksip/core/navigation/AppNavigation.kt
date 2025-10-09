@@ -12,23 +12,22 @@ import com.liquotrack.stocksip.features.authentication.passwordrecover.presentat
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
 import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
 import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUser
+import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
 /**
- * Composable function that sets up the navigation graph for the app.
- * This version includes authentication, profile, warehouse, and admin panel routes.
+ * Main navigation graph of the app.
+ * Includes authentication, home, warehouse, products, care guides, etc.
  */
 @Composable
 fun AppNavigation() {
 
-    // NavController instance to handle navigation actions
     val navController = rememberNavController()
 
-    // Define all navigation destinations using NavHost
-    NavHost(navController, startDestination = Route.Profile.route) {
+    NavHost(navController, startDestination = Route.Main.route) {
 
-        // Login screen
+        // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
             Login(
                 onNavigateToRegister = {
@@ -45,7 +44,6 @@ fun AppNavigation() {
             )
         }
 
-        // Register screen (User Info)
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -55,7 +53,6 @@ fun AppNavigation() {
             )
         }
 
-        // Register Account screen (Account Info)
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(
@@ -80,20 +77,16 @@ fun AppNavigation() {
             )
         }
 
-        // Password Recovery screen
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
                     val route = "confirmation_code/$email"
                     navController.navigate(route)
                 },
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        // Confirmation Code screen
         composable(
             route = Route.ConfirmationCode.routeWithArguments,
             arguments = listOf(
@@ -101,11 +94,8 @@ fun AppNavigation() {
             )
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString(Route.ConfirmationCode.emailArg) ?: ""
-
             ConfirmationCode(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
+                onNavigateBack = { navController.popBackStack() },
                 onNavigateToLogin = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
@@ -114,7 +104,17 @@ fun AppNavigation() {
             )
         }
 
-        // Profile screen
+        // MAIN FLOW
+        composable(route = Route.Main.route) {
+            HomeView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
         composable(route = Route.Profile.route) {
             Profile(
                 onNavigate = { route ->
@@ -125,7 +125,6 @@ fun AppNavigation() {
             )
         }
 
-        // Warehouse screen
         composable(route = Route.Warehouses.route) {
             WarehouseView(
                 onNavigate = { route ->
@@ -136,7 +135,6 @@ fun AppNavigation() {
             )
         }
 
-        // Admin Panel screen
         composable(route = Route.UserManagement.route) {
             AdminPanel(
                 onNavigate = { route ->
@@ -147,16 +145,24 @@ fun AppNavigation() {
             )
         }
 
-        // Main and placeholder routes (to be implemented)
-        composable(route = Route.Main.route) { /* TODO: Implement MainScreen */ }
-        composable(route = Route.Products.route) { /* TODO: Implement ProductsScreen */ }
-        composable(route = Route.Alerts.route) { /* TODO: Implement AlertsScreen */ }
-        composable(route = Route.Catalogs.route) { /* TODO: Implement CatalogsScreen */ }
-        composable(route = Route.CareGuides.route) { /* TODO: Implement CareGuidesScreen */ }
-        composable(route = Route.Plans.route) { /* TODO: Implement PlansScreen */ }
-        composable(route = Route.MakingOrders.route) { /* TODO: Implement MakingOrdersScreen */ }
-        composable(route = Route.OrderHistory.route) { /* TODO: Implement OrderHistoryScreen */ }
-        composable(route = Route.ProductTransferHistory.route) { /* TODO: Implement ProductTransferHistoryScreen */ }
-        composable(route = Route.ProductExitHistory.route) { /* TODO: Implement ProductExitHistoryScreen */ }
+        composable(route = Route.Products.route) {
+
+        }
+
+        composable(route = Route.CareGuides.route) {
+
+        }
+
+        composable(route = Route.Catalogs.route) {
+
+        }
+
+        composable(route = Route.MakingOrders.route) {
+
+        }
+
+        composable(route = Route.Plans.route) {
+
+        }
     }
 }
