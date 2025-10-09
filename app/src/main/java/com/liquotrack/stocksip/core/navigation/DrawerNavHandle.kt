@@ -4,76 +4,95 @@ import androidx.navigation.NavController
 
 /**
  * Helper class to handle navigation from the NavigationDrawer
- * Simplified version - no user authentication required
+ * Converts simplified drawer routes to actual Route objects with userId argument
  */
 class DrawerNavigationHandler(
-    private val navController: NavController
+    private val navController: NavController,
+    private val userId: String
 ) {
 
     fun navigate(drawerRoute: String) {
-        println("🔍 DrawerNavigationHandler: Trying to navigate to: $drawerRoute")
+        when (drawerRoute) {
+            DrawerRoutes.HOME -> {
+                navController.navigate(Route.Main.route) {
+                    launchSingleTop = true
+                    popUpTo(Route.Main.route) { inclusive = true }
+                }
+            }
 
-        val route = when (drawerRoute) {
-            "home", DrawerRoutes.HOME -> {
-                println("✅ Navigating to HOME")
-                Route.Main.route
+            DrawerRoutes.WAREHOUSE -> {
+                val route = "warehouses/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "warehouse", DrawerRoutes.WAREHOUSE -> {
-                println("✅ Navigating to WAREHOUSE")
-                Route.Warehouses.route
+
+            DrawerRoutes.CARE_GUIDES -> {
+                val route = "care_guide/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "care_guides", DrawerRoutes.CARE_GUIDES -> {
-                println("✅ Navigating to CARE_GUIDES")
-                Route.CareGuides.route
+
+            DrawerRoutes.ORDERS -> {
+                val route = "making_orders/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "orders", DrawerRoutes.ORDERS -> {
-                println("✅ Navigating to ORDERS")
-                Route.MakingOrders.route
+
+            DrawerRoutes.PRODUCTS -> {
+                val route = "products_storage/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "products", DrawerRoutes.PRODUCTS -> {
-                println("✅ Navigating to PRODUCTS")
-                Route.Products.route
+
+            DrawerRoutes.CATALOG -> {
+                val route = "catalogs/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "catalog", DrawerRoutes.CATALOG -> {
-                println("✅ Navigating to CATALOG")
-                Route.Catalogs.route
+
+            DrawerRoutes.PLANS -> {
+                val route = "plans/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "plans", DrawerRoutes.PLANS -> {
-                println("✅ Navigating to PLANS")
-                Route.Plans.route
+
+            DrawerRoutes.ADMIN -> {
+                val route = "user/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "admin", DrawerRoutes.ADMIN -> {
-                println("✅ Navigating to ADMIN")
-                Route.UserManagement.route
+
+            DrawerRoutes.PROFILE -> {
+                val route = "profile/$userId"
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
-            "profile", DrawerRoutes.PROFILE -> {
-                println("✅ Navigating to PROFILE")
-                Route.Profile.route
-            }
+
             "logout" -> {
-                println("✅ Navigating to LOGOUT")
                 navController.navigate(Route.Login.route) {
                     popUpTo(0) { inclusive = true }
                 }
-                return
             }
-            else -> {
-                println("❌ Unknown route: $drawerRoute")
-                return
-            }
-        }
 
-        navController.navigate(route) {
-            launchSingleTop = true
+            else -> {
+                println("DrawerNavigationHandler: Unknown route - $drawerRoute")
+            }
         }
     }
 }
 
 /**
  * Extension function to simplify drawer navigation
- * No userId required for testing
  */
-fun NavController.navigateFromDrawer(route: String) {
-    val handler = DrawerNavigationHandler(this)
+fun NavController.navigateFromDrawer(route: String, userId: String) {
+    val handler = DrawerNavigationHandler(this, userId)
     handler.navigate(route)
 }

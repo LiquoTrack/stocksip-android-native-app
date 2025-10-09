@@ -3,8 +3,8 @@ package com.liquotrack.stocksip.features.authentication.login.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.common.utils.Resource
-import com.liquotrack.stocksip.shared.domain.model.User
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
+import com.liquotrack.stocksip.shared.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

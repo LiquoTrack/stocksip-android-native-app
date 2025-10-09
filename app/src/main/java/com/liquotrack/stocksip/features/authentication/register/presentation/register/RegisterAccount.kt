@@ -1,5 +1,6 @@
-package com.liquotrack.stocksip.features.authentication.register.presentation.register
+package com.liquotrack.stocksip.features.authentication.login.presentation.register
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccountViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
@@ -60,7 +62,7 @@ fun RegisterAccount(
     val validationError by viewModel.validationError.collectAsState()
     val registrationSuccess by viewModel.registrationSuccess.collectAsState()
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
 
     // Navigate on successful registration
     LaunchedEffect(registrationSuccess) {
@@ -73,7 +75,7 @@ fun RegisterAccount(
     // Show error messages
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
-            snackbarHostState.showSnackbar(it)
+            snackBarHostState.showSnackbar(it)
             viewModel.clearError()
         }
     }
@@ -81,7 +83,7 @@ fun RegisterAccount(
     // Show validation errors
     LaunchedEffect(validationError) {
         validationError?.let {
-            snackbarHostState.showSnackbar(it)
+            snackBarHostState.showSnackbar(it)
             viewModel.clearError()
         }
     }
@@ -152,15 +154,15 @@ fun RegisterAccount(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
-                        onClick = { viewModel.updateSelectedRole("Owner") },
+                        onClick = { viewModel.updateSelectedRole("LiquorStoreOwner") },
                         modifier = Modifier
                             .weight(1f)
                             .height(40.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedRole == "Owner") Color(0xFF4A1B2A) else Color.Transparent
+                            containerColor = if (selectedRole == "LiquorStoreOwner") Color(0xFF4A1B2A) else Color.Transparent
                         ),
-                        border = if (selectedRole != "Owner") {
-                            androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
+                        border = if (selectedRole != "LiquorStoreOwner") {
+                            BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                         } else null,
                         shape = RoundedCornerShape(20.dp),
                         enabled = !isLoading
@@ -169,7 +171,7 @@ fun RegisterAccount(
                             text = "Liquor Store Owner",
                             color = Color.White,
                             fontSize = 12.sp,
-                            fontWeight = if (selectedRole == "Owner") FontWeight.Medium else FontWeight.Normal
+                            fontWeight = if (selectedRole == "LiquorStoreOwner") FontWeight.Medium else FontWeight.Normal
                         )
                     }
 
@@ -182,7 +184,7 @@ fun RegisterAccount(
                             containerColor = if (selectedRole == "Supplier") Color(0xFF4A1B2A) else Color.Transparent
                         ),
                         border = if (selectedRole != "Supplier") {
-                            androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
+                            BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                         } else null,
                         shape = RoundedCornerShape(20.dp),
                         enabled = !isLoading
@@ -279,9 +281,9 @@ fun RegisterAccount(
                 Spacer(modifier = Modifier.height(40.dp))
             }
 
-            // Snackbar for errors
+            // Snack bar for errors
             SnackbarHost(
-                hostState = snackbarHostState,
+                hostState = snackBarHostState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)

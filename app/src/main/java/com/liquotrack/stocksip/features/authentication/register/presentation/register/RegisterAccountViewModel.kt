@@ -1,9 +1,9 @@
 package com.liquotrack.stocksip.features.authentication.register.presentation.register
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.common.utils.Resource
-import com.liquotrack.stocksip.shared.domain.model.User
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ class RegisterAccountViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    private val _selectedRole = MutableStateFlow("Owner")
+    private val _selectedRole = MutableStateFlow("LiquorStoreOwner")
     val selectedRole: StateFlow<String> = _selectedRole
 
     private val _businessName = MutableStateFlow("")
@@ -31,8 +31,8 @@ class RegisterAccountViewModel @Inject constructor(
     private val _validationError = MutableStateFlow<String?>(null)
     val validationError: StateFlow<String?> = _validationError
 
-    private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> = _user
+    private val _registrationMessage = MutableStateFlow<String?>(null)
+    val registrationMessage: StateFlow<String?> = _registrationMessage
 
     private val _registrationSuccess = MutableStateFlow(false)
     val registrationSuccess: StateFlow<Boolean> = _registrationSuccess
@@ -89,12 +89,17 @@ class RegisterAccountViewModel @Inject constructor(
                 email = email,
                 username = username,
                 password = password,
-                userRole = _selectedRole.value
+                businessName = _businessName.value,
+                role = _selectedRole.value
             )
+
+            // log to see the resource
+            Log.d("RegisterAccountViewModel", "Register resource: $resource")
+
 
             when (resource) {
                 is Resource.Success -> {
-                    _user.value = resource.data
+                    _registrationMessage.value = resource.data
                     _registrationSuccess.value = true
                 }
                 is Resource.Error -> {

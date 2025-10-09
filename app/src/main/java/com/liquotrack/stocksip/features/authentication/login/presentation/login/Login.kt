@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,6 +58,7 @@ import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit = {},
+    onNavigateToRecovery: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
     val email by viewModel.email.collectAsState()
@@ -221,33 +221,16 @@ fun Login(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Forgot Password text
-            val forgotPasswordText = buildAnnotatedString {
-                pushStringAnnotation(tag = "FORGOT_PASSWORD", annotation = "forgot_password")
-                withStyle(
-                    style = SpanStyle(
-                        color = Color(0xFFE53E3E),
-                        fontSize = 14.sp
-                    )
-                ) {
-                    append("Forgot Password?")
-                }
-                pop()
-            }
-
-            ClickableText(
-                text = forgotPasswordText,
-                onClick = { offset ->
-                    forgotPasswordText.getStringAnnotations(
-                        tag = "FORGOT_PASSWORD",
-                        start = offset,
-                        end = offset
-                    ).firstOrNull()?.let {
-                        // Handle forgot password click
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                style = androidx.compose.ui.text.TextStyle(textAlign = TextAlign.End)
+            // "Forgot Password?" clickable text -> navigates to PasswordRecover screen
+            Text(
+                text = "Forgot Password?",
+                color = Color(0xFFE53E3E),
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable(
+                    enabled = !isLoading,
+                    onClick = onNavigateToRecovery
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -282,28 +265,36 @@ fun Login(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Register text
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Don't have an account? ",
-                    color = Color.Black,
-                    fontSize = 14.sp
-                )
-
-                Text(
-                    text = "Sign Up",
-                    color = Color(0xFFE53E3E),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    modifier = Modifier.clickable(
-                        enabled = !isLoading,
-                        onClick = onNavigateToRegister
+            val annotatedText = buildAnnotatedString {
+                withStyle(style = SpanStyle(color = Color.Black)) {
+                    append("Don't have an account? ")
+                }
+                pushStringAnnotation(tag = "REGISTER", annotation = "register")
+                withStyle(
+                    style = SpanStyle(
+                        color = Color(0xFFE53E3E),
+                        fontWeight = FontWeight.Medium
                     )
-                )
+                ) {
+                    append("Sign Up")
+                }
+                pop()
             }
+
+            ClickableText(
+                text = annotatedText,
+                onClick = { offset ->
+                    annotatedText.getStringAnnotations(
+                        tag = "REGISTER",
+                        start = offset,
+                        end = offset
+                    ).firstOrNull()?.let {
+                        if (!isLoading) {
+                            onNavigateToRegister()
+                        }
+                    }
+                }
+            )
 
             Spacer(modifier = Modifier.height(40.dp))
         }
