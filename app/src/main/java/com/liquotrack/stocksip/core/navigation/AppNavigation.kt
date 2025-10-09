@@ -1,9 +1,6 @@
 package com.liquotrack.stocksip.core.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,10 +8,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
 /**
  * Composable function that sets up the navigation for the application.
+ * Simplified version for testing without authentication requirements.
  */
 @Composable
 fun AppNavigation() {
@@ -22,21 +22,14 @@ fun AppNavigation() {
     // Create a NavController instance to handle navigation
     val navController = rememberNavController()
 
-    // Helper function to navigate between screens
-    val navigateToRoute: (String) -> Unit = { route ->
-        navController.navigate(route) {
-            launchSingleTop = true
-        }
-    }
-
     // Define the navigation graph using NavHost
-    NavHost(navController, startDestination = Route.Login.route) {
+    NavHost(navController, startDestination = Route.Profile.route) {
 
         // Login screen
         composable(route = Route.Login.route) {
             Login(
                 onNavigateToRegister = {
-                    // navController.navigate(Route.Register.route)
+                    navController.navigate(Route.Register.route)
                 },
                 onLoginSuccess = {
                     navController.navigate(Route.Main.route) {
@@ -46,211 +39,115 @@ fun AppNavigation() {
             )
         }
 
+        // Register screen (User Info)
+        composable(route = Route.Register.route) {
+            RegisterUser(
+                onNavigateToAccountRegistration = { email, fullName, password ->
+                    val route = "register_account/$email/$fullName/$password"
+                    navController.navigate(route)
+                }
+            )
+        }
+
+        // Register Account screen (Account Info)
+        composable(
+            route = Route.RegisterAccount.routeWithArguments,
+            arguments = listOf(
+                navArgument(Route.RegisterAccount.emailArg) { type = NavType.StringType },
+                navArgument(Route.RegisterAccount.fullNameArg) { type = NavType.StringType },
+                navArgument(Route.RegisterAccount.passwordArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString(Route.RegisterAccount.emailArg) ?: ""
+            val fullName = backStackEntry.arguments?.getString(Route.RegisterAccount.fullNameArg) ?: ""
+            val password = backStackEntry.arguments?.getString(Route.RegisterAccount.passwordArg) ?: ""
+
+            RegisterAccount(
+                email = email,
+                username = fullName,
+                password = password,
+                onRegistrationSuccess = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // Main screen (Home/Dashboard)
         composable(route = Route.Main.route) {
-            // TODO: Implementar HomeScreen con Drawer
-            // HomeScreen(
-            //     username = currentUser.name,
-            //     onNavigate = navigateToRoute
-            // )
+            // TODO: Implement HomeScreen
         }
 
         // Warehouses screen
-        composable(
-            route = Route.Warehouses.routeWithArgument,
-            arguments = listOf(navArgument(Route.Warehouses.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.Warehouses.argument)
+        composable(route = Route.Warehouses.route) {
             // TODO: Implement WarehousesScreen
-            // WarehousesScreen(
-            //     accountId = accountId,
-            //     username = currentUser.name,
-            //     onNavigate = navigateToRoute
-            // )
         }
 
         // Products/Storage screen
-        composable(
-            route = Route.Products.routeWithArgument,
-            arguments = listOf(navArgument(Route.Products.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.Products.argument)
+        composable(route = Route.Products.route) {
             // TODO: Implement ProductsScreen
         }
 
-        // Product Detail screen
-        composable(
-            route = Route.ProductDetail.routeWithArgument,
-            arguments = listOf(navArgument(Route.ProductDetail.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString(Route.ProductDetail.argument)
-            // TODO: Implement ProductDetailScreen (without Drawer, with back button)
-        }
-
-        // Inventory (warehouse stock) screen
-        composable(
-            route = Route.Inventory.routeWithArgument,
-            arguments = listOf(navArgument(Route.Inventory.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val warehouseId = backStackEntry.arguments?.getString(Route.Inventory.argument)
-            // TODO: Implement InventoryScreen
-        }
-
         // Alerts screen
-        composable(
-            route = Route.Alerts.routeWithArgument,
-            arguments = listOf(navArgument(Route.Alerts.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.Alerts.argument)
+        composable(route = Route.Alerts.route) {
             // TODO: Implement AlertsScreen
         }
 
         // Catalog screen
-        composable(
-            route = Route.Catalogs.routeWithArgument,
-            arguments = listOf(navArgument(Route.Catalogs.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.Catalogs.argument)
+        composable(route = Route.Catalogs.route) {
             // TODO: Implement CatalogsScreen
         }
 
-        // Catalog Detail screen
-        composable(
-            route = Route.CatalogDetail.routeWithArgument,
-            arguments = listOf(navArgument(Route.CatalogDetail.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val catalogId = backStackEntry.arguments?.getString(Route.CatalogDetail.argument)
-            // TODO: Implement CatalogDetailScreen (without Drawer, with back button)
-        }
-
         // Care Guides screen
-        composable(
-            route = Route.CareGuides.routeWithArgument,
-            arguments = listOf(navArgument(Route.CareGuides.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.CareGuides.argument)
+        composable(route = Route.CareGuides.route) {
             // TODO: Implement CareGuidesScreen
         }
 
         // User Management screen (Admin Panel)
-        composable(
-            route = Route.UserManagement.routeWithArgument,
-            arguments = listOf(navArgument(Route.UserManagement.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString(Route.UserManagement.argument) ?: ""
-
+        composable(route = Route.UserManagement.route) {
             AdminPanel(
-                username = "Admin User", // TODO: Replace with actual username
                 onNavigate = { route ->
-                    navController.navigateFromDrawer(route, userId)
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
 
         // Profile screen
-        composable(
-            route = Route.Profile.routeWithArgument,
-            arguments = listOf(navArgument(Route.Profile.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString(Route.Profile.argument) ?: ""
-
+        composable(route = Route.Profile.route) {
             Profile(
-                username = "John Doe", // TODO: Replace with actual username
                 onNavigate = { route ->
-                    navController.navigateFromDrawer(route, userId)
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
 
         // Plans screen
-        composable(
-            route = Route.Plans.routeWithArgument,
-            arguments = listOf(navArgument(Route.Plans.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString(Route.Plans.argument) ?: ""
+        composable(route = Route.Plans.route) {
             // TODO: Implement PlansScreen
-            // PlansScreen(
-            //     username = "John Doe",
-            //     onNavigate = { route ->
-            //         navController.navigateFromDrawer(route, userId)
-            //     }
-            // )
         }
 
         // Making Orders screen
-        composable(
-            route = Route.MakingOrders.routeWithArgument,
-            arguments = listOf(navArgument(Route.MakingOrders.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.MakingOrders.argument)
+        composable(route = Route.MakingOrders.route) {
             // TODO: Implement MakingOrdersScreen
         }
 
-        // Order Detail screen
-        composable(
-            route = Route.OrderDetail.routeWithArgument,
-            arguments = listOf(navArgument(Route.OrderDetail.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val orderId = backStackEntry.arguments?.getString(Route.OrderDetail.argument)
-            // TODO: Implement OrderDetailScreen (without Drawer, with back button)
-        }
-
         // Order History screen
-        composable(
-            route = Route.OrderHistory.routeWithArgument,
-            arguments = listOf(navArgument(Route.OrderHistory.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.OrderHistory.argument)
+        composable(route = Route.OrderHistory.route) {
             // TODO: Implement OrderHistoryScreen
         }
 
         // Product Transfer History screen
-        composable(
-            route = Route.ProductTransferHistory.routeWithArgument,
-            arguments = listOf(navArgument(Route.ProductTransferHistory.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.ProductTransferHistory.argument)
+        composable(route = Route.ProductTransferHistory.route) {
             // TODO: Implement ProductTransferHistoryScreen
         }
 
         // Product Exit History screen
-        composable(
-            route = Route.ProductExitHistory.routeWithArgument,
-            arguments = listOf(navArgument(Route.ProductExitHistory.argument) {
-                type = NavType.StringType
-            })
-        ) { backStackEntry ->
-            val accountId = backStackEntry.arguments?.getString(Route.ProductExitHistory.argument)
+        composable(route = Route.ProductExitHistory.route) {
             // TODO: Implement ProductExitHistoryScreen
         }
     }

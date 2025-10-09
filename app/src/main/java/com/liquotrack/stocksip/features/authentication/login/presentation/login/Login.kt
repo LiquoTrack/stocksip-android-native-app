@@ -2,9 +2,11 @@ package com.liquotrack.stocksip.features.authentication.login.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -280,36 +282,28 @@ fun Login(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Register text
-            val annotatedText = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = Color.Black)) {
-                    append("Don't have an account? ")
-                }
-                pushStringAnnotation(tag = "REGISTER", annotation = "register")
-                withStyle(
-                    style = SpanStyle(
-                        color = Color(0xFFE53E3E),
-                        fontWeight = FontWeight.Medium
-                    )
-                ) {
-                    append("Sign Up")
-                }
-                pop()
-            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Don't have an account? ",
+                    color = Color.Black,
+                    fontSize = 14.sp
+                )
 
-            ClickableText(
-                text = annotatedText,
-                onClick = { offset ->
-                    annotatedText.getStringAnnotations(
-                        tag = "REGISTER",
-                        start = offset,
-                        end = offset
-                    ).firstOrNull()?.let {
-                        if (!isLoading) {
-                            onNavigateToRegister()
-                        }
-                    }
-                }
-            )
+                Text(
+                    text = "Sign Up",
+                    color = Color(0xFFE53E3E),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    modifier = Modifier.clickable(
+                        enabled = !isLoading,
+                        onClick = onNavigateToRegister
+                    )
+                )
+            }
 
             Spacer(modifier = Modifier.height(40.dp))
         }

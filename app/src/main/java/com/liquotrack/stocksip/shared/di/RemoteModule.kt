@@ -29,7 +29,7 @@ object RemoteModule {
     @Singleton
     @Named("url")
     fun provideApiBaseUrl(): String {
-        return "http://10.0.2.2:5283/api/v1/"
+        return "http://localhost:5283/"
     }
 
     /**

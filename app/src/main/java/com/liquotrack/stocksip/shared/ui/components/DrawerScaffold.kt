@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
  * Use this for main screens that need navigation drawer
  *
  * @param title Screen title for TopBar
- * @param username User's display name for Drawer header
  * @param currentRoute Current route for highlighting drawer item
  * @param onNavigate Navigation callback
  * @param showBackButton Whether to show back button instead of menu icon
@@ -28,7 +27,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun DrawerScaffold(
     title: String,
-    username: String,
     currentRoute: String,
     onNavigate: (String) -> Unit,
     showBackButton: Boolean = false,
@@ -45,7 +43,6 @@ fun DrawerScaffold(
         drawerState = drawerState,
         drawerContent = {
             NavDrawer(
-                username = username,
                 currentRoute = currentRoute,
                 onNavigate = onNavigate,
                 onClose = {

@@ -48,7 +48,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPanel(
-    username: String = "Admin User",
     onNavigate: (String) -> Unit = {},
     viewModel: AdminPanelViewModel = hiltViewModel()
 ) {
@@ -64,8 +63,7 @@ fun AdminPanel(
         drawerState = drawerState,
         drawerContent = {
             NavDrawer(
-                username = username,
-                currentRoute = "admin",
+                currentRoute = "user",
                 onNavigate = onNavigate,
                 onClose = {
                     scope.launch {
