@@ -1,0 +1,84 @@
+package com.liquotrack.stocksip.features.authentication.login.data.repositories
+
+import android.content.SharedPreferences
+import com.liquotrack.stocksip.common.utils.Resource
+import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInRequestDto
+import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
+import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
+import com.liquotrack.stocksip.shared.domain.model.User
+import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import androidx.core.content.edit
+import com.liquotrack.stocksip.shared.data.local.TokenManager
+
+class AuthRepositoryImpl @Inject constructor(
+    private val service: AuthService,
+    private val tokenManager: TokenManager
+) : AuthRepository {
+
+    override suspend fun login(email: String, password: String): Resource<User> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = service.login(SignInRequestDto(email = email, password = password))
+
+                if (response.isSuccessful) {
+                    response.body()?.let { loginResponse ->
+                        val user = User(
+                            userId = loginResponse.userId,
+                            email = loginResponse.email,
+                            username = loginResponse.userName,
+                            token = loginResponse.token,
+                            accountId = loginResponse.accountId
+                        )
+                        tokenManager.saveToken(loginResponse.token)
+                        tokenManager.saveAccountId(loginResponse.accountId)
+
+                        return@withContext Resource.Success(data = user)
+                    }
+                }
+                return@withContext Resource.Error("Unknown error")
+            } catch (e: Exception) {
+                return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
+            }
+        }
+
+    override suspend fun register(
+        email: String,
+        username: String,
+        password: String,
+        businessName: String,
+        role: String
+    ): Resource<String> = withContext(Dispatchers.IO) {
+        try {
+            val request = SignUpRequestDto(
+                email = email,
+                username = username,
+                password = password,
+                businessName = businessName,
+                role = role
+            )
+            val response = service.register(request)
+
+            if (response.isSuccessful) {
+                response.body()?.let { registerResponse ->
+                    return@withContext Resource.Success(data = registerResponse.message)
+                }
+            }
+            return@withContext Resource.Error("Registration failed")
+        } catch (e: Exception) {
+            return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
+        }
+    }
+
+    override suspend fun logout(): Resource<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                tokenManager.clearTokens()
+                return@withContext Resource.Success(Unit)
+            } catch (e: Exception) {
+                return@withContext Resource.Error(e.localizedMessage ?: "Error logging out")
+            }
+        }
+}
