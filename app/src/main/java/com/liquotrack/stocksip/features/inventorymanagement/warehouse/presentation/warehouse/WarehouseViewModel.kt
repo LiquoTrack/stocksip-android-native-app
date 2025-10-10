@@ -19,7 +19,6 @@ class WarehouseViewModel @Inject constructor(private val repository: WarehouseRe
 
     fun getAlWarehousesByAccountId() {
         viewModelScope.launch {
-            // TODO: Replace hardcoded accountId with actual value
             _warehouses.value = repository.getAllByAccountIdWarehouses("68e49ffad906e587b9a91e4b")
             Log.d("WAREHOUSE", "Received: ${_warehouses.value}" )
         }
