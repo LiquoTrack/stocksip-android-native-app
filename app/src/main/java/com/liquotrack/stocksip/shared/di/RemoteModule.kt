@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.shared.di
 import com.liquotrack.stocksip.features.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
 import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuideService
+import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.ProductService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
 import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
@@ -35,7 +36,7 @@ object RemoteModule {
         // Production
         return "https://stocksip-back-end.azurewebsites.net/api/v1/"
         // Local testing
-        // return "http://10.0.2.2:5283/api/v1/"
+        //return "http://10.0.2.2:5283/api/v1/"
     }
 
     /**
@@ -90,5 +91,11 @@ object RemoteModule {
     @Singleton
     fun provideCareGuideService(retrofit: Retrofit): CareGuideService {
         return retrofit.create(CareGuideService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductService(retrofit: Retrofit): ProductService {
+        return retrofit.create(ProductService::class.java)
     }
 }

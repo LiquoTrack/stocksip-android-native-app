@@ -19,11 +19,11 @@ interface CareGuideRepository {
     /**
      * Creates a new care guide.
      *
-     * @param careGuide The care guide to create.
+     * @param payload The care guide data to create.
      * @return The created care guide.
      */
     suspend fun createCareGuide(careGuide: CareGuide): CareGuide
-    /**
+        /**
      * Updates an existing care guide.
      *
      * @param careGuide The care guide to update.
