@@ -17,6 +17,12 @@ data class CareGuideDto(
     val accountId: String,
     @SerializedName("productId")
     val productId: String?,
+    @SerializedName("productAssociated")
+    val productAssociated: String?,
+    @SerializedName("productName")
+    val productName: String?,
+    @SerializedName("imageUrl")
+    val imageUrl: String?,
     @SerializedName("recommendedMinTemperature")
     val recommendedMinTemperature: Double,
     @SerializedName("recommendedMaxTemperature")

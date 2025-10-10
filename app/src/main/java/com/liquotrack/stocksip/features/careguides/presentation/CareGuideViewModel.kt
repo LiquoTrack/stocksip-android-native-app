@@ -9,25 +9,23 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import android.util.Log
 
 @HiltViewModel
 class CareGuideViewModel @Inject constructor(private val repository: CareGuideRepository) : ViewModel(){
-    private val _careguides= MutableStateFlow<List<CareGuide>>(emptyList())
+    private val _careguides = MutableStateFlow<List<CareGuide>>(emptyList())
     val careGuides: StateFlow<List<CareGuide>> = _careguides
 
-    fun getCareGuideById() {
+    fun loadCareGuides(accountId: String = "68e8503bb04c5f93ede2cb6f") {
         viewModelScope.launch {
             try {
-                val careGuide = repository.getAllCareGuideBytId("4ebf516d-72b7-4a41-891c-1700fbe0c571")
-                _careguides.value = listOf(careGuide)
+                _careguides.value = repository.getById(accountId)
             } catch (e: Exception) {
                 _careguides.value = emptyList()
             }
         }
     }
 
-    init{
-        getCareGuideById()
+    init {
+        loadCareGuides()
     }
 }

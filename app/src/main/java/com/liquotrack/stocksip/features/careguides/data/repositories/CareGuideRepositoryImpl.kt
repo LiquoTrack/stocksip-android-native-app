@@ -13,14 +13,17 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
     override suspend fun getById(accountId: String): List<CareGuide> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = service.getCareGuideById(accountId)
+                val response = service.getCareGuidesByAccountId(accountId)
                 if (response.isSuccessful) {
-                    response.body()?.let { careGuideDto ->
-                        return@withContext listOf(
+                    response.body()?.let { careGuideDtos ->
+                        return@withContext careGuideDtos.map { careGuideDto ->
                             CareGuide(
                                 careGuideId = careGuideDto.id,
                                 accountId = careGuideDto.accountId,
-                                productId = careGuideDto.productId ?: "",
+                                productAssociated = careGuideDto.productAssociated ?: careGuideDto.productId.orEmpty(),
+                                productId = careGuideDto.productId.orEmpty(),
+                                productName = careGuideDto.productName.orEmpty(),
+                                imageUrl = careGuideDto.imageUrl.orEmpty(),
                                 title = careGuideDto.name,
                                 summary = careGuideDto.description,
                                 recommendedMinTemperature = careGuideDto.recommendedMinTemperature,
@@ -32,7 +35,7 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
                                 fileContentType = null,
                                 fileData = null
                             )
-                        )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -51,7 +54,10 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
                         return@withContext CareGuide(
                             careGuideId = careGuideDto.id,
                             accountId = careGuideDto.accountId,
-                            productId = careGuideDto.productId ?: "",
+                            productAssociated = careGuideDto.productAssociated ?: careGuideDto.productId.orEmpty(),
+                            productId = careGuideDto.productId.orEmpty(),
+                            productName = careGuideDto.productName.orEmpty(),
+                            imageUrl = careGuideDto.imageUrl.orEmpty(),
                             title = careGuideDto.name,
                             summary = careGuideDto.description,
                             recommendedMinTemperature = careGuideDto.recommendedMinTemperature,
