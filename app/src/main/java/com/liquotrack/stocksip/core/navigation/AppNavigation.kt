@@ -12,6 +12,8 @@ import com.liquotrack.stocksip.features.authentication.login.presentation.regist
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
+import com.liquotrack.stocksip.features.careguides.presentation.CareGuideCreate
+import com.liquotrack.stocksip.features.careguides.presentation.CareGuides
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
@@ -150,7 +152,19 @@ fun AppNavigation() {
         }
 
         composable(route = Route.CareGuides.route) {
+            CareGuides(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
 
+        composable(route = Route.CareGuideCreate.route) {
+            CareGuideCreate(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
         composable(route = Route.Catalogs.route) {
