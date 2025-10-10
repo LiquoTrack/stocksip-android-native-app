@@ -37,6 +37,7 @@ sealed class Route(val route: String) {
     object Catalogs : Route(route = "catalogs")
     object CatalogDetail : Route(route = "catalog_detail")
     object CareGuides : Route(route = "care_guide")
+    object CareGuideCreate : Route(route = "care_guide_create")
     object UserManagement : Route(route = "user")
     object Profile : Route(route = "profile")
     object Plans : Route(route = "plans")
