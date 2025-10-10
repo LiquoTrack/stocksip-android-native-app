@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.Product
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.ProductRepository
+import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -19,7 +20,7 @@ import javax.inject.Inject
  * @property repository The repository used to fetch product data.
  */
 @HiltViewModel
-class ProductViewModel @Inject constructor(private val repository: ProductRepository) : ViewModel() {
+class ProductViewModel @Inject constructor(private val repository: ProductRepository, private val tokenManager: TokenManager) : ViewModel() {
 
     // StateFlow to hold the list of products
     private val _products = MutableStateFlow<List<Product>>(emptyList())
@@ -34,12 +35,12 @@ class ProductViewModel @Inject constructor(private val repository: ProductReposi
      * operation asynchronously. The fetched products are then assigned to the _products StateFlow.
      * A log statement is included to help with debugging and verifying the fetched data.
      *
-     * Note: The account ID is currently hardcoded and should be replaced with a dynamic value as needed.
+     * Note: The account ID is retrieved from the TokenManager.
      */
     fun getAllProductsByAccountId() {
         viewModelScope.launch {
-            // TODO: Replace hardcoded accountId with actual value
-            _products.value = repository.getAllProductsByAccountId("68e49ffad906e587b9a91e4b")
+            val accountId = tokenManager.getAccountId()
+            accountId?.let { _products.value = repository.getAllProductsByAccountId(it) }
             Log.d("STORAGE", "Received: ${_products.value}" )
         }
     }
