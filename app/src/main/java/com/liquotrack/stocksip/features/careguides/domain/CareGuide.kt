@@ -21,7 +21,10 @@ package com.liquotrack.stocksip.features.careguides.domain
 data class CareGuide(
     val careGuideId: String,
     val accountId: String,
+    val productAssociated: String,
     val productId: String,
+    val productName: String,
+    val imageUrl: String,
     val title: String,
     val summary: String,
     val recommendedMinTemperature: Double,
