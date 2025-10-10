@@ -4,14 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.careguides.domain.CareGuideRepository
+import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-private const val DEFAULT_ACCOUNT_ID = "68e8503bb04c5f93ede2cb6f"
 
 sealed interface CareGuideCreateUiState {
     object Idle : CareGuideCreateUiState
@@ -22,7 +21,8 @@ sealed interface CareGuideCreateUiState {
 
 @HiltViewModel
 class CareGuideCreateViewModel @Inject constructor(
-    private val repository: CareGuideRepository
+    private val repository: CareGuideRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CareGuideCreateUiState>(CareGuideCreateUiState.Idle)
@@ -54,10 +54,16 @@ class CareGuideCreateViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = CareGuideCreateUiState.Loading
             try {
+                val accountId = tokenManager.getAccountId()
+                if (accountId.isNullOrBlank()) {
+                    _uiState.value = CareGuideCreateUiState.Error("No se encontró la cuenta del usuario.")
+                    return@launch
+                }
+
                 repository.createCareGuide(
                     CareGuide(
                         careGuideId = "",
-                        accountId = DEFAULT_ACCOUNT_ID,
+                        accountId = accountId,
                         productAssociated = typeOfLiquor,
                         productId = "",
                         productName = productName,
