@@ -22,7 +22,7 @@ data class Product (
     val productType: String,
     val brand: String,
     val unitPrice: Double,
-    val moneyCode: String,
+    val currencyCode: String,
     val minimumStock: Int,
     val totalStockInWarehouse: Int,
     val imageUrl: String,
