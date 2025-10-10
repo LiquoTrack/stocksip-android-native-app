@@ -31,7 +31,10 @@ object RemoteModule {
     @Singleton
     @Named("url")
     fun provideApiBaseUrl(): String {
-        return "http://10.0.2.2:5283/api/v1/"
+        // Production
+        return "https://stocksip-back-end.azurewebsites.net/api/v1/"
+        // Local testing
+        // return "http://10.0.2.2:5283/api/v1/"
     }
 
     /**
