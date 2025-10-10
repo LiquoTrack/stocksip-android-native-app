@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.hilt)
 
     // Google services (Firebase) plugin
-    id("com.google.gms.google-services")
+    // id("com.google.gms.google-services")
 }
 
 android {
@@ -25,13 +25,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
-        release {
+        getByName("debug") {
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:5283/api/v1/\"")
+        }
+
+
+        create("usb") {
+            initWith(getByName("debug"))
+            buildConfigField("String", "BASE_URL", "\"http://localhost:5283/api/v1/\"")
+            matchingFallbacks += listOf("debug")
+        }
+
+        getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "BASE_URL", "\"https://stocksip-back-end.azurewebsites.net/api/v1/\"")
         }
     }
     compileOptions {
@@ -101,11 +118,11 @@ dependencies {
 
     // Firebase dependencies
     // Import the Firebase BoM
-    implementation(platform(libs.firebase.bom))
+    // implementation(platform(libs.firebase.bom))
 
     // When using the BoM, you don't specify versions in Firebase library dependencies
 
     // Add the dependency for the Firebase SDK for Google Analytics
-    implementation(libs.firebase.analytics)
+    // implementation(libs.firebase.analytics)
 
 }
