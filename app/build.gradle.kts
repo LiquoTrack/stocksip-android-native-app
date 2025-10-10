@@ -57,6 +57,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.viewmodel)
+
     // Material Icons dependency
     implementation(libs.androidx.material.icons.extended)
 
