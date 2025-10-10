@@ -3,10 +3,11 @@ package com.liquotrack.stocksip.features.careguides.data.repositories
 import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuideService
 import com.liquotrack.stocksip.features.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.careguides.domain.CareGuideRepository
-import android.util.Log
+import com.liquotrack.stocksip.features.careguides.data.remote.models.CareGuideCreateDto
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 
 class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuideService) : CareGuideRepository {
     
@@ -79,7 +80,43 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
     }
 
     override suspend fun createCareGuide(careGuide: CareGuide): CareGuide {
-        TODO("Not yet implemented")
+        return withContext(Dispatchers.IO) {
+            val request = CareGuideCreateDto(
+                typeOfLiquor = careGuide.productAssociated,
+                productName = careGuide.productName,
+                title = careGuide.title,
+                summary = careGuide.summary,
+                recommendedMinTemperature = careGuide.recommendedMinTemperature,
+                recommendedMaxTemperature = careGuide.recommendedMaxTemperature
+            )
+
+            val response = service.createCareGuide(careGuide.accountId, request)
+            if (response.isSuccessful) {
+                response.body()?.let { createdDto ->
+                    return@withContext CareGuide(
+                        careGuideId = createdDto.id,
+                        accountId = createdDto.accountId,
+                        productAssociated = createdDto.productAssociated ?: createdDto.productId.orEmpty(),
+                        productId = createdDto.productId.orEmpty(),
+                        productName = createdDto.productName.orEmpty(),
+                        imageUrl = createdDto.imageUrl.orEmpty(),
+                        title = createdDto.name,
+                        summary = createdDto.description,
+                        recommendedMinTemperature = createdDto.recommendedMinTemperature,
+                        recommendedMaxTemperature = createdDto.recommendedMaxTemperature,
+                        recommendedPlaceStorage = createdDto.recommendedPlaceStorage,
+                        generalRecommendation = createdDto.generalRecommendation,
+                        guideFileName = null,
+                        fileName = null,
+                        fileContentType = null,
+                        fileData = null
+                    )
+                }
+                throw IllegalStateException("Empty response body when creating care guide")
+            }
+
+            throw HttpException(response)
+        }
     }
 
     override suspend fun updateCareGuide(careGuide: CareGuide): CareGuide {
