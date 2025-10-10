@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.product
+package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.product.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,10 +26,12 @@ import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.model
  * A composable function that displays a product card with its image, name, and price.
  *
  * @param product The product to be displayed in the card.
+ * @param onClick The callback to be invoked when the card is clicked.
  */
 @Composable
 fun ProductCard(
-    product: Product
+    product: Product,
+    onClick: () -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -68,6 +68,11 @@ fun ProductCard(
                 text = "Total Stock",
                 style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
             )
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
             Text(
                 text = "${product.totalStockInWarehouse}",
                 style = MaterialTheme.typography.bodyLarge.copy(color = Color.DarkGray)
