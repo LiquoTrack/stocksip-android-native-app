@@ -1,8 +1,11 @@
-package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse
+package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -15,40 +18,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.Warehouse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 
 @Composable
 fun WarehouseCard(
-    warehouse: Warehouse,
+    warehouse: WarehouseResponse,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth(),
-        onClick = onClick,
-        elevation = CardDefaults.cardElevation(4.dp)
+            .fillMaxWidth()
+            .height(200.dp)
+            .clip(RoundedCornerShape(16.dp)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        onClick = onClick
     ) {
-
         AsyncImage(
             model = warehouse.imageUrl,
-            contentDescription = null,
+            contentDescription = "Warehouse Image",
             modifier = Modifier
-                .height(96.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
+                .height(120.dp)
         )
 
         Text(
             text = warehouse.name,
-            fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
-            modifier = Modifier.padding(top = 8.dp)
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp)
         )
+
         Text(
             text = "${warehouse.city}, ${warehouse.country}",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
     }
 }
