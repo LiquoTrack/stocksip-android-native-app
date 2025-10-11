@@ -13,8 +13,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.mod
 @Composable
 fun WarehouseList(
     warehouses: List<WarehouseResponse>,
-    onClick: (WarehouseResponse) -> Unit,
-    modifier: Modifier = Modifier
+    onClick: (WarehouseResponse) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
