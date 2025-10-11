@@ -57,6 +57,7 @@ import coil3.request.crossfade
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.careguides.domain.CareGuide
+import com.liquotrack.stocksip.features.careguides.domain.CareGuideViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import kotlinx.coroutines.launch
 
@@ -153,7 +154,8 @@ fun CareGuides(
                         CareGuideCard(
                             careGuide = careGuide,
                             onClick = {},
-                            onSeeGuide = { selectedGuide = it }
+                            onSeeGuide = { selectedGuide = it },
+                            onEdit = { onNavigate(Route.CareGuideEdit.buildRoute(it.careGuideId)) }
                         )
                     }
                 }

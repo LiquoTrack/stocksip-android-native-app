@@ -77,7 +77,7 @@ fun CareGuideCreate(
     LaunchedEffect(uiState) {
         when (uiState) {
             CareGuideCreateUiState.Success -> {
-                Toast.makeText(context, "Guía creada correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Guide created correctly", Toast.LENGTH_SHORT).show()
                 product = ""
                 type = ""
                 comments = ""

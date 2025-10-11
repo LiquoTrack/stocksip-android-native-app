@@ -1,8 +1,5 @@
 package com.liquotrack.stocksip.features.careguides.domain
 
-/**
- * Represents the minimal data required to create a care guide.
- */
 data class CareGuideCreate(
     val accountId: String,
     val typeOfLiquor: String,
