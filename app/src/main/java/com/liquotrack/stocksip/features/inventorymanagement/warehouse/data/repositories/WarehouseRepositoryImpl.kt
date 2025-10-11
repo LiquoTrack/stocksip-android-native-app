@@ -3,7 +3,7 @@ package com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.repo
 import android.util.Log
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.helpers.toMultipart
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.Warehouse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories.WarehouseRepository
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +53,7 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
         TODO("Not yet implemented")
     }
 
-    override suspend fun registerWarehouse(warehouse: Warehouse, accountId: String, imageFile: File?): WarehouseResponse =
+    override suspend fun registerWarehouse(warehouse: WarehouseRequest, accountId: String, imageFile: File?): WarehouseResponse =
         withContext(Dispatchers.IO) {
             try {
                 Log.d("WAREHOUSE_DEBUG", "🟡 REPOSITORY - Starting registerWarehouse")

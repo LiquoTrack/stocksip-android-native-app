@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.Warehouse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories.WarehouseRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -118,7 +118,7 @@ class WarehouseViewModel @Inject constructor(
 
 
                 if (editingWarehouse != null) {
-                    val updatedWarehouse = Warehouse(
+                    val updatedWarehouse = WarehouseRequest(
                         name = _warehouseName.value,
                         street = _street.value,
                         city = _city.value,
@@ -135,7 +135,7 @@ class WarehouseViewModel @Inject constructor(
                 } else {
 
 
-                    val newWarehouse = Warehouse(
+                    val newWarehouse = WarehouseRequest(
                         name = _warehouseName.value,
                         street = _street.value,
                         city = _city.value,

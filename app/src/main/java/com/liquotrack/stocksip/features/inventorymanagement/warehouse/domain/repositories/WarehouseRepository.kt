@@ -1,6 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories
 
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.Warehouse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import java.io.File
 
@@ -32,7 +32,7 @@ interface WarehouseRepository {
      * @param warehouse The Warehouse entity to be registered.
      * @return The registered Warehouse entity with its unique identifier.
      */
-    suspend fun registerWarehouse(warehouse: Warehouse, accountId: String, imageFile: File?): WarehouseResponse
+    suspend fun registerWarehouse(warehouse: WarehouseRequest, accountId: String, imageFile: File?): WarehouseResponse
 
     /**
      * Updates an existing warehouse.
