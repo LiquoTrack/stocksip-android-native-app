@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.hilt)
 
     // Google services (Firebase) plugin
-    id("com.google.gms.google-services")
+    //id("com.google.gms.google-services")
 }
 
 android {
