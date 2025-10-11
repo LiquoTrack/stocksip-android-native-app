@@ -10,6 +10,7 @@ import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -62,9 +63,14 @@ class WarehouseViewModel @Inject constructor(
     private val _imageUrl = MutableStateFlow("")
     val imageUrl: StateFlow<String> = _imageUrl
 
+    private val _selectedWarehouse = MutableStateFlow<WarehouseResponse?>(null)
+    val selectedWarehouse: StateFlow<WarehouseResponse?> = _selectedWarehouse
+
     private val _editingWarehouse = MutableStateFlow<WarehouseResponse?>(null)
     val editingWarehouse: StateFlow<WarehouseResponse?> = _editingWarehouse
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
 
     fun updateWarehouseName(value: String) { _warehouseName.value = value }
     fun updateStreet(value: String) { _street.value = value }
@@ -79,7 +85,7 @@ class WarehouseViewModel @Inject constructor(
 
 
     fun loadWarehouseForEdit(warehouse: WarehouseResponse) {
-        _editingWarehouse.value = warehouse
+        _isLoading.value = true
         _warehouseName.value = warehouse.name
         _street.value = warehouse.street
         _city.value = warehouse.city
@@ -89,7 +95,8 @@ class WarehouseViewModel @Inject constructor(
         _capacity.value = warehouse.capacity
         _minTemp.value = warehouse.temperatureMin
         _maxTemp.value = warehouse.temperatureMax
-        _imageUrl.value = warehouse.imageUrl
+        _imageFile.value = null
+        _isLoading.value = false
     }
 
     fun clearForm() {
@@ -159,6 +166,15 @@ class WarehouseViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("WAREHOUSE", "Error saving warehouse", e)
             }
+        }
+    }
+
+    fun getWarehouseById(id: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val warehouse = repository.getWarehouseById(id)
+            _selectedWarehouse.value = warehouse
+            _isLoading.value = false
         }
     }
 

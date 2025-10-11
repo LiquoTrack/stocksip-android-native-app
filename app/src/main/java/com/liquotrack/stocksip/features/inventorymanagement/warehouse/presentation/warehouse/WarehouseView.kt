@@ -137,9 +137,12 @@ fun WarehouseView(
                 }
 
                 WarehouseList(
-                    warehouses = warehouses,
+                    warehouse = warehouses,
                     onClick = { warehouse ->
                         onNavigate("warehouse_details/${warehouse.id}")
+                    },
+                    onEditClick = { warehouse ->
+                        onNavigate("warehouse_create_edit/${warehouse.id}")
                     },
                     modifier = Modifier
                         .fillMaxSize()

@@ -139,23 +139,18 @@ fun AppNavigation() {
         }
 
         composable(
-            route = Route.WarehouseCreateEdit.routeWithArgs,
-            arguments = listOf(
-                navArgument("warehouseId") {
-                    type = NavType.StringType
-                    defaultValue = "new"
-                    nullable = true
-                }
-            )
+            route = "warehouse_create_edit/{warehouseId}",
+            arguments = listOf(navArgument("warehouseId") {
+                type = NavType.StringType
+            })
         ) { backStackEntry ->
             val warehouseId = backStackEntry.arguments?.getString("warehouseId")
-
             WarehouseCreateAndEditView(
                 warehouseId = warehouseId ?: "new",
-                warehouse = null,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+
 
 
         composable(route = Route.UserManagement.route) {

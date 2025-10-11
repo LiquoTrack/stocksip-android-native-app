@@ -48,8 +48,33 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
             return@withContext emptyList()
         }
 
-    override suspend fun getWarehouseById(warehouseId: String): WarehouseResponse {
-        TODO("Not yet implemented")
+    override suspend fun getWarehouseById(warehouseId: String): WarehouseResponse = withContext(
+        Dispatchers.IO) {
+        try {
+            val response = service.getWarehouseById(warehouseId)
+            if (response.isSuccessful) {
+                response.body()?.let { warehouseDto ->
+                    return@withContext WarehouseResponse(
+                        id = warehouseDto.id,
+                        name = warehouseDto.name,
+                        street = warehouseDto.addressStreet,
+                        city = warehouseDto.addressCity,
+                        district = warehouseDto.addressDistrict,
+                        postalCode = warehouseDto.addressPostalCode,
+                        country = warehouseDto.addressCountry,
+                        temperatureMin = warehouseDto.temperatureMin,
+                        temperatureMax = warehouseDto.temperatureMax,
+                        capacity = warehouseDto.capacity,
+                        imageUrl = warehouseDto.imageUrl
+                    )
+                }
+            } else {
+                throw Exception("Error fetching warehouse: ${response.code()} ${response.message()}")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        throw Exception("Failed to fetch warehouse")
     }
 
     override suspend fun registerWarehouse(warehouse: WarehouseRequest, accountId: String, imageFile: File?): WarehouseResponse =
