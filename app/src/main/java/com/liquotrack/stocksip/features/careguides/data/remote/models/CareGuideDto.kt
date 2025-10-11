@@ -2,10 +2,6 @@ package com.liquotrack.stocksip.features.careguides.data.remote.models
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * Data Transfer Object (DTO) representing a CareGuide returned by the backend.
- * This mirrors the JSON you shared from the endpoint /api/v1/care-guides/{careGuideId}.
- */
 data class CareGuideDto(
     @SerializedName("careGuideId")
     val id: String,

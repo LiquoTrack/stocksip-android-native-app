@@ -1,9 +1,7 @@
-package com.liquotrack.stocksip.features.careguides.presentation
+package com.liquotrack.stocksip.features.careguides.domain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.liquotrack.stocksip.features.careguides.domain.CareGuide
-import com.liquotrack.stocksip.features.careguides.domain.CareGuideRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject

@@ -4,6 +4,7 @@ import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuid
 import com.liquotrack.stocksip.features.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.careguides.domain.CareGuideRepository
 import com.liquotrack.stocksip.features.careguides.data.remote.models.CareGuideCreateDto
+import com.liquotrack.stocksip.features.careguides.data.remote.models.CareGuideUpdateDto
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -120,10 +121,52 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
     }
 
     override suspend fun updateCareGuide(careGuide: CareGuide): CareGuide {
-        TODO("Not yet implemented")
+        return withContext(Dispatchers.IO) {
+            val request = CareGuideUpdateDto(
+                careGuideId = careGuide.careGuideId,
+                title = careGuide.title,
+                summary = careGuide.summary,
+                recommendedMinTemperature = careGuide.recommendedMinTemperature,
+                recommendedMaxTemperature = careGuide.recommendedMaxTemperature,
+                recommendedPlaceStorage = careGuide.recommendedPlaceStorage,
+                generalRecommendation = careGuide.generalRecommendation
+            )
+
+            val response = service.updateCareGuide(careGuide.careGuideId, request)
+            if (response.isSuccessful) {
+                response.body()?.let { updatedDto ->
+                    return@withContext CareGuide(
+                        careGuideId = updatedDto.id,
+                        accountId = updatedDto.accountId,
+                        productAssociated = updatedDto.productAssociated ?: updatedDto.productId.orEmpty(),
+                        productId = updatedDto.productId.orEmpty(),
+                        productName = updatedDto.productName.orEmpty(),
+                        imageUrl = updatedDto.imageUrl.orEmpty(),
+                        title = updatedDto.name,
+                        summary = updatedDto.description,
+                        recommendedMinTemperature = updatedDto.recommendedMinTemperature,
+                        recommendedMaxTemperature = updatedDto.recommendedMaxTemperature,
+                        recommendedPlaceStorage = updatedDto.recommendedPlaceStorage,
+                        generalRecommendation = updatedDto.generalRecommendation,
+                        guideFileName = null,
+                        fileName = null,
+                        fileContentType = null,
+                        fileData = null
+                    )
+                }
+                throw IllegalStateException("Empty response body when updating care guide")
+            }
+
+            throw HttpException(response)
+        }
     }
 
     override suspend fun deleteCareGuide(careGuideId: String) {
-        TODO("Not yet implemented")
+        return withContext(Dispatchers.IO) {
+            val response = service.deleteCareGuide(careGuideId)
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+        }
     }
 }

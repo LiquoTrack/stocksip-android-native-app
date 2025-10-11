@@ -1,6 +1,7 @@
 package com.liquotrack.stocksip.features.careguides.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,8 @@ import com.liquotrack.stocksip.features.careguides.domain.CareGuide
 fun CareGuideCard(
     careGuide: CareGuide,
     onClick: () -> Unit,
-    onSeeGuide: (CareGuide) -> Unit
+    onSeeGuide: (CareGuide) -> Unit,
+    onEdit: (CareGuide) -> Unit
 ) {
     val displayName = careGuide.productName
 
@@ -86,7 +88,9 @@ fun CareGuideCard(
 
             Text(
                 text = displayName,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onEdit(careGuide) },
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF737373),

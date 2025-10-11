@@ -47,7 +47,7 @@ class CareGuideCreateViewModel @Inject constructor(
             minTemp == null ||
             maxTemp == null
         ) {
-            _uiState.value = CareGuideCreateUiState.Error("Completa todos los campos correctamente.")
+            _uiState.value = CareGuideCreateUiState.Error("Complete all fields correctly.")
             return
         }
 
@@ -56,7 +56,7 @@ class CareGuideCreateViewModel @Inject constructor(
             try {
                 val accountId = tokenManager.getAccountId()
                 if (accountId.isNullOrBlank()) {
-                    _uiState.value = CareGuideCreateUiState.Error("No se encontró la cuenta del usuario.")
+                    _uiState.value = CareGuideCreateUiState.Error("The user account was not found.")
                     return@launch
                 }
 
@@ -82,7 +82,7 @@ class CareGuideCreateViewModel @Inject constructor(
                 )
                 _uiState.value = CareGuideCreateUiState.Success
             } catch (e: Exception) {
-                _uiState.value = CareGuideCreateUiState.Error(e.message ?: "No se pudo crear la guía.")
+                _uiState.value = CareGuideCreateUiState.Error(e.message ?: "The guide could not be created.")
             }
         }
     }
