@@ -12,8 +12,9 @@ import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.mod
 
 @Composable
 fun WarehouseList(
-    warehouses: List<WarehouseResponse>,
+    warehouse: List<WarehouseResponse>,
     onClick: (WarehouseResponse) -> Unit,
+    onEditClick : (WarehouseResponse) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -22,10 +23,11 @@ fun WarehouseList(
             .padding(8.dp)
             .fillMaxSize()
     ) {
-        items(warehouses) { warehouse ->
+        items(warehouse) { warehouse ->
             WarehouseCard(
                 warehouse = warehouse,
-                onClick = { onClick(warehouse) }
+                onClick = { onClick(warehouse) },
+                onEditClick = { onEditClick(warehouse) }
             )
         }
     }

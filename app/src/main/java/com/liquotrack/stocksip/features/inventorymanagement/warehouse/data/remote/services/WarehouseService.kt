@@ -26,6 +26,9 @@ interface WarehouseService {
     @GET("accounts/{accountId}/warehouses")
     suspend fun getAllWarehousesByAccountId(@Path("accountId") accountId: String): Response<List<WarehouseDto>>
 
+    @GET("warehouses/{warehouseId}")
+    suspend fun getWarehouseById(@Path("warehouseId") warehouseId: String): Response<WarehouseDto>
+
     /**
      * Creates a new warehouse for a specific account.
      *
