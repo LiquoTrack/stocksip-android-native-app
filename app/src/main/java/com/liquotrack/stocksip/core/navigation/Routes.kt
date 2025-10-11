@@ -30,6 +30,13 @@ sealed class Route(val route: String) {
     // Main app routes
     object Main : Route(route = "main")
     object Warehouses : Route(route = "warehouses")
+
+    object WarehouseCreateEdit {
+        const val route = "warehouse_create_edit"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
     object Products : Route(route = "products_storage")
     object ProductDetail : Route(route = "product_detail")
     object Alerts : Route(route = "alerts")
@@ -37,6 +44,13 @@ sealed class Route(val route: String) {
     object Catalogs : Route(route = "catalogs")
     object CatalogDetail : Route(route = "catalog_detail")
     object CareGuides : Route(route = "care_guide")
+    object CareGuideCreate : Route(route = "care_guide_create")
+    object CareGuideEdit : Route(route = "care_guide_edit") {
+        const val routeWithArguments = "care_guide_edit/{careGuideId}"
+        const val careGuideIdArg = "careGuideId"
+        fun buildRoute(careGuideId: String): String = "care_guide_edit/$careGuideId"
+    }
+
     object UserManagement : Route(route = "user")
     object Profile : Route(route = "profile")
     object Plans : Route(route = "plans")

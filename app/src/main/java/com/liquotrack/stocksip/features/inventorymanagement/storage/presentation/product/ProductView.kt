@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse
+package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.product
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,57 +9,44 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.WarehouseList
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.product.components.ProductList
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLightMediumContrast
 import com.liquotrack.stocksip.shared.ui.theme.onTertiaryContainerLightMediumContrast
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun WarehouseView(
-    viewModel: WarehouseViewModel = hiltViewModel(),
+fun ProductView(
+    modifier: Modifier = Modifier,
+    viewModel: ProductViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit = {}
 ) {
-    val warehouses by viewModel.warehouses.collectAsState()
+    val products by viewModel.products.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    val backgroundColor  = Color(0xFFF4ECEC)
-
-    LaunchedEffect(Unit) {
-        viewModel.getAllWarehousesByAccountId()
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             NavDrawer(
-                currentRoute = "warehouse",
+                currentRoute = "products_storage",
                 onNavigate = onNavigate,
                 onClose = {
                     scope.launch { drawerState.close() }
@@ -70,7 +57,7 @@ fun WarehouseView(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Warehouses",
+                    title = "Storage",
                     showBackButton = false,
                     onNavigationClick = {
                         scope.launch {
@@ -79,14 +66,14 @@ fun WarehouseView(
                     }
                 )
             },
-            containerColor = backgroundColor
+            containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(padding)
             ) {
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -98,55 +85,22 @@ fun WarehouseView(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Warehouse,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .padding(end = 8.dp),
-                                tint = onSurfaceLightMediumContrast
-                            )
-                            Text(
-                                "Max. Allowed: ",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                color = onSurfaceLightMediumContrast
-                            )
-                            Text(
-                                "10",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                color = onSurfaceLightMediumContrast
-                            )
-                        }
-
                         Button(
-                            onClick = {
-                                onNavigate("warehouse_create_edit/new")
-                            },
+                            onClick = { /* TODO: Handle register product action */ },
                             modifier = Modifier.height(36.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = onSurfaceLightMediumContrast,
                                 contentColor = onTertiaryContainerLightMediumContrast
                             )
                         ) {
-                            Text(" + New Warehouse")
+                            Text(" + New Product")
                         }
                     }
                 }
 
-                WarehouseList(
-                    warehouse = warehouses,
-                    onClick = { warehouse ->
-                        onNavigate("warehouse_details/${warehouse.id}")
-                    },
-                    onEditClick = { warehouse ->
-                        onNavigate("warehouse_create_edit/${warehouse.id}")
-                    },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(backgroundColor)
+                ProductList(
+                    products = products,
+                    onClick = { /* TODO: Handle product click */ }
                 )
             }
         }
