@@ -68,8 +68,7 @@ fun Login(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val user by viewModel.user.collectAsState()
 
-
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
 
     // Navigate on successful login
     LaunchedEffect(user) {
@@ -81,7 +80,7 @@ fun Login(
     // Show error messages in Snackbar
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
-            snackbarHostState.showSnackbar(it)
+            snackBarHostState.showSnackbar(it)
             viewModel.clearError()
         }
     }
@@ -301,7 +300,7 @@ fun Login(
 
 
         SnackbarHost(
-            hostState = snackbarHostState,
+            hostState = snackBarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)

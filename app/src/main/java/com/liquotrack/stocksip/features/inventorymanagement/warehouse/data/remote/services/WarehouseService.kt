@@ -1,8 +1,14 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services
 
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.models.WarehouseDto
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
+import retrofit2.http.PartMap
 import retrofit2.http.Path
 
 /**
@@ -19,4 +25,20 @@ interface WarehouseService {
      */
     @GET("accounts/{accountId}/warehouses")
     suspend fun getAllWarehousesByAccountId(@Path("accountId") accountId: String): Response<List<WarehouseDto>>
+
+    /**
+     * Creates a new warehouse for a specific account.
+     *
+     * @param accountId The ID of the account for which to create the warehouse.
+     * @param fields A map of form fields required to create the warehouse.
+     * @param image An optional image file to be uploaded with the warehouse data.
+     * @return A [Response] containing the created [WarehouseDto] object.
+     */
+    @Multipart
+    @POST("accounts/{accountId}/warehouses/")
+    suspend fun createWarehouse(
+        @Path("accountId") accountId: String,
+        @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part image: MultipartBody.Part?
+    ): Response<WarehouseDto>
 }
