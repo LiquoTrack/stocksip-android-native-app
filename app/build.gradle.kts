@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.hilt)
 
     // Google services (Firebase) plugin
-    // id("com.google.gms.google-services")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -101,6 +101,10 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.foundation)
+    implementation(libs.googleid)
+    implementation("com.google.android.gms:play-services-auth")
+    implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-auth")
     ksp(libs.androidx.room.compiler)
 
     // Hilt dependency for injection of dependencies in the app
@@ -119,11 +123,15 @@ dependencies {
 
     // Firebase dependencies
     // Import the Firebase BoM
-    // implementation(platform(libs.firebase.bom))
+    implementation(platform(libs.firebase.bom))
 
     // When using the BoM, you don't specify versions in Firebase library dependencies
 
     // Add the dependency for the Firebase SDK for Google Analytics
-    // implementation(libs.firebase.analytics)
+    implementation(libs.firebase.analytics)
+
+    //Google Identity Services
+    implementation("androidx.credentials:credentials:1.6.0-beta01")
+    implementation("androidx.credentials:credentials-play-services-auth:1.6.0-beta01")
 
 }

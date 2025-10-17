@@ -44,6 +44,20 @@ fun AppNavigation() {
                     navController.navigate(Route.Main.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
+                },
+                onGoogleSignInSuccess = { email, fullName, accountExists ->
+                    if (accountExists) {
+                        navController.navigate(Route.Main.route) {
+                            popUpTo(Route.Login.route) { inclusive = true }
+                        }
+                    } else {
+                        val route = Route.RegisterAccount.buildRoute(
+                            email = email,
+                            fullName = fullName,
+                            password = "GOOGLE_AUTH"
+                        )
+                        navController.navigate(route)
+                    }
                 }
             )
         }
