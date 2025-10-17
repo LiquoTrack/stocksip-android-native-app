@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.shared.di
 
+import com.liquotrack.stocksip.BuildConfig
 import com.liquotrack.stocksip.features.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
 import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuideService
@@ -33,10 +34,7 @@ object RemoteModule {
     @Singleton
     @Named("url")
     fun provideApiBaseUrl(): String {
-        // Production
-        return "https://stocksip-back-end.azurewebsites.net/api/v1/"
-        // Local testing
-        //return "http://10.0.2.2:5283/api/v1/"
+        return BuildConfig.BASE_URL
     }
 
     /**

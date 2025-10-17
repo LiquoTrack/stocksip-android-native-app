@@ -16,6 +16,7 @@ import com.liquotrack.stocksip.features.careguides.presentation.CareGuideCreate
 import com.liquotrack.stocksip.features.careguides.presentation.CareGuideEdit
 import com.liquotrack.stocksip.features.careguides.presentation.CareGuides
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseCreateAndEditView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
@@ -137,6 +138,21 @@ fun AppNavigation() {
                 }
             )
         }
+
+        composable(
+            route = "warehouse_create_edit/{warehouseId}",
+            arguments = listOf(navArgument("warehouseId") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString("warehouseId")
+            WarehouseCreateAndEditView(
+                warehouseId = warehouseId ?: "new",
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+
 
         composable(route = Route.UserManagement.route) {
             AdminPanel(
