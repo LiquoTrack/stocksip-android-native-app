@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.common.utils.Resource
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
+import com.liquotrack.stocksip.shared.data.local.TokenManager
 import com.liquotrack.stocksip.shared.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _email = MutableStateFlow("")
@@ -70,5 +72,11 @@ class LoginViewModel @Inject constructor(
 
     fun clearError() {
         _errorMessage.value = null
+    }
+
+    fun saveGoogleAccountSession(accountId: String) {
+        if (accountId.isNotBlank()) {
+            tokenManager.saveAccountId(accountId)
+        }
     }
 }

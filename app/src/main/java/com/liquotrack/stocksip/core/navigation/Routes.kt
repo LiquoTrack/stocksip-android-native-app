@@ -1,5 +1,7 @@
 package com.liquotrack.stocksip.core.navigation
 
+import android.net.Uri
+
 /**
  * Sealed class defining all navigation routes in the app.
  * Includes authentication, admin, and content sections.
@@ -16,6 +18,12 @@ sealed class Route(val route: String) {
         const val emailArg = "email"
         const val fullNameArg = "fullName"
         const val passwordArg = "password"
+        fun buildRoute(email: String, fullName: String, password: String): String {
+            val encodedEmail = Uri.encode(email)
+            val encodedFullName = Uri.encode(fullName)
+            val encodedPassword = Uri.encode(password)
+            return "register_account/$encodedEmail/$encodedFullName/$encodedPassword"
+        }
     }
 
     // Password Recovery (email required)
