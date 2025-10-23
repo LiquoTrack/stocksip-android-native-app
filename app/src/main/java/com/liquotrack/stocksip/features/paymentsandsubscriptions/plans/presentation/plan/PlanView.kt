@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,9 +47,10 @@ fun ChoosePlanScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF4A1426),
-                        Color(0xFF2D0818)
+                    listOf(
+                        Color(0xFF2B000D),
+                        Color(0xFF5E2430),
+                        Color(0xFF914852)
                     )
                 )
             )
@@ -56,16 +58,43 @@ fun ChoosePlanScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(horizontal = 24.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Choose a Plan",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(top = 32.dp, bottom = 32.dp)
-            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Header
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(bottom = 32.dp)
+            ) {
+
+
+                Text(
+                    text = "Choose Your Plan",
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    letterSpacing = 1.sp
+                )
+
+                Box(
+                    modifier = Modifier
+                        .width(140.dp)
+                        .height(4.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(
+                                    Color(0xFFFF6B35),
+                                    Color(0xFFFFA726)
+                                )
+                            ),
+                            shape = RoundedCornerShape(2.dp)
+                        )
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
 
             when {
                 isLoading -> {
@@ -73,7 +102,10 @@ fun ChoosePlanScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Color.White)
+                        CircularProgressIndicator(
+                            color = Color(0xFFFF6B35),
+                            strokeWidth = 3.dp
+                        )
                     }
                 }
 
@@ -87,16 +119,23 @@ fun ChoosePlanScreen(
                             text = errorMessage ?: "Unknown error occurred",
                             color = Color.White,
                             textAlign = TextAlign.Center,
+                            fontSize = 16.sp,
                             modifier = Modifier.padding(horizontal = 32.dp)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                         Button(
                             onClick = { viewModel.getAllPlans() },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF6B2737)
-                            )
+                                containerColor = Color(0xFFFF6B35)
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.height(48.dp)
                         ) {
-                            Text("Retry")
+                            Text(
+                                text = "Retry",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                 }
@@ -108,8 +147,9 @@ fun ChoosePlanScreen(
                     ) {
                         Text(
                             text = "No plans available at the moment.",
-                            color = Color.White,
-                            textAlign = TextAlign.Center
+                            color = Color.White.copy(alpha = 0.7f),
+                            textAlign = TextAlign.Center,
+                            fontSize = 16.sp
                         )
                     }
                 }
@@ -117,7 +157,7 @@ fun ChoosePlanScreen(
                 else -> {
                     LazyColumn(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         items(plans) { plan ->
                             PlanCard(
@@ -128,7 +168,7 @@ fun ChoosePlanScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(28.dp))
 
                     Button(
                         onClick = { onContinue(selectedPlan) },
@@ -136,7 +176,8 @@ fun ChoosePlanScreen(
                             .fillMaxWidth()
                             .height(56.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A1B2A)
+                            containerColor = Color(0xFFFF6B35),
+                            disabledContainerColor = Color(0xFF4A1520)
                         ),
                         shape = RoundedCornerShape(28.dp),
                         enabled = selectedPlan != null
@@ -144,8 +185,9 @@ fun ChoosePlanScreen(
                         Text(
                             text = "Continue",
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            letterSpacing = 1.sp
                         )
                     }
                 }
@@ -153,4 +195,3 @@ fun ChoosePlanScreen(
         }
     }
 }
-

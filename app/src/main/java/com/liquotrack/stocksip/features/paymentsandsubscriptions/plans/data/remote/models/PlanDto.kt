@@ -2,38 +2,37 @@ package com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.data.rem
 
 import com.google.gson.annotations.SerializedName
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.Plan
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.PlanLimits
 
 data class PlanDto(
-    @SerializedName("_id")
-    val id: String?,
-    @SerializedName("createdAt")
-    val createdAt: String?,
-    @SerializedName("updatedAt")
-    val updatedAt: String?,
-    @SerializedName("planType")
-    val planType: String?,
-    @SerializedName("description")
-    val description: String?,
-    @SerializedName("paymentFrequency")
-    val paymentFrequency: String?,
-    @SerializedName("price")
-    val price: Double?,
-    @SerializedName("currency")
-    val currency: String?,
-    @SerializedName("planLimits")
-    val planLimits: PlanLimitsDto?
+    @SerializedName("planType") val planType: String?,
+    @SerializedName("description") val description: String?,
+    @SerializedName("paymentFrequency") val paymentFrequency: String?,
+    @SerializedName("price") val price: Double?,
+    @SerializedName("currency") val currency: String?,
+    @SerializedName("maxUsers") val maxUsers: Int?,
+    @SerializedName("maxWarehouses") val maxWarehouses: Int?,
+    @SerializedName("maxProducts") val maxProducts: Int?
 )
 
 // Mapper
 fun PlanDto.toDomain(): Plan {
     return Plan(
-        id = this.id,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt,
+        id = null,
+        createdAt = null,
+        updatedAt = null,
         planType = this.planType ?: "Unknown",
         description = this.description,
         paymentFrequency = this.paymentFrequency,
         planPrice = "${this.price ?: 0.0} ${this.currency ?: "USD"}",
-        planLimits = this.planLimits?.toDomain()
+        planLimits = PlanLimits(
+            maxUsers = this.maxUsers,
+            maxWarehouses = this.maxWarehouses,
+            maxProducts = this.maxProducts,
+            storageGuides = null,
+            communitySupport = null,
+            prioritySupport = null,
+            premiumStorageGuides = null
+        )
     )
 }
