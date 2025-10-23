@@ -6,6 +6,7 @@ import com.liquotrack.stocksip.features.authentication.login.data.remote.service
 import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuideService
 import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.ProductService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.data.remote.services.PlanService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
 import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
 import dagger.Module
@@ -18,18 +19,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
 
-/**
- * Module to provide remote dependencies like Retrofit instance.
- * Configures Retrofit with the base API URL and gson converter.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object RemoteModule {
 
-    /**
-     * Provides the base URL for the API.
-     * Change this URL to point to the desired API endpoint.
-     */
     @Provides
     @Singleton
     @Named("url")
@@ -37,14 +30,11 @@ object RemoteModule {
         return BuildConfig.BASE_URL
     }
 
-    /**
-     * Provides a singleton Retrofit instance configured with the base URL and gson converter.
-     */
     @Provides
     @Singleton
     fun provideRetrofit(
         @Named("url") baseUrl: String,
-        okHttpClient: OkHttpClient
+        okHttpClient: OkHttpClient,
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -95,5 +85,11 @@ object RemoteModule {
     @Singleton
     fun provideProductService(retrofit: Retrofit): ProductService {
         return retrofit.create(ProductService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePlanService(retrofit: Retrofit): PlanService {
+        return retrofit.create(PlanService::class.java)
     }
 }
