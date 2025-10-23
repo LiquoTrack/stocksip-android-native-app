@@ -38,9 +38,9 @@ fun PlanCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(30.dp)
         ) {
-            // Título del plan
+            // Title
             Text(
                 text = plan.planType,
                 fontSize = 22.sp,
@@ -49,7 +49,7 @@ fun PlanCard(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Precio
+            // Price
             val priceText = when {
                 plan.planPrice.contains("0") && plan.paymentFrequency == "None" -> "Free"
                 else -> {
@@ -71,7 +71,7 @@ fun PlanCard(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Descripción
+            // Description
             if (!plan.description.isNullOrEmpty()) {
                 Text(
                     text = plan.description,
@@ -81,7 +81,6 @@ fun PlanCard(
                 )
             }
 
-            // Características basadas en planLimits
             plan.planLimits?.let { limits ->
                 limits.maxWarehouses?.let {
                     val warehouseText = if (it == -1) "Unlimited warehouses"

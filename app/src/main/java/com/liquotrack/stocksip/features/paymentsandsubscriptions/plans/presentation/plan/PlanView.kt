@@ -136,9 +136,9 @@ fun ChoosePlanScreen(
                             .fillMaxWidth()
                             .height(56.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A1426)
+                            containerColor = Color(0xFF4A1B2A)
                         ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(28.dp),
                         enabled = selectedPlan != null
                     ) {
                         Text(
