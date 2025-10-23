@@ -52,7 +52,7 @@ fun RegisterAccount(
     username: String = "",
     password: String = "",
     viewModel: RegisterAccountViewModel = hiltViewModel(),
-    onNavigateToPlans: () -> Unit = {} // CAMBIO AQUÍ
+    onNavigateToPlans: () -> Unit = {}
 ) {
     val selectedRole by viewModel.selectedRole.collectAsState()
     val businessName by viewModel.businessName.collectAsState()
