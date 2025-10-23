@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
-import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterAccount
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
@@ -18,6 +18,7 @@ import com.liquotrack.stocksip.features.careguides.presentation.CareGuides
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseCreateAndEditView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan.ChoosePlanScreen
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
 /**
@@ -87,9 +88,9 @@ fun AppNavigation() {
                 email = email,
                 username = fullName,
                 password = password,
-                onRegistrationSuccess = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
+                onNavigateToPlans = { // CAMBIO: onRegistrationSuccess -> onNavigateToPlans
+                    navController.navigate(Route.Plans.route) {
+                        popUpTo(Route.RegisterAccount.routeWithArguments) { inclusive = true }
                     }
                 }
             )
@@ -166,8 +167,6 @@ fun AppNavigation() {
             )
         }
 
-
-
         composable(route = Route.UserManagement.route) {
             AdminPanel(
                 onNavigate = { route ->
@@ -223,7 +222,16 @@ fun AppNavigation() {
         }
 
         composable(route = Route.Plans.route) {
-
+            ChoosePlanScreen(
+                onContinue = { selectedPlan ->
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Plans.route) { inclusive = true }
+                    }
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.authentication.login.presentation.register
+package com.liquotrack.stocksip.features.authentication.register.presentation.register
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -44,7 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccountViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
@@ -53,7 +52,7 @@ fun RegisterAccount(
     username: String = "",
     password: String = "",
     viewModel: RegisterAccountViewModel = hiltViewModel(),
-    onRegistrationSuccess: () -> Unit = {}
+    onNavigateToPlans: () -> Unit = {} // CAMBIO AQUÍ
 ) {
     val selectedRole by viewModel.selectedRole.collectAsState()
     val businessName by viewModel.businessName.collectAsState()
@@ -64,10 +63,10 @@ fun RegisterAccount(
 
     val snackBarHostState = remember { SnackbarHostState() }
 
-    // Navigate on successful registration
+    // Navigate to plans on successful registration
     LaunchedEffect(registrationSuccess) {
         if (registrationSuccess) {
-            onRegistrationSuccess()
+            onNavigateToPlans()
             viewModel.resetRegistrationSuccess()
         }
     }

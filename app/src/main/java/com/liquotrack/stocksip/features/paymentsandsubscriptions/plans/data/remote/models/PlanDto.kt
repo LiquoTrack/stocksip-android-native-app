@@ -15,7 +15,6 @@ data class PlanDto(
     @SerializedName("maxProducts") val maxProducts: Int?
 )
 
-// Mapper
 fun PlanDto.toDomain(): Plan {
     return Plan(
         id = null,
