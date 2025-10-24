@@ -13,7 +13,7 @@ import dagger.hilt.android.components.ViewModelComponent
  */
 @Module
 @InstallIn(ViewModelComponent::class)
-interface RepositoryModule {
+interface WarehouseRepositoryModule {
 
     /**
      * Binds the WarehouseRepository interface to the WarehouseRepositoryImpl implementation.
