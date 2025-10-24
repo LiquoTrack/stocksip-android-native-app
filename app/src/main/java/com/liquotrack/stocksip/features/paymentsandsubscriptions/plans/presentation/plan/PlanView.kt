@@ -1,5 +1,7 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan
 
+import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,29 +20,46 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.Plan
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.SubscriptionsViewModel
+import androidx.core.net.toUri
 
 @Composable
 fun ChoosePlanScreen(
-    viewModel: PlanViewModel = hiltViewModel(),
+    planViewModel: PlanViewModel = hiltViewModel(),
+    subscriptionViewModel: SubscriptionsViewModel = hiltViewModel(),
     onContinue: (Plan?) -> Unit = {},
     onBack: () -> Unit = {}
 ) {
-    val plans by viewModel.plans.collectAsState()
-    val selectedPlan by viewModel.selectedPlan.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val plans by planViewModel.plans.collectAsState()
+    val selectedPlan by planViewModel.selectedPlan.collectAsState()
+    val planLoading by planViewModel.isLoading.collectAsState()
+    val planErrorMessage by planViewModel.errorMessage.collectAsState()
+
+    val context = LocalContext.current
+    val subscription by subscriptionViewModel.subscriptions.collectAsState()
+    val subscriptionLoading by subscriptionViewModel.isLoading.collectAsState()
+    val subscriptionErrorMessage by subscriptionViewModel.errorMessage.collectAsState()
+
+    LaunchedEffect(subscription) {
+        subscription?.let {
+            val intent = CustomTabsIntent.Builder().build()
+            intent.launchUrl(context, it.initPoint.toUri())
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -97,7 +116,7 @@ fun ChoosePlanScreen(
             }
 
             when {
-                isLoading -> {
+                planLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -109,14 +128,14 @@ fun ChoosePlanScreen(
                     }
                 }
 
-                errorMessage != null -> {
+                planErrorMessage != null -> {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = errorMessage ?: "Unknown error occurred",
+                            text = planErrorMessage ?: "Unknown error occurred",
                             color = Color.White,
                             textAlign = TextAlign.Center,
                             fontSize = 16.sp,
@@ -124,7 +143,7 @@ fun ChoosePlanScreen(
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Button(
-                            onClick = { viewModel.getAllPlans() },
+                            onClick = { planViewModel.getAllPlans() },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFFFF6B35)
                             ),
@@ -163,7 +182,7 @@ fun ChoosePlanScreen(
                             PlanCard(
                                 plan = plan,
                                 isSelected = selectedPlan?.id == plan.id,
-                                onSelect = { viewModel.selectPlan(plan) }
+                                onSelect = { planViewModel.selectPlan(plan) }
                             )
                         }
                     }
@@ -171,7 +190,13 @@ fun ChoosePlanScreen(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     Button(
-                        onClick = { onContinue(selectedPlan) },
+                        onClick = {
+                            selectedPlan?.let { plan ->
+                                plan.id?.let { planId ->
+                                    subscriptionViewModel.createInitialSubscription(planId)
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),

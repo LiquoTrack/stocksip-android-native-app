@@ -51,25 +51,16 @@ fun RegisterAccount(
     email: String = "",
     username: String = "",
     password: String = "",
-    viewModel: RegisterAccountViewModel = hiltViewModel(),
-    onNavigateToPlans: () -> Unit = {}
+    onRegistrationSuccess: () -> Unit = {},
+    viewModel: RegisterAccountViewModel = hiltViewModel()
 ) {
     val selectedRole by viewModel.selectedRole.collectAsState()
     val businessName by viewModel.businessName.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val validationError by viewModel.validationError.collectAsState()
-    val registrationSuccess by viewModel.registrationSuccess.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
-
-    // Navigate to plans on successful registration
-    LaunchedEffect(registrationSuccess) {
-        if (registrationSuccess) {
-            onNavigateToPlans()
-            viewModel.resetRegistrationSuccess()
-        }
-    }
 
     // Show error messages
     LaunchedEffect(errorMessage) {
@@ -251,7 +242,9 @@ fun RegisterAccount(
                 // Sign Up Button
                 Button(
                     onClick = {
-                        viewModel.register(email, username, password)
+                        viewModel.register(email, username, password) { success ->
+                            if (success) onRegistrationSuccess()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

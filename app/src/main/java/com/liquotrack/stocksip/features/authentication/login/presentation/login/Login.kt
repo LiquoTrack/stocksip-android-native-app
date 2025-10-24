@@ -60,12 +60,14 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.liquotrack.stocksip.R
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 import kotlinx.coroutines.launch
@@ -75,8 +77,11 @@ fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit = {},
     onNavigateToRecovery: () -> Unit = {},
+    accountViewModel: AccountViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit = {},
-    onGoogleSignInSuccess: (email: String, fullName: String, accountExists: Boolean) -> Unit = { _, _, _ -> }
+    onNavigateToPlans: () -> Unit = {},
+    onNavigateToPending: () -> Unit = {},
+    onGoogleSignInSuccess: (email: String, fullName: String, accountExists: Boolean) -> Unit = { _, _, _ -> },
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -84,6 +89,8 @@ fun Login(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val user by viewModel.user.collectAsState()
+
+    val accountStatus by accountViewModel.accountStatus.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -99,12 +106,20 @@ fun Login(
             .build()
     }
 
-    // Navigate on successful login
     LaunchedEffect(user) {
         user?.let {
-            onLoginSuccess()
+            accountViewModel.fetchAccountStatus()
         }
     }
+
+    LaunchedEffect(accountStatus) {
+        when(accountStatus) {
+            "ACTIVE" -> onLoginSuccess()
+            "INACTIVE" -> onNavigateToPlans()
+            "PENDING" -> onNavigateToPending()
+        }
+    }
+
 
     // Show error messages in Snackbar
     LaunchedEffect(errorMessage) {
