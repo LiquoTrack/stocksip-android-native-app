@@ -19,6 +19,9 @@ import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseCreateAndEditView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan.ChoosePlanScreen
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Congrats
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Failure
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Pending
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
 /**
@@ -26,11 +29,11 @@ import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.P
  * Includes authentication, home, warehouse, products, care guides, etc.
  */
 @Composable
-fun AppNavigation() {
+fun AppNavigation(startDestination: String = Route.Login.route) {
 
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = Route.Login.route) {
+    NavHost(navController, startDestination = startDestination) {
 
         // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
@@ -43,6 +46,16 @@ fun AppNavigation() {
                 },
                 onLoginSuccess = {
                     navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToPlans = {
+                    navController.navigate(Route.Plans.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToPending = {
+                    navController.navigate(Route.Pending.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
                 },
@@ -88,9 +101,10 @@ fun AppNavigation() {
                 email = email,
                 username = fullName,
                 password = password,
-                onNavigateToPlans = { // CAMBIO: onRegistrationSuccess -> onNavigateToPlans
-                    navController.navigate(Route.Plans.route) {
-                        popUpTo(Route.RegisterAccount.routeWithArguments) { inclusive = true }
+                onRegistrationSuccess = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -230,6 +244,37 @@ fun AppNavigation() {
                 },
                 onBack = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = Route.Congrats.route) {
+            Congrats(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Congrats.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(route = Route.Failure.route) {
+            Failure(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Failure.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+
+        composable(route = Route.Pending.route) {
+            Pending(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Pending.route) { inclusive = true }
+                    }
                 }
             )
         }
