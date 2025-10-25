@@ -5,6 +5,7 @@ import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.mo
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.PlanLimits
 
 data class PlanDto(
+    @SerializedName("planId") val planId: String?,
     @SerializedName("planType") val planType: String?,
     @SerializedName("description") val description: String?,
     @SerializedName("paymentFrequency") val paymentFrequency: String?,
@@ -17,7 +18,7 @@ data class PlanDto(
 
 fun PlanDto.toDomain(): Plan {
     return Plan(
-        id = null,
+        id = this.planId ?: "Unknown",
         createdAt = null,
         updatedAt = null,
         planType = this.planType ?: "Unknown",

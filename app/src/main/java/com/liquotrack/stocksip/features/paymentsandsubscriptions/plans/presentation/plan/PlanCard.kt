@@ -32,6 +32,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.Plan
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun PlanCard(
@@ -99,14 +101,9 @@ fun PlanCard(
                     )
 
                     // Price
-                    val priceText = when {
-                        plan.planPrice.contains("0.0") -> "FREE"
-                        else -> {
-                            val priceMatch = Regex("""(\d+\.?\d*)""").find(plan.planPrice)
-                            val price = priceMatch?.value ?: "0"
-                            "s/.$price"
-                        }
-                    }
+                    val priceMatch = Regex("""(\d+\.?\d*)""").find(plan.planPrice)
+                    val price = priceMatch?.value?.toDoubleOrNull() ?: 0.0
+                    val priceText = formatPrice(price)
 
                     Row(
                         verticalAlignment = Alignment.Bottom,
@@ -119,19 +116,17 @@ fun PlanCard(
                             color = textColor
                         )
 
-                        if (plan.planPrice.contains("0.0").not()) {
-                            Text(
-                                text = when (plan.paymentFrequency) {
-                                    "Monthly" -> "/month"
-                                    "Yearly" -> "/year"
-                                    else -> ""
-                                },
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = textColor.copy(alpha = 0.7f),
-                                modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
-                            )
-                        }
+                        Text(
+                            text = when (plan.paymentFrequency) {
+                                "Monthly" -> "/month"
+                                "Yearly" -> "/year"
+                                else -> ""
+                            },
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = textColor.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
+                        )
                     }
 
                     // Discount badge para yearly
@@ -237,4 +232,9 @@ fun FeatureItem(text: String, textColor: Color) {
             color = textColor
         )
     }
+}
+
+private fun formatPrice(price: Double): String {
+    val formatter = NumberFormat.getCurrencyInstance(Locale.US)
+    return formatter.format(price)
 }
