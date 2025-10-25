@@ -28,7 +28,6 @@ class SubscriptionsViewModel @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     fun createInitialSubscription(selectedPlanId: String) {
-
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
@@ -36,15 +35,20 @@ class SubscriptionsViewModel @Inject constructor(
             val accountId = tokenModel.getAccountId() ?: throw Exception("Account ID not found")
 
             try {
+                println("🟡 Creando suscripción para accountId=$accountId con planId=$selectedPlanId")
                 val subscription = repository.createInitialSubscription(accountId, selectedPlanId)
+                println("✅ Suscripción creada correctamente: ${subscription.initPoint}")
                 _subscriptions.value = subscription
             } catch (e: Exception) {
+                println("❌ Error al crear suscripción: ${e.message}")
                 _errorMessage.value = e.message
             } finally {
                 _isLoading.value = false
+                println("🔹 Finalizó proceso de creación de suscripción")
             }
         }
     }
+
 
     fun clearSubscription() {
         _subscriptions.value = null

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.common.utils.Resource
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
-import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.domain.repositories.AccountRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import com.liquotrack.stocksip.shared.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,7 +57,12 @@ class LoginViewModel @Inject constructor(
 
             when (resource) {
                 is Resource.Success -> {
-                    _user.value = resource.data
+                    val user = resource.data
+                    user?.let {
+                        tokenManager.saveToken(it.token)
+                        tokenManager.saveAccountId(it.accountId)
+                        _user.value = it
+                    }
                 }
                 is Resource.Error -> {
                     _errorMessage.value = resource.message

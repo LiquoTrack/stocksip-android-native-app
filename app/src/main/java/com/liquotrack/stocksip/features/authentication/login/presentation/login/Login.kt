@@ -114,9 +114,9 @@ fun Login(
 
     LaunchedEffect(accountStatus) {
         when(accountStatus) {
-            "ACTIVE" -> onLoginSuccess()
-            "INACTIVE" -> onNavigateToPlans()
-            "PENDING" -> onNavigateToPending()
+            "Active" -> onLoginSuccess()
+            "Inactive" -> onNavigateToPlans()
+            "Pending" -> onNavigateToPending()
         }
     }
 
