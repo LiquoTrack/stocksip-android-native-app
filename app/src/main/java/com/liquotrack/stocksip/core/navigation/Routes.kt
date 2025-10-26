@@ -1,5 +1,7 @@
 package com.liquotrack.stocksip.core.navigation
 
+import android.net.Uri
+
 /**
  * Sealed class defining all navigation routes in the app.
  * Includes authentication, admin, and content sections.
@@ -16,6 +18,12 @@ sealed class Route(val route: String) {
         const val emailArg = "email"
         const val fullNameArg = "fullName"
         const val passwordArg = "password"
+        fun buildRoute(email: String, fullName: String, password: String): String {
+            val encodedEmail = Uri.encode(email)
+            val encodedFullName = Uri.encode(fullName)
+            val encodedPassword = Uri.encode(password)
+            return "register_account/$encodedEmail/$encodedFullName/$encodedPassword"
+        }
     }
 
     // Password Recovery (email required)
@@ -30,6 +38,13 @@ sealed class Route(val route: String) {
     // Main app routes
     object Main : Route(route = "main")
     object Warehouses : Route(route = "warehouses")
+
+    object WarehouseCreateEdit {
+        const val route = "warehouse_create_edit"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
     object Products : Route(route = "products_storage")
     object ProductDetail : Route(route = "product_detail")
     object Alerts : Route(route = "alerts")
@@ -37,6 +52,13 @@ sealed class Route(val route: String) {
     object Catalogs : Route(route = "catalogs")
     object CatalogDetail : Route(route = "catalog_detail")
     object CareGuides : Route(route = "care_guide")
+    object CareGuideCreate : Route(route = "care_guide_create")
+    object CareGuideEdit : Route(route = "care_guide_edit") {
+        const val routeWithArguments = "care_guide_edit/{careGuideId}"
+        const val careGuideIdArg = "careGuideId"
+        fun buildRoute(careGuideId: String): String = "care_guide_edit/$careGuideId"
+    }
+
     object UserManagement : Route(route = "user")
     object Profile : Route(route = "profile")
     object Plans : Route(route = "plans")

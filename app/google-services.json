@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "473654732601",
+    "project_id": "stocksip-android-native-app",
+    "storage_bucket": "stocksip-android-native-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473654732601:android:7cd72a37117a5cb7ce2ae8",
+        "android_client_info": {
+          "package_name": "com.liquotrack.stocksip"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "473654732601-152b3m92vhd6d3tvqof30ue2337cnkqd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.liquotrack.stocksip",
+            "certificate_hash": "667aa218348f212ff8a2da92ab0298d8eaa75b50"
+          }
+        },
+        {
+          "client_id": "473654732601-hdk907hv5s61igsm20nen7pkvirc4rl9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCA60W2M0GAR3pBMSIZCXC50oTBDCpxfyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "473654732601-4465h6hrslitt36eopqdcud76bkf3rri.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
