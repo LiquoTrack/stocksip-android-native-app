@@ -76,6 +76,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // REGISTER USER FLOW
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -85,6 +86,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // REGISTER ACCOUNT AND BUSINESS FLOW
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(

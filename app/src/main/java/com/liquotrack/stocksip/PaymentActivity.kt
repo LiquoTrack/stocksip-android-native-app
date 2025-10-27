@@ -12,7 +12,7 @@ class PaymentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val status = intent?.data?.host
+        val status = intent?.data?.lastPathSegment
 
         setContent {
             StockSipTheme {

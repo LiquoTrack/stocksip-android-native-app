@@ -35,22 +35,52 @@ class SubscriptionsViewModel @Inject constructor(
             val accountId = tokenModel.getAccountId() ?: throw Exception("Account ID not found")
 
             try {
-                println("🟡 Creando suscripción para accountId=$accountId con planId=$selectedPlanId")
                 val subscription = repository.createInitialSubscription(accountId, selectedPlanId)
-                println("✅ Suscripción creada correctamente: ${subscription.initPoint}")
                 _subscriptions.value = subscription
             } catch (e: Exception) {
-                println("❌ Error al crear suscripción: ${e.message}")
                 _errorMessage.value = e.message
             } finally {
                 _isLoading.value = false
-                println("🔹 Finalizó proceso de creación de suscripción")
             }
         }
     }
 
+    /**
+     * Confirms a subscription based on the provided preference ID and status.
+     *
+     * @param preferenceId The ID of the payment preference.
+     * @param status The status of the subscription process.
+     * @param onResult A callback function that receives a Boolean indicating whether the confirmation was successful.
+     */
+    fun confirmSubscription(preferenceId: String, status: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
 
-    fun clearSubscription() {
-        _subscriptions.value = null
+            try {
+                val result = repository.confirmSubscription(preferenceId, status)
+                onResult(result)
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+                onResult(false)
+            }
+        }
+    }
+
+    /**
+     * Fetches the subscription status for a given preference ID.
+     *
+     * @param preferenceId The ID of the payment preference.
+     * @param onResult A callback function that receives the subscription status as a String, or null if an error occurred.
+     */
+    fun fetchSubscriptionStatus(preferenceId: String, onResult: (String?) -> Unit) {
+        viewModelScope.launch {
+
+            try {
+                val status = repository.fetchSubscriptionStatus(preferenceId)
+                onResult(status)
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+                onResult(null)
+            }
+        }
     }
 }

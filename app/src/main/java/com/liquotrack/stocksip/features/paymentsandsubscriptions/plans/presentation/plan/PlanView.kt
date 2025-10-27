@@ -1,6 +1,5 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan
 
-import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,12 +53,16 @@ fun ChoosePlanScreen(
     val subscriptionLoading by subscriptionViewModel.isLoading.collectAsState()
     val subscriptionErrorMessage by subscriptionViewModel.errorMessage.collectAsState()
 
-    LaunchedEffect(subscription) {
-        subscription?.let {
-            val intent = CustomTabsIntent.Builder().build()
-            intent.launchUrl(context, it.initPoint.toUri())
+    LaunchedEffect(subscription?.preferenceId) {
+        subscription?.preferenceId?.let { prefId ->
+            subscriptionViewModel.fetchSubscriptionStatus(prefId) { status ->
+                if (status == "Active") {
+                    onContinue(selectedPlan)
+                }
+            }
         }
     }
+
 
     Box(
         modifier = Modifier
@@ -87,8 +90,6 @@ fun ChoosePlanScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 32.dp)
             ) {
-
-
                 Text(
                     text = "Choose Your Plan",
                     fontSize = 36.sp,
@@ -220,3 +221,4 @@ fun ChoosePlanScreen(
         }
     }
 }
+

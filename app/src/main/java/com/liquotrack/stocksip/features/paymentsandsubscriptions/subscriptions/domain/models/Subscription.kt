@@ -11,7 +11,8 @@ package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.
 data class Subscription(
     val accountId: String,
     val planId: String,
-    val preferenceId: String,
-    val initPoint: String,
-    val message: String?
+    val preferenceId: String?,
+    val initPoint: String?,
+    val message: String?,
+    var isPaymentLaunched: Boolean = false
 )

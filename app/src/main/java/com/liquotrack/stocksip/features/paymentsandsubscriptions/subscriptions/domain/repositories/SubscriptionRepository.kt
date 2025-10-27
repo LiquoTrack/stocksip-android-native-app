@@ -1,7 +1,6 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.repositories
 
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.Subscription
-import retrofit2.Response
 
 /**
  * Repository interface for managing subscriptions.
@@ -16,4 +15,21 @@ interface SubscriptionRepository {
      * @return A [Subscription] object representing the created subscription.
      */
     suspend fun createInitialSubscription(accountId: String, selectedPlanId: String): Subscription
+
+    /**
+     * Confirms a subscription based on the provided preference ID and status.
+     *
+     * @param preferenceId The ID of the payment preference.
+     * @param status The status of the subscription process.
+     * @return A [Boolean] indicating whether the confirmation was successful.
+     */
+    suspend fun confirmSubscription(preferenceId: String, status: String): Boolean
+
+    /**
+     * Fetches the subscription status for the given preference ID.
+     *
+     * @param preferenceId The ID of the payment preference.
+     * @return A [String] representing the current status of the subscription.
+     */
+    suspend fun fetchSubscriptionStatus(preferenceId: String): String
 }

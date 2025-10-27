@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.repositories
 
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.ConfirmSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.InitialSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.services.SubscriptionService
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.Subscription
@@ -38,9 +39,41 @@ class SubscriptionRepositoryImpl @Inject constructor(private val service: Subscr
         return@withContext Subscription(
             accountId = accountId,
             planId = selectedPlanId,
-            preferenceId = body.preferenceId ?: "Preference ID is null",
-            initPoint = body.initPoint ?: "Init Point is null",
-            message = body.message
+            preferenceId = body.preferenceId,
+            initPoint = body.initPoint,
+            message = body.message ?: "Subscription created successfully"
         )
+    }
+
+    /**
+     * Confirms a subscription based on the provided preference ID and status.
+     * @param preferenceId The ID of the payment preference.
+     * @param status The status of the subscription process.
+     * @return A [Boolean] indicating whether the confirmation was successful.
+     */
+    override suspend fun confirmSubscription(
+        preferenceId: String,
+        status: String
+    ): Boolean = withContext(Dispatchers.IO) {
+        val body = ConfirmSubscriptionDto(preferenceId, status)
+        val response = service.confirmSubscription(body)
+        response.isSuccessful
+    }
+
+    /**
+     * Fetches the subscription status for a given preference ID.
+     * @param preferenceId The ID of the payment preference.
+     * @return A [String] representing the subscription status.
+     * @throws Exception if the API call fails or the response is invalid.
+     */
+    override suspend fun fetchSubscriptionStatus(preferenceId: String): String = withContext(Dispatchers.IO) {
+        val response = service.fetchSubscriptionStatusByPreferenceId(preferenceId)
+
+        if (response.isSuccessful) {
+            val body = response.body() ?: throw Exception("Response body is null")
+            body.subscriptionStatus
+        } else {
+            throw Exception("Failed to fetch subscription status: ${response.code()} ${response.message()}")
+        }
     }
 }
