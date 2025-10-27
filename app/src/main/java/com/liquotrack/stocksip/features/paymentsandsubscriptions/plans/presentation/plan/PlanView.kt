@@ -194,7 +194,12 @@ fun ChoosePlanScreen(
                         onClick = {
                             selectedPlan?.let { plan ->
                                 plan.id?.let { planId ->
-                                    subscriptionViewModel.createInitialSubscription(planId)
+                                    subscriptionViewModel.createInitialSubscription(planId) { subscription ->
+                                        subscription?.initPoint?.let { url ->
+                                            val customTabsIntent = CustomTabsIntent.Builder().build()
+                                            customTabsIntent.launchUrl(context, url.toUri())
+                                        }
+                                    }
                                 }
                             }
                         },

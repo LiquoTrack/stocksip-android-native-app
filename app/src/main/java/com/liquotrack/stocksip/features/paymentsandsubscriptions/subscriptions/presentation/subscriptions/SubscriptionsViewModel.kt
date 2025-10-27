@@ -27,7 +27,7 @@ class SubscriptionsViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-    fun createInitialSubscription(selectedPlanId: String) {
+    fun createInitialSubscription(selectedPlanId: String, onCreated: (Subscription?) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
