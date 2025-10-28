@@ -19,11 +19,11 @@ data class WarehouseDto(
     @SerializedName("addressCountry")
     val addressCountry: String,
     @SerializedName("capacity")
-    val capacity: Int,
+    val capacity: Double,
     @SerializedName("imageUrl")
     val imageUrl: String,
     @SerializedName("temperatureMax")
-    val temperatureMax: Int,
+    val temperatureMax: Double,
     @SerializedName("temperatureMin")
-    val temperatureMin: Int
+    val temperatureMin: Double
 )

@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -53,10 +52,12 @@ fun WarehouseCreateAndEditView(
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
 
-
     val isEditMode = warehouseId != null && warehouseId != "new" && warehouseId.isNotBlank()
-
     val isLoading by viewModel.isLoading.collectAsState()
+    val selectedWarehouse by viewModel.selectedWarehouse.collectAsState()
+    val temperatureError by viewModel.temperatureError.collectAsState()
+
+    val snackBarHostState = remember { SnackbarHostState() }
 
     val isValidFormat = name.isNotBlank() &&
             street.isNotBlank() &&
@@ -73,14 +74,24 @@ fun WarehouseCreateAndEditView(
         }
     }
 
-    val selectedWarehouse by viewModel.selectedWarehouse.collectAsState()
-
-    LaunchedEffect(selectedWarehouse?.imageUrl) {
-        if (isEditMode && selectedWarehouse?.imageUrl?.isNotBlank() == true) {
-            selectedImageUri = selectedWarehouse!!.imageUrl.toUri()
+    LaunchedEffect(selectedWarehouse) {
+        selectedWarehouse?.let { warehouse ->
+            viewModel.loadWarehouseForEdit(warehouse)
+            if (warehouse.imageUrl.isNotBlank()) {
+                selectedImageUri = warehouse.imageUrl.toUri()
+            }
         }
     }
 
+    LaunchedEffect(temperatureError) {
+        temperatureError?.let { error ->
+            snackBarHostState.showSnackbar(
+                message = error,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearTemperatureError()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -89,7 +100,17 @@ fun WarehouseCreateAndEditView(
                 onBackClick = onNavigateBack
             )
         },
-        containerColor = Color(0xFFF4ECEC)
+        containerColor = Color(0xFFF4ECEC),
+        snackbarHost = {
+            SnackbarHost(hostState = snackBarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color(0xFFB00020),
+                    contentColor = Color.White,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -112,7 +133,6 @@ fun WarehouseCreateAndEditView(
                     }
                 )
 
-
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Form Fields
@@ -124,7 +144,7 @@ fun WarehouseCreateAndEditView(
                         value = name,
                         onValueChange = viewModel::updateWarehouseName,
                         label = "Name",
-                        placeholder = "Enter warehouse name"
+                        placeholder = "e.g., Main Warehouse"
                     )
 
                     // Street
@@ -132,7 +152,7 @@ fun WarehouseCreateAndEditView(
                         value = street,
                         onValueChange = viewModel::updateStreet,
                         label = "Street",
-                        placeholder = "Enter street address"
+                        placeholder = "e.g. 123 Main St"
                     )
 
                     // City and District in Row
@@ -143,7 +163,7 @@ fun WarehouseCreateAndEditView(
                             value = city,
                             onValueChange = viewModel::updateCity,
                             label = "City",
-                            placeholder = "City",
+                            placeholder = "eg. Lima",
                             modifier = Modifier.weight(1f)
                         )
 
@@ -151,7 +171,7 @@ fun WarehouseCreateAndEditView(
                             value = district,
                             onValueChange = viewModel::updateDistrict,
                             label = "District",
-                            placeholder = "District",
+                            placeholder = "e.g. Chorrillos",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -164,7 +184,7 @@ fun WarehouseCreateAndEditView(
                             value = postalCode,
                             onValueChange = viewModel::updatePostalCode,
                             label = "Postal Code",
-                            placeholder = "Postal code",
+                            placeholder = "e.g. 15063",
                             modifier = Modifier.weight(1f)
                         )
 
@@ -172,7 +192,7 @@ fun WarehouseCreateAndEditView(
                             value = country,
                             onValueChange = viewModel::updateCountry,
                             label = "Country",
-                            placeholder = "Country",
+                            placeholder = "e.g. Peru",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -182,7 +202,7 @@ fun WarehouseCreateAndEditView(
                         value = capacity,
                         onValueChange = viewModel::updateCapacity,
                         label = "Capacity",
-                        placeholder = "Enter capacity",
+                        placeholder = "e.g. 5000.0",
                         keyboardType = KeyboardType.Decimal
                     )
 
@@ -194,18 +214,20 @@ fun WarehouseCreateAndEditView(
                             value = minTemp,
                             onValueChange = viewModel::updateMinTemp,
                             label = "Min Temperature (°C)",
-                            placeholder = "Min °C",
+                            placeholder = "e.g. -5.0",
                             modifier = Modifier.weight(1f),
-                            keyboardType = KeyboardType.Decimal
+                            keyboardType = KeyboardType.Number,
+                            showError = temperatureError != null
                         )
 
                         CustomDoubleTextField(
                             value = maxTemp,
                             onValueChange = viewModel::updateMaxTemp,
                             label = "Max Temperature (°C)",
-                            placeholder = "Max °C",
+                            placeholder = "e.g. 25.0",
                             modifier = Modifier.weight(1f),
-                            keyboardType = KeyboardType.Decimal
+                            keyboardType = KeyboardType.Number,
+                            showError = temperatureError != null
                         )
                     }
                 }
@@ -219,7 +241,6 @@ fun WarehouseCreateAndEditView(
                         viewModel.saveWarehouse {
                             onNavigateBack()
                         }
-
                     },
                     modifier = Modifier
                         .fillMaxWidth()

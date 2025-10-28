@@ -4,6 +4,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remot
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehousesWithCount
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories.WarehouseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,15 +20,15 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
      * @param accountId The unique identifier of the account.
      * @return A list of Warehouse entities associated with the given account ID.
      */
-    override suspend fun getAllWarehousesByAccountId(accountId: String): List<WarehouseResponse> =
+    override suspend fun getAllWarehousesByAccountId(accountId: String): WarehousesWithCount =
         withContext(Dispatchers.IO) {
             try {
                 val response = service.getAllWarehousesByAccountId(accountId)
                 if (response.isSuccessful) {
-                    response.body()?.let { warehouseDtoList ->
-                        return@withContext warehouseDtoList.map { warehouseDto ->
+                    response.body()?.let { wrapper ->
+                        val warehouses = wrapper.warehouses.map { warehouseDto ->
                             WarehouseResponse(
-                                id = warehouseDto.id,
+                                id = warehouseDto.warehouseId,
                                 name = warehouseDto.name,
                                 street = warehouseDto.addressStreet,
                                 city = warehouseDto.addressCity,
@@ -40,12 +41,14 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
                                 imageUrl = warehouseDto.imageUrl
                             )
                         }
+                        return@withContext WarehousesWithCount(wrapper.total, warehouses)
                     }
                 }
+                WarehousesWithCount(0, emptyList())
             } catch (e: Exception) {
                 e.printStackTrace()
+                WarehousesWithCount(0, emptyList())
             }
-            return@withContext emptyList()
         }
 
     override suspend fun getWarehouseById(warehouseId: String): WarehouseResponse = withContext(
@@ -55,7 +58,7 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
             if (response.isSuccessful) {
                 response.body()?.let { warehouseDto ->
                     return@withContext WarehouseResponse(
-                        id = warehouseDto.id,
+                        id = warehouseDto.warehouseId,
                         name = warehouseDto.name,
                         street = warehouseDto.addressStreet,
                         city = warehouseDto.addressCity,
@@ -93,7 +96,7 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
                     response.body()?.let { warehouseDto ->
 
                         return@withContext WarehouseResponse(
-                            id = warehouseDto.id,
+                            id = warehouseDto.warehouseId,
                             name = warehouseDto.name,
                             street = warehouseDto.addressStreet,
                             city = warehouseDto.addressCity,
