@@ -12,17 +12,15 @@ class PaymentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val status = intent?.data?.lastPathSegment
+        val startDestination = when (intent?.data?.lastPathSegment) {
+            "congrats" -> Route.Congrats.route
+            "failure" -> Route.Failure.route
+            "pending" -> Route.Pending.route
+            else -> Route.Login.route
+        }
 
         setContent {
             StockSipTheme {
-                val startDestination = when (status) {
-                    "congrats" -> Route.Congrats.route
-                    "failure" -> Route.Failure.route
-                    "pending" -> Route.Pending.route
-                    else -> Route.Main.route
-                }
-
                 AppNavigation(startDestination = startDestination)
             }
         }
