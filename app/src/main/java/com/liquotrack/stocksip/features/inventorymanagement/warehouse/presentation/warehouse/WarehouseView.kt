@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material3.Button
@@ -99,26 +101,44 @@ fun WarehouseView(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Warehouse,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .padding(end = 8.dp),
-                                tint = onSurfaceLightMediumContrast
-                            )
-                            Text(
-                                "Max. Allowed: ",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                color = onSurfaceLightMediumContrast
-                            )
-                            Text(
-                                "10",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                color = onSurfaceLightMediumContrast
-                            )
+                            Column {
+                                Row {
+                                    Icon(
+                                        Icons.Default.Warehouse,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp),
+                                        tint = onSurfaceLightMediumContrast
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "Current: ",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast,
+                                    )
+                                    Text(
+                                        "${warehouses?.total}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast
+                                    )
+                                }
+
+                                Row {
+                                    Text(
+                                        "Max. Allowed: ",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast
+                                    )
+                                    Text(
+                                        "10",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast
+                                    )
+                                }
+                            }
                         }
 
                         Button(
@@ -137,7 +157,7 @@ fun WarehouseView(
                 }
 
                 WarehouseList(
-                    warehouse = warehouses,
+                    warehouse = warehouses?.warehouse ?: emptyList(),
                     onClick = { warehouse ->
                         onNavigate("warehouse_details/${warehouse.id}")
                     },

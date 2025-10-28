@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehousesWithCount
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories.WarehouseRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,9 +27,8 @@ class WarehouseViewModel @Inject constructor(
     private val tokenModel: TokenManager
 ) : ViewModel() {
 
-    private val _warehouses = MutableStateFlow<List<WarehouseResponse>>(emptyList())
-    val warehouses: StateFlow<List<WarehouseResponse>> = _warehouses
-
+    private val _warehouses = MutableStateFlow<WarehousesWithCount?>(null)
+    val warehouses: StateFlow<WarehousesWithCount?> = _warehouses.asStateFlow()
 
     private val _warehouseName = MutableStateFlow("")
     val warehouseName: StateFlow<String> = _warehouseName
@@ -72,6 +72,9 @@ class WarehouseViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
+    private val _temperatureError = MutableStateFlow<String?>(null)
+    val temperatureError: StateFlow<String?> = _temperatureError.asStateFlow()
+
     fun updateWarehouseName(value: String) { _warehouseName.value = value }
     fun updateStreet(value: String) { _street.value = value }
     fun updateCity(value: String) { _city.value = value }
@@ -79,11 +82,22 @@ class WarehouseViewModel @Inject constructor(
     fun updatePostalCode(value: String) { _postalCode.value = value }
     fun updateCountry(value: String) { _country.value = value }
     fun updateCapacity(value: Double) { _capacity.value = value }
-    fun updateMinTemp(value: Double) { _minTemp.value = value }
-    fun updateMaxTemp(value: Double) { _maxTemp.value = value }
+    fun updateMinTemp(value: Double) {
+        _minTemp.value = value
+        validateTemperature()
+    }
+    fun updateMaxTemp(value: Double) {
+        _maxTemp.value = value
+        validateTemperature()
+    }
     fun updateImageFile(file: File?) { _imageFile.value = file }
 
+    fun clearTemperatureError() { _temperatureError.value = null }
 
+    /**
+     * Loads the warehouse data into the form for editing.
+     * @param warehouse The [WarehouseResponse] object containing the warehouse data to be edited.
+     */
     fun loadWarehouseForEdit(warehouse: WarehouseResponse) {
         _isLoading.value = true
         _warehouseName.value = warehouse.name
@@ -99,6 +113,9 @@ class WarehouseViewModel @Inject constructor(
         _isLoading.value = false
     }
 
+    /**
+     * Clears the warehouse form fields.
+     */
     fun clearForm() {
         _editingWarehouse.value = null
         _warehouseName.value = ""
@@ -114,15 +131,22 @@ class WarehouseViewModel @Inject constructor(
         _imageUrl.value = ""
     }
 
+    /**
+     * Saves the warehouse data. If editing an existing warehouse, it updates it; otherwise, it creates a new one.
+     * @param onSuccess A lambda function to be called upon successful save operation.
+     */
     fun saveWarehouse(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             try {
 
                 val accountId = tokenModel.getAccountId() ?: throw Exception("Account ID not found")
 
+                if (!validateTemperature()) {
+                    return@launch
+                }
+
                 val editingWarehouse = _editingWarehouse.value
                 val imageFile = _imageFile.value
-
 
                 if (editingWarehouse != null) {
                     val updatedWarehouse = WarehouseRequest(
@@ -157,7 +181,9 @@ class WarehouseViewModel @Inject constructor(
 
                     val createdWarehouse = repository.registerWarehouse(newWarehouse, accountId, imageFile)
 
-                    _warehouses.value = _warehouses.value + createdWarehouse
+                    _warehouses.value = _warehouses.value?.copy(
+                        warehouse = _warehouses.value?.warehouse.orEmpty() + createdWarehouse
+                    )
                 }
 
                 clearForm()
@@ -169,6 +195,10 @@ class WarehouseViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Fetches a warehouse by its ID and updates the selectedWarehouse state.
+     * @param id The ID of the warehouse to be fetched.
+     */
     fun getWarehouseById(id: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -178,6 +208,9 @@ class WarehouseViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Fetches all warehouses associated with the current account ID and updates the warehouses state.
+     */
     fun getAllWarehousesByAccountId() {
         viewModelScope.launch {
             val accountId = tokenModel.getAccountId()
@@ -189,6 +222,20 @@ class WarehouseViewModel @Inject constructor(
 
     }
 
+    private fun validateTemperature(): Boolean {
+        return if (_minTemp.value >= _maxTemp.value) {
+            _temperatureError.value = "Minimum temperature must be less than maximum temperature"
+            false
+        } else {
+            _temperatureError.value = null
+            true
+        }
+    }
+
+    /**
+     * Sets the warehouse to be edited.
+     * @param warehouse The [WarehouseResponse] object representing the warehouse to be edited.
+     */
     init {
         getAllWarehousesByAccountId()
     }
