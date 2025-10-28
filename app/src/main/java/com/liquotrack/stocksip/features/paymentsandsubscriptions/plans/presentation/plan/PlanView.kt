@@ -2,26 +2,12 @@ package com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presenta
 
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -32,9 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.core.net.toUri
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.Plan
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.SubscriptionsViewModel
-import androidx.core.net.toUri
 
 @Composable
 fun ChoosePlanScreen(
@@ -49,20 +35,21 @@ fun ChoosePlanScreen(
     val planErrorMessage by planViewModel.errorMessage.collectAsState()
 
     val context = LocalContext.current
+
     val subscription by subscriptionViewModel.subscriptions.collectAsState()
     val subscriptionLoading by subscriptionViewModel.isLoading.collectAsState()
     val subscriptionErrorMessage by subscriptionViewModel.errorMessage.collectAsState()
 
-    LaunchedEffect(subscription?.preferenceId) {
-        subscription?.preferenceId?.let { prefId ->
-            subscriptionViewModel.fetchSubscriptionStatus(prefId) { status ->
-                if (status == "Active") {
-                    onContinue(selectedPlan)
-                }
+    LaunchedEffect(subscription) {
+        subscription?.let {
+            if (!it.initPoint.isNullOrBlank()) {
+                val intent = CustomTabsIntent.Builder().build()
+                intent.launchUrl(context, it.initPoint.toUri())
+            } else {
+                onContinue(selectedPlan)
             }
         }
     }
-
 
     Box(
         modifier = Modifier
@@ -85,7 +72,7 @@ fun ChoosePlanScreen(
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Header
+            // 🔹 Header
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 32.dp)
@@ -194,12 +181,7 @@ fun ChoosePlanScreen(
                         onClick = {
                             selectedPlan?.let { plan ->
                                 plan.id?.let { planId ->
-                                    subscriptionViewModel.createInitialSubscription(planId) { subscription ->
-                                        subscription?.initPoint?.let { url ->
-                                            val customTabsIntent = CustomTabsIntent.Builder().build()
-                                            customTabsIntent.launchUrl(context, url.toUri())
-                                        }
-                                    }
+                                    subscriptionViewModel.createInitialSubscription(planId)
                                 }
                             }
                         },
@@ -226,4 +208,3 @@ fun ChoosePlanScreen(
         }
     }
 }
-
