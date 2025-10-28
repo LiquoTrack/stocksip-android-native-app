@@ -74,7 +74,7 @@ class RegisterAccountViewModel @Inject constructor(
     /**
      * Registers the complete account with user info and business info
      */
-    fun register(email: String, username: String, password: String) {
+    fun register(email: String, username: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             validateFields()
 
@@ -101,6 +101,7 @@ class RegisterAccountViewModel @Inject constructor(
                 is Resource.Success -> {
                     _registrationMessage.value = resource.data
                     _registrationSuccess.value = true
+                    onResult(true)
                 }
                 is Resource.Error -> {
                     _errorMessage.value = resource.message

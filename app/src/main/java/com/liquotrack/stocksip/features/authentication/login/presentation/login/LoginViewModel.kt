@@ -57,7 +57,12 @@ class LoginViewModel @Inject constructor(
 
             when (resource) {
                 is Resource.Success -> {
-                    _user.value = resource.data
+                    val user = resource.data
+                    user?.let {
+                        tokenManager.saveToken(it.token)
+                        tokenManager.saveAccountId(it.accountId)
+                        _user.value = it
+                    }
                 }
                 is Resource.Error -> {
                     _errorMessage.value = resource.message

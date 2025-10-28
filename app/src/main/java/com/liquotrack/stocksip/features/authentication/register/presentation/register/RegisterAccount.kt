@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.authentication.login.presentation.register
+package com.liquotrack.stocksip.features.authentication.register.presentation.register
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -44,7 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccountViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
@@ -52,25 +51,16 @@ fun RegisterAccount(
     email: String = "",
     username: String = "",
     password: String = "",
-    viewModel: RegisterAccountViewModel = hiltViewModel(),
-    onRegistrationSuccess: () -> Unit = {}
+    onRegistrationSuccess: () -> Unit = {},
+    viewModel: RegisterAccountViewModel = hiltViewModel()
 ) {
     val selectedRole by viewModel.selectedRole.collectAsState()
     val businessName by viewModel.businessName.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val validationError by viewModel.validationError.collectAsState()
-    val registrationSuccess by viewModel.registrationSuccess.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
-
-    // Navigate on successful registration
-    LaunchedEffect(registrationSuccess) {
-        if (registrationSuccess) {
-            onRegistrationSuccess()
-            viewModel.resetRegistrationSuccess()
-        }
-    }
 
     // Show error messages
     LaunchedEffect(errorMessage) {
@@ -252,7 +242,9 @@ fun RegisterAccount(
                 // Sign Up Button
                 Button(
                     onClick = {
-                        viewModel.register(email, username, password)
+                        viewModel.register(email, username, password) { success ->
+                            if (success) onRegistrationSuccess()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

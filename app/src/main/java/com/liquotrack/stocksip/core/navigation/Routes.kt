@@ -61,12 +61,18 @@ sealed class Route(val route: String) {
 
     object UserManagement : Route(route = "user")
     object Profile : Route(route = "profile")
-    object Plans : Route(route = "plans")
+
     object MakingOrders : Route(route = "making_orders")
     object OrderDetail : Route(route = "order_detail")
     object OrderHistory : Route(route = "order_history")
     object ProductTransferHistory : Route(route = "transfers")
     object ProductExitHistory : Route(route = "exits")
+
+    // Payments and Subscriptions Bounded Context
+    object Plans : Route(route = "plans")
+    object Congrats : Route(route = "congrats")
+    object Failure : Route(route = "failure")
+    object Pending: Route(route = "pending")
 }
 
 /**

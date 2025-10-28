@@ -125,6 +125,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Mercado Pago SDK
+    implementation("androidx.browser:browser:1.4.0")
+
     // Firebase dependencies
     // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))

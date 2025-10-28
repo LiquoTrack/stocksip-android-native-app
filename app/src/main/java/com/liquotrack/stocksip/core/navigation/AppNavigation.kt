@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
-import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterAccount
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
@@ -18,6 +18,10 @@ import com.liquotrack.stocksip.features.careguides.presentation.CareGuides
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseCreateAndEditView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan.ChoosePlanScreen
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Congrats
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Failure
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Pending
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 
 /**
@@ -25,11 +29,11 @@ import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.P
  * Includes authentication, home, warehouse, products, care guides, etc.
  */
 @Composable
-fun AppNavigation() {
+fun AppNavigation(startDestination: String = Route.Login.route) {
 
     val navController = rememberNavController()
 
-    NavHost(navController, startDestination = Route.Login.route) {
+    NavHost(navController, startDestination = startDestination) {
 
         // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
@@ -42,6 +46,16 @@ fun AppNavigation() {
                 },
                 onLoginSuccess = {
                     navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToPlans = {
+                    navController.navigate(Route.Plans.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToPending = {
+                    navController.navigate(Route.Pending.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
                 },
@@ -62,6 +76,7 @@ fun AppNavigation() {
             )
         }
 
+        // REGISTER USER FLOW
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -71,6 +86,7 @@ fun AppNavigation() {
             )
         }
 
+        // REGISTER ACCOUNT AND BUSINESS FLOW
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(
@@ -90,6 +106,7 @@ fun AppNavigation() {
                 onRegistrationSuccess = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -166,8 +183,6 @@ fun AppNavigation() {
             )
         }
 
-
-
         composable(route = Route.UserManagement.route) {
             AdminPanel(
                 onNavigate = { route ->
@@ -223,7 +238,47 @@ fun AppNavigation() {
         }
 
         composable(route = Route.Plans.route) {
+            ChoosePlanScreen(
+                onContinue = { selectedPlan ->
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Plans.route) { inclusive = true }
+                    }
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
 
+        composable(route = Route.Congrats.route) {
+            Congrats(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Congrats.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(route = Route.Failure.route) {
+            Failure(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Failure.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+
+        composable(route = Route.Pending.route) {
+            Pending(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Pending.route) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
