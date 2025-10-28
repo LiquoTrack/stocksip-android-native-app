@@ -37,8 +37,6 @@ fun ChoosePlanScreen(
     val context = LocalContext.current
 
     val subscription by subscriptionViewModel.subscriptions.collectAsState()
-    val subscriptionLoading by subscriptionViewModel.isLoading.collectAsState()
-    val subscriptionErrorMessage by subscriptionViewModel.errorMessage.collectAsState()
 
     LaunchedEffect(subscription) {
         subscription?.let {
