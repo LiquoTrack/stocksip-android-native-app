@@ -317,7 +317,8 @@ fun ImageSelectionSection(
     ) {
         Box(
             modifier = Modifier
-                .size(160.dp)
+                .height(200.dp)
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.LightGray)
                 .clickable { imagePicker.launch("image/*") },
@@ -326,9 +327,9 @@ fun ImageSelectionSection(
             if (selectedImage != null) {
                 AsyncImage(
                     model = selectedImage,
-                    contentDescription = "Selected Image",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
             } else {
                 Icon(

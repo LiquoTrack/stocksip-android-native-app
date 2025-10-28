@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,7 +39,12 @@ fun WarehouseCard(
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .fillMaxWidth()
             .height(200.dp)
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .border(
+                width = 2.dp,
+                color = Color(0xFFE0E0E0),
+                shape = RoundedCornerShape(16.dp)
+            ),
         colors = CardDefaults.cardColors(Color(0xFFFFFFFF)),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         onClick = onClick
@@ -46,50 +52,56 @@ fun WarehouseCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 4.dp)
         ) {
             AsyncImage(
                 model = warehouse.imageUrl,
                 contentDescription = "Warehouse Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
             )
 
-            Text(
-                text = warehouse.name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4A1B2A),
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 2.dp)
-            )
-
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .weight(1f)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
-                    text = "${warehouse.street}, ${warehouse.district}",
-                    fontSize = 14.sp,
-                    color = Color(0xFF5E5E5E),
-                    modifier = Modifier.weight(1f)
+                    text = warehouse.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4A1B2A),
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
                 )
 
-                IconButton(
-                    onClick = { onEditClick(warehouse) },
+                Row(
                     modifier = Modifier
-                        .size(25.dp)
-                        .padding(end = 4.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 0.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit warehouse",
-                        tint = Color(0xFF4A1B2A)
+                    Text(
+                        text = warehouse.street,
+                        fontSize = 14.sp,
+                        color = Color(0xFF5E5E5E),
+                        modifier = Modifier.weight(1f)
                     )
+
+                    IconButton(
+                        onClick = { onEditClick(warehouse) },
+                        modifier = Modifier
+                            .size(25.dp)
+                            .align(Alignment.BottomEnd as Alignment.Vertical)
+                            .padding(end = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit warehouse",
+                            tint = Color(0xFF4A1B2A)
+                        )
+                    }
                 }
             }
         }
