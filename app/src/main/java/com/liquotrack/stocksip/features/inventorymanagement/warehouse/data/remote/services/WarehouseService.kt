@@ -1,9 +1,11 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services
 
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.models.WarehouseDto
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.models.WarehouseWrapperDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -24,8 +26,14 @@ interface WarehouseService {
      * @return A [Response] containing a list of [WarehouseDto] objects.
      */
     @GET("accounts/{accountId}/warehouses")
-    suspend fun getAllWarehousesByAccountId(@Path("accountId") accountId: String): Response<List<WarehouseDto>>
+    suspend fun getAllWarehousesByAccountId(@Path("accountId") accountId: String): Response<WarehouseWrapperDto>
 
+    /**
+     * Fetches a specific warehouse by its ID.
+     *
+     * @param warehouseId The ID of the warehouse to retrieve.
+     * @return A [Response] containing the [WarehouseDto] object.
+     */
     @GET("warehouses/{warehouseId}")
     suspend fun getWarehouseById(@Path("warehouseId") warehouseId: String): Response<WarehouseDto>
 
@@ -44,4 +52,15 @@ interface WarehouseService {
         @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>,
         @Part image: MultipartBody.Part?
     ): Response<WarehouseDto>
+
+    /**
+     * Deletes a specific warehouse by its ID.
+     *
+     * @param warehouseId The ID of the warehouse to delete.
+     * @return A [Response] indicating the result of the delete operation.
+     */
+    @DELETE("warehouses")
+    suspend fun deleteWarehouse(
+        @Path("warehouseId") warehouseId: String
+    ): Response<Unit>
 }
