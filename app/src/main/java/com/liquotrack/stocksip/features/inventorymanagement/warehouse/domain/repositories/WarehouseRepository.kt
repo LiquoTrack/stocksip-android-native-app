@@ -41,7 +41,7 @@ interface WarehouseRepository {
      * @param warehouse The Warehouse entity with updated information.
      * @return The updated Warehouse entity.
      */
-    suspend fun updateWarehouse(warehouse: WarehouseResponse): WarehouseResponse
+    suspend fun updateWarehouse(warehouse: WarehouseRequest, warehouseId: String, imageFile: File?): WarehouseResponse
 
     /**
      * Deletes a warehouse by its unique identifier.
