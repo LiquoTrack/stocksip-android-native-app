@@ -93,7 +93,6 @@ fun WarehouseCard(
                         onClick = { onEditClick(warehouse) },
                         modifier = Modifier
                             .size(25.dp)
-                            .align(Alignment.BottomEnd as Alignment.Vertical)
                             .padding(end = 4.dp)
                     ) {
                         Icon(

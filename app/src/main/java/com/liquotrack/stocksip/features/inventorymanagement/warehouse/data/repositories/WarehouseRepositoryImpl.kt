@@ -41,13 +41,13 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
                                 imageUrl = warehouseDto.imageUrl
                             )
                         }
-                        return@withContext WarehousesWithCount(wrapper.total, warehouses)
+                        return@withContext WarehousesWithCount(wrapper.total, wrapper.maxWarehousesAllowed,warehouses, )
                     }
                 }
-                WarehousesWithCount(0, emptyList())
+                WarehousesWithCount(0, 0,emptyList())
             } catch (e: Exception) {
                 e.printStackTrace()
-                WarehousesWithCount(0, emptyList())
+                WarehousesWithCount(0, 0,emptyList())
             }
         }
 

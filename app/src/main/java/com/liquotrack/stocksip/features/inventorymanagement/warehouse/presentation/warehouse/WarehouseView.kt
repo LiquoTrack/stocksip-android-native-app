@@ -132,7 +132,7 @@ fun WarehouseView(
                                         color = onSurfaceLightMediumContrast
                                     )
                                     Text(
-                                        "10",
+                                        "${warehouses?.maxWarehousesAllowed}",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
@@ -157,7 +157,7 @@ fun WarehouseView(
                 }
 
                 WarehouseList(
-                    warehouse = warehouses?.warehouse ?: emptyList(),
+                    warehouse = warehouses?.warehouses ?: emptyList(),
                     onClick = { warehouse ->
                         onNavigate("warehouse_details/${warehouse.id}")
                     },

@@ -182,7 +182,7 @@ class WarehouseViewModel @Inject constructor(
                     val createdWarehouse = repository.registerWarehouse(newWarehouse, accountId, imageFile)
 
                     _warehouses.value = _warehouses.value?.copy(
-                        warehouse = _warehouses.value?.warehouse.orEmpty() + createdWarehouse
+                        warehouses = _warehouses.value?.warehouses.orEmpty() + createdWarehouse
                     )
                 }
 
