@@ -9,6 +9,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.PartMap
 import retrofit2.http.Path
@@ -46,9 +47,25 @@ interface WarehouseService {
      * @return A [Response] containing the created [WarehouseDto] object.
      */
     @Multipart
-    @POST("accounts/{accountId}/warehouses/")
+    @POST("accounts/{accountId}/warehouses")
     suspend fun createWarehouse(
         @Path("accountId") accountId: String,
+        @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part image: MultipartBody.Part?
+    ): Response<WarehouseDto>
+
+    /**
+     * Updates an existing warehouse by its ID.
+     *
+     * @param warehouseId The ID of the warehouse to update.
+     * @param fields A map of form fields required to update the warehouse.
+     * @param image An optional image file to be uploaded with the warehouse data.
+     * @return A [Response] containing the updated [WarehouseDto] object.
+     */
+    @Multipart
+    @PUT("warehouses/{warehouseId}")
+    suspend fun updateWarehouse(
+        @Path("warehouseId") warehouseId: String,
         @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>,
         @Part image: MultipartBody.Part?
     ): Response<WarehouseDto>
@@ -59,7 +76,7 @@ interface WarehouseService {
      * @param warehouseId The ID of the warehouse to delete.
      * @return A [Response] indicating the result of the delete operation.
      */
-    @DELETE("warehouses")
+    @DELETE("warehouses/{warehouseId}")
     suspend fun deleteWarehouse(
         @Path("warehouseId") warehouseId: String
     ): Response<Unit>

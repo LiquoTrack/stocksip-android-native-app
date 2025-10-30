@@ -41,7 +41,7 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
                                 imageUrl = warehouseDto.imageUrl
                             )
                         }
-                        return@withContext WarehousesWithCount(wrapper.total, wrapper.maxWarehousesAllowed,warehouses, )
+                        return@withContext WarehousesWithCount(wrapper.total, wrapper.maxWarehousesAllowed,warehouses)
                     }
                 }
                 WarehousesWithCount(0, 0,emptyList())
@@ -123,7 +123,20 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteWarehouse(warehouseId: String) {
-        TODO("Not yet implemented")
+    /** Deletes a warehouse by its unique identifier.
+     *
+     * @param warehouseId The unique identifier of the warehouse to be deleted.
+     */
+    override suspend fun deleteWarehouse(warehouseId: String) = withContext(Dispatchers.IO) {
+        try {
+            val response = service.deleteWarehouse(warehouseId)
+            if (!response.isSuccessful) {
+                throw Exception("Error deleting warehouse: ${response.code()} ${response.message()}")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception("Failed to delete warehouse")
+        }
+
     }
 }

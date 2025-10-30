@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -97,7 +96,13 @@ fun WarehouseCreateAndEditView(
         topBar = {
             TopAppBar(
                 title = if (isEditMode) "Edit Warehouse" else "New Warehouse",
-                onBackClick = onNavigateBack
+                onBackClick = onNavigateBack,
+                isEditMode = isEditMode,
+                onDeleteClick = {
+                    if (isEditMode) {
+                        viewModel.showDeleteConfirmationDialog(true)
+                    }
+                }
             )
         },
         containerColor = Color(0xFFF4ECEC),
@@ -110,7 +115,7 @@ fun WarehouseCreateAndEditView(
                     modifier = Modifier.padding(16.dp)
                 )
             }
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -266,6 +271,33 @@ fun WarehouseCreateAndEditView(
                         )
                     }
                 }
+            }
+
+            // Confirmation Dialog for Deletion
+            if (viewModel.showDeleteDialog.collectAsState().value) {
+                AlertDialog(
+                    onDismissRequest = { viewModel.showDeleteConfirmationDialog(false) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.showDeleteConfirmationDialog(false)
+                            warehouseId?.let { id ->
+                                viewModel.deleteWarehouseById(id) {
+                                    onNavigateBack()
+                                }
+                            }
+                        }) {
+                            Text("Delete", color = Color.Red)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { viewModel.showDeleteConfirmationDialog(false) }) {
+                            Text("Cancel")
+                        }
+                    },
+                    title = { Text("Delete Warehouse") },
+                    text = { Text("Are you sure you want to delete this warehouse? This action is irreversible.") },
+                    containerColor = Color.White
+                )
             }
 
             // Overlay Loading Indicator

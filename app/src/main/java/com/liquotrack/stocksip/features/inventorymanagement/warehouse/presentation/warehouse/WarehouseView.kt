@@ -53,8 +53,14 @@ fun WarehouseView(
 
     val backgroundColor  = Color(0xFFF4ECEC)
 
+    val isMaxReached by viewModel.isMaxReached.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.getAllWarehousesByAccountId()
+    }
+
+    LaunchedEffect(warehouses) {
+        viewModel.validateMaxWarehouses()
     }
 
     ModalNavigationDrawer(
@@ -103,19 +109,13 @@ fun WarehouseView(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column {
                                 Row {
-                                    Icon(
-                                        Icons.Default.Warehouse,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(32.dp),
-                                        tint = onSurfaceLightMediumContrast
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         "Current: ",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast,
                                     )
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         "${warehouses?.total}",
                                         fontWeight = FontWeight.Bold,
@@ -145,6 +145,7 @@ fun WarehouseView(
                             onClick = {
                                 onNavigate("warehouse_create_edit/new")
                             },
+                            enabled = !isMaxReached,
                             modifier = Modifier.height(36.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = onSurfaceLightMediumContrast,

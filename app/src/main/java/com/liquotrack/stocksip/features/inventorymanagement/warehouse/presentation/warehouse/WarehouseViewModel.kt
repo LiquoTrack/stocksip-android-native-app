@@ -75,6 +75,12 @@ class WarehouseViewModel @Inject constructor(
     private val _temperatureError = MutableStateFlow<String?>(null)
     val temperatureError: StateFlow<String?> = _temperatureError.asStateFlow()
 
+    private val _isMaxReached = MutableStateFlow(false)
+    val isMaxReached = _isMaxReached.asStateFlow()
+
+    private val _showDeleteDialog = MutableStateFlow(false)
+    val showDeleteDialog: StateFlow<Boolean> = _showDeleteDialog.asStateFlow()
+
     fun updateWarehouseName(value: String) { _warehouseName.value = value }
     fun updateStreet(value: String) { _street.value = value }
     fun updateCity(value: String) { _city.value = value }
@@ -111,6 +117,10 @@ class WarehouseViewModel @Inject constructor(
         _maxTemp.value = warehouse.temperatureMax
         _imageFile.value = null
         _isLoading.value = false
+    }
+
+    fun showDeleteConfirmationDialog(show: Boolean) {
+        _showDeleteDialog.value = show
     }
 
     /**
@@ -222,6 +232,32 @@ class WarehouseViewModel @Inject constructor(
 
     }
 
+    /**
+     * Deletes the currently editing warehouse by its ID and updates the warehouses state.
+     */
+    fun deleteWarehouseById(warehouseId: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                repository.deleteWarehouse(warehouseId)
+
+                _warehouses.value = _warehouses.value?.copy(
+                    warehouses = _warehouses.value?.warehouses.orEmpty().filter { it.id != warehouseId }
+                )
+
+                onSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Validates the temperature inputs to ensure minimum temperature is less than maximum temperature.
+     * @return True if the temperature inputs are valid, false otherwise.
+     */
     private fun validateTemperature(): Boolean {
         return if (_minTemp.value >= _maxTemp.value) {
             _temperatureError.value = "Minimum temperature must be less than maximum temperature"
@@ -233,8 +269,24 @@ class WarehouseViewModel @Inject constructor(
     }
 
     /**
+     * Validates if the maximum number of warehouses has been reached.
+     * @return True if the current number of warehouses is less than the maximum allowed, false otherwise.
+     */
+    fun validateMaxWarehouses() {
+        val data = _warehouses.value
+        if (data == null) {
+            _isMaxReached.value = false
+            return
+        }
+
+        val currentCount = data.total
+        val maxAllowed = data.maxWarehousesAllowed
+
+        _isMaxReached.value = currentCount >= maxAllowed
+    }
+
+    /**
      * Sets the warehouse to be edited.
-     * @param warehouse The [WarehouseResponse] object representing the warehouse to be edited.
      */
     init {
         getAllWarehousesByAccountId()
