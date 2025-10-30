@@ -106,6 +106,7 @@ class WarehouseViewModel @Inject constructor(
      */
     fun loadWarehouseForEdit(warehouse: WarehouseResponse) {
         _isLoading.value = true
+        _editingWarehouse.value = warehouse
         _warehouseName.value = warehouse.name
         _street.value = warehouse.street
         _city.value = warehouse.city
@@ -145,54 +146,53 @@ class WarehouseViewModel @Inject constructor(
      * Saves the warehouse data. If editing an existing warehouse, it updates it; otherwise, it creates a new one.
      * @param onSuccess A lambda function to be called upon successful save operation.
      */
-    fun saveWarehouse(onSuccess: () -> Unit = {}) {
+    fun saveWarehouse(
+        isEditing: Boolean,
+        warehouseId: String? = null,
+        onSuccess: () -> Unit = {}
+    ) {
         viewModelScope.launch {
             try {
+                val accountId =
+                    tokenModel.getAccountId() ?: throw Exception("Account ID not found")
 
-                val accountId = tokenModel.getAccountId() ?: throw Exception("Account ID not found")
-
-                if (!validateTemperature()) {
-                    return@launch
-                }
-
-                val editingWarehouse = _editingWarehouse.value
                 val imageFile = _imageFile.value
 
-                if (editingWarehouse != null) {
-                    val updatedWarehouse = WarehouseRequest(
-                        name = _warehouseName.value,
-                        street = _street.value,
-                        city = _city.value,
-                        district = _district.value,
-                        postalCode = _postalCode.value,
-                        country = _country.value,
-                        capacity = _capacity.value,
-                        temperatureMin = _minTemp.value,
-                        temperatureMax = _maxTemp.value,
+                val warehouseRequest = WarehouseRequest(
+                    name = _warehouseName.value,
+                    street = _street.value,
+                    city = _city.value,
+                    district = _district.value,
+                    postalCode = _postalCode.value,
+                    country = _country.value,
+                    capacity = _capacity.value,
+                    temperatureMin = _minTemp.value,
+                    temperatureMax = _maxTemp.value
+                )
+
+                if (isEditing && warehouseId != null) {
+
+                    val updated = repository.updateWarehouse(
+                        warehouseRequest,
+                        warehouseId,
+                        imageFile
                     )
-
-                    // TODO: Implement updateWarehouse in the repository
-
-                } else {
-
-
-                    val newWarehouse = WarehouseRequest(
-                        name = _warehouseName.value,
-                        street = _street.value,
-                        city = _city.value,
-                        district = _district.value,
-                        postalCode = _postalCode.value,
-                        country = _country.value,
-                        capacity = _capacity.value,
-                        temperatureMin = _minTemp.value,
-                        temperatureMax = _maxTemp.value,
-                    )
-
-
-                    val createdWarehouse = repository.registerWarehouse(newWarehouse, accountId, imageFile)
 
                     _warehouses.value = _warehouses.value?.copy(
-                        warehouses = _warehouses.value?.warehouses.orEmpty() + createdWarehouse
+                        warehouses = _warehouses.value?.warehouses.orEmpty().map {
+                            if (it.id == updated.id) updated else it
+                        }
+                    )
+
+                } else {
+                    val created = repository.registerWarehouse(
+                        warehouseRequest,
+                        accountId,
+                        imageFile
+                    )
+
+                    _warehouses.value = _warehouses.value?.copy(
+                        warehouses = _warehouses.value?.warehouses.orEmpty() + created
                     )
                 }
 
@@ -204,6 +204,7 @@ class WarehouseViewModel @Inject constructor(
             }
         }
     }
+
 
     /**
      * Fetches a warehouse by its ID and updates the selectedWarehouse state.

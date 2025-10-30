@@ -51,6 +51,7 @@ fun WarehouseCreateAndEditView(
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
 
+
     val isEditMode = warehouseId != null && warehouseId != "new" && warehouseId.isNotBlank()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedWarehouse by viewModel.selectedWarehouse.collectAsState()
@@ -243,9 +244,12 @@ fun WarehouseCreateAndEditView(
                 Button(
                     onClick = {
                         viewModel.updateImageFile(selectedImageFile)
-                        viewModel.saveWarehouse {
-                            onNavigateBack()
-                        }
+                        viewModel.saveWarehouse(
+                            isEditing = isEditMode,
+                            warehouseId = warehouseId,
+                            onSuccess = { onNavigateBack() }
+                        )
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()

@@ -119,8 +119,54 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
             throw Exception("Failed to register warehouse")
         }
 
-    override suspend fun updateWarehouse(warehouse: WarehouseResponse): WarehouseResponse {
-        TODO("Not yet implemented")
+    override suspend fun updateWarehouse(warehouse: WarehouseRequest, warehouseId: String, imageFile: File?): WarehouseResponse = withContext(Dispatchers.IO) {
+        try {
+            val (fields, imagePart) = warehouse.toMultipart(imageFile)
+
+            val response = service.updateWarehouse(
+                warehouseId = warehouseId,
+                fields = fields,
+                image = imagePart
+            )
+
+            if (!response.isSuccessful) {
+                throw Exception("Error updating warehouse: ${response.code()} ${response.message()}")
+            }
+
+            val body = response.body()
+            if (body != null) {
+                return@withContext WarehouseResponse(
+                    id = body.warehouseId,
+                    name = body.name,
+                    street = body.addressStreet,
+                    city = body.addressCity,
+                    district = body.addressDistrict,
+                    postalCode = body.addressPostalCode,
+                    country = body.addressCountry,
+                    temperatureMin = body.temperatureMin,
+                    temperatureMax = body.temperatureMax,
+                    capacity = body.capacity,
+                    imageUrl = body.imageUrl
+                )
+            } else {
+                return@withContext WarehouseResponse(
+                    id = warehouseId,
+                    name = warehouse.name,
+                    street = warehouse.street,
+                    city = warehouse.city,
+                    district = warehouse.district,
+                    postalCode = warehouse.postalCode,
+                    country = warehouse.country,
+                    temperatureMin = warehouse.temperatureMin,
+                    temperatureMax = warehouse.temperatureMax,
+                    capacity = warehouse.capacity,
+                    imageUrl = ""
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception("Failed to update warehouse")
+        }
     }
 
     /** Deletes a warehouse by its unique identifier.
