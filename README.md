@@ -1,4 +1,4 @@
-# StockSip Platform API #
+# StockSip Native Android App #
 
 Stocksip Android Native Application is made with Kotlin, Jetpack Compose, and Room local database. It also illustrates Clean Architecture with MVVM pattern.
 
