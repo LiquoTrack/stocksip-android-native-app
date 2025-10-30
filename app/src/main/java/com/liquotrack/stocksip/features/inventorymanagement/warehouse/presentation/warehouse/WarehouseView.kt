@@ -5,17 +5,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warehouse
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,8 +49,14 @@ fun WarehouseView(
 
     val backgroundColor  = Color(0xFFF4ECEC)
 
+    val isMaxReached by viewModel.isMaxReached.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.getAllWarehousesByAccountId()
+    }
+
+    LaunchedEffect(warehouses) {
+        viewModel.validateMaxWarehouses()
     }
 
     ModalNavigationDrawer(
@@ -99,32 +103,45 @@ fun WarehouseView(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Warehouse,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .padding(end = 8.dp),
-                                tint = onSurfaceLightMediumContrast
-                            )
-                            Text(
-                                "Max. Allowed: ",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                color = onSurfaceLightMediumContrast
-                            )
-                            Text(
-                                "10",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                color = onSurfaceLightMediumContrast
-                            )
+                            Column {
+                                Row {
+                                    Text(
+                                        "Current: ",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast,
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "${warehouses?.total}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast
+                                    )
+                                }
+
+                                Row {
+                                    Text(
+                                        "Max. Allowed: ",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast
+                                    )
+                                    Text(
+                                        "${warehouses?.maxWarehousesAllowed}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = onSurfaceLightMediumContrast
+                                    )
+                                }
+                            }
                         }
 
                         Button(
                             onClick = {
                                 onNavigate("warehouse_create_edit/new")
                             },
+                            enabled = !isMaxReached,
                             modifier = Modifier.height(36.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = onSurfaceLightMediumContrast,
@@ -137,7 +154,7 @@ fun WarehouseView(
                 }
 
                 WarehouseList(
-                    warehouse = warehouses,
+                    warehouse = warehouses?.warehouses ?: emptyList(),
                     onClick = { warehouse ->
                         onNavigate("warehouse_details/${warehouse.id}")
                     },
