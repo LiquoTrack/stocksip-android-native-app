@@ -23,6 +23,8 @@ import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.p
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Failure
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Pending
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
+import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
+import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
 
 /**
  * Main navigation graph of the app.
@@ -234,7 +236,27 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         }
 
         composable(route = Route.MakingOrders.route) {
+            SalesOrdersView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onNewClick = {
+                    // TODO: navigate to order creation screen when available
+                }
+            )
+        }
 
+        composable(route = Route.MakingOrdersSupplier.route) {
+            SupplierSalesOrdersView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onChangeStatus = { /* TODO: implement status change flow */ }
+            )
         }
 
         composable(route = Route.Plans.route) {

@@ -85,11 +85,21 @@ class RegisterAccountViewModel @Inject constructor(
             _isLoading.value = true
             _errorMessage.value = null
 
+            val normalizedEmail = email.trim().lowercase()
+            val normalizedUsername = username.trim()
+            val normalizedPassword = password.trim()
+            val normalizedBusinessName = _businessName.value.trim()
+
+            Log.d(
+                "RegisterAccountViewModel",
+                "Register payload -> email=$normalizedEmail user=$normalizedUsername business=$normalizedBusinessName role=${_selectedRole.value} pwdLen=${normalizedPassword.length}"
+            )
+
             val resource = repository.register(
-                email = email,
-                username = username,
-                password = password,
-                businessName = _businessName.value,
+                email = normalizedEmail,
+                username = normalizedUsername,
+                password = normalizedPassword,
+                businessName = normalizedBusinessName,
                 role = _selectedRole.value
             )
 

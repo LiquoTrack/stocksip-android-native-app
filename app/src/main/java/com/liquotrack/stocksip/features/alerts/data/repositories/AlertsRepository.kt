@@ -1,7 +1,7 @@
-package alerts.data.remote.repositories
+package com.liquotrack.stocksip.features.alerts.data.repositories
 
-import Alert
-import alerts.data.remote.services.AlertsApiService
+import com.liquotrack.stocksip.features.alerts.data.remote.models.Alert
+import com.liquotrack.stocksip.features.alerts.data.remote.services.AlertsApiService
 
 class AlertsRepository(private val apiService: AlertsApiService) {
 

@@ -63,6 +63,7 @@ sealed class Route(val route: String) {
     object Profile : Route(route = "profile")
 
     object MakingOrders : Route(route = "making_orders")
+    object MakingOrdersSupplier : Route(route = "making_orders_supplier")
     object OrderDetail : Route(route = "order_detail")
     object OrderHistory : Route(route = "order_history")
     object ProductTransferHistory : Route(route = "transfers")

@@ -1,3 +1,5 @@
+package com.liquotrack.stocksip.features.alerts.data.remote.models
+
 data class Alert(
     val id: String,
     val title: String,
