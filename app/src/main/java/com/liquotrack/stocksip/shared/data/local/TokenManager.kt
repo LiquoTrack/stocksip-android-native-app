@@ -23,6 +23,7 @@ class TokenManager @Inject constructor(
         private const val KEY_TOKEN = "auth_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"
         private const val KEY_ACCOUNT_ID = "account_id"
+        private const val KEY_ACCOUNT_ROLE = "account_role"
     }
 
     /**
@@ -80,6 +81,20 @@ class TokenManager @Inject constructor(
     }
 
     /**
+     * Saves the account role to SharedPreferences.
+     */
+    fun saveAccountRole(role: String) {
+        sharedPreferences.edit { putString(KEY_ACCOUNT_ROLE, role) }
+    }
+
+    /**
+     * Retrieves the account role from SharedPreferences.
+     */
+    fun getAccountRole(): String? {
+        return sharedPreferences.getString(KEY_ACCOUNT_ROLE, null)
+    }
+
+    /**
      * Clears the stored authentication token from SharedPreferences.
      */
     fun clearAccountId() {
@@ -95,6 +110,7 @@ class TokenManager @Inject constructor(
             remove(KEY_TOKEN)
                 .remove(KEY_REFRESH_TOKEN)
                 .remove(KEY_ACCOUNT_ID)
+                .remove(KEY_ACCOUNT_ROLE)
         }
     }
 

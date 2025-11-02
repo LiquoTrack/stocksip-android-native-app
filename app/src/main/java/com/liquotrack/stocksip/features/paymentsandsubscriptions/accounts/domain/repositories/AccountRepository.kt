@@ -11,4 +11,11 @@ interface AccountRepository {
      * @return A string representing the account status.
      */
     suspend fun getAccountStatus(accountId: String): String
+
+    /**
+     * Retrieves the role of the account with the given ID.
+     * @param accountId The ID of the account.
+     * @return The role string for the account.
+     */
+    suspend fun getAccountRole(accountId: String): String
 }

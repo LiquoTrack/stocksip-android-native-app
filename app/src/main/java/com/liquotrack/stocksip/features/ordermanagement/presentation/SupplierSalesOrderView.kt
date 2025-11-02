@@ -64,7 +64,7 @@ fun SupplierSalesOrdersView(
                     status = "Received",
                     ownerEmail = "janedoe@gmail.com",
                     ownerPhone = "987654321",
-                    generatedAt = "2/9/2025"
+                    generatedAt = "2/9/2025s"
                 )
             )
         }

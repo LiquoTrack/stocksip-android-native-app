@@ -18,4 +18,14 @@ class AccountRepositoryImpl @Inject constructor(private val service: AccountServ
         }
         return@withContext "Unknown"
     }
+
+    override suspend fun getAccountRole(accountId: String): String = withContext(Dispatchers.IO) {
+        val response = service.getAccountById(accountId)
+        if (response.isSuccessful) {
+            response.body()?.let { accountDto ->
+                return@withContext accountDto.role
+            }
+        }
+        return@withContext "Unknown"
+    }
 }
