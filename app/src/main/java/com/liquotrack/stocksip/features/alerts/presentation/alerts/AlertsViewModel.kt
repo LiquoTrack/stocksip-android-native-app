@@ -1,13 +1,13 @@
-package alerts.presentation.alerts
+package com.liquotrack.stocksip.features.alerts.presentation.alerts
 
-import Alert
+import com.liquotrack.stocksip.features.alerts.data.remote.models.Alert
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import alerts.data.remote.repositories.AlertsRepository
+import com.liquotrack.stocksip.features.alerts.data.repositories.AlertsRepository
 import kotlinx.coroutines.launch
 
-class AlertsViewModel(
+class AlertsViewModelLegacy(
     private val repository: AlertsRepository
 ) : ViewModel() {
 

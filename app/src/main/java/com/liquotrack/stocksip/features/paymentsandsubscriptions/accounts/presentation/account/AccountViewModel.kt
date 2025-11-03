@@ -20,6 +20,9 @@ class AccountViewModel @Inject constructor(
     private val _accountStatus = MutableStateFlow<String?>(null)
     val accountStatus: StateFlow<String?> = _accountStatus.asStateFlow()
 
+    private val _accountRole = MutableStateFlow<String?>(tokenModel.getAccountRole())
+    val accountRole: StateFlow<String?> = _accountRole.asStateFlow()
+
     fun fetchAccountStatus() {
         viewModelScope.launch {
             try {
@@ -28,6 +31,28 @@ class AccountViewModel @Inject constructor(
                 _accountStatus.value = status
             } catch (e: Exception) {
                 _accountStatus.value = "Not Available"
+            }
+        }
+    }
+
+    fun loadAccountRoleFromStorage() {
+        _accountRole.value = tokenModel.getAccountRole()
+    }
+
+    fun setAccountRole(role: String) {
+        tokenModel.saveAccountRole(role)
+        _accountRole.value = role
+    }
+
+    fun fetchAccountRole() {
+        viewModelScope.launch {
+            try {
+                val accountId = tokenModel.getAccountId() ?: throw Exception("Account ID not found")
+                val role = repository.getAccountRole(accountId)
+                tokenModel.saveAccountRole(role)
+                _accountRole.value = role
+            } catch (e: Exception) {
+                throw e
             }
         }
     }

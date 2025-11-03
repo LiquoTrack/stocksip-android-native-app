@@ -1,21 +1,27 @@
-package alerts.domain.di
+package com.liquotrack.stocksip.features.alerts.domain.di
 
-import alerts.data.remote.repositories.AlertsRepository
-import alerts.data.remote.services.AlertsApiService
-import org.koin.dsl.module
+import com.liquotrack.stocksip.features.alerts.data.remote.services.AlertsApiService
+import com.liquotrack.stocksip.features.alerts.data.repositories.AlertsRepository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
-val alertsModule = module {
-    // Instancia Retrofit básica (ajusta la base URL según tu backend)
-    single {
-        Retrofit.Builder()
-            .baseUrl("http://localhost:8080")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AlertsApiService::class.java)
+@Module
+@InstallIn(SingletonComponent::class)
+object AlertsModule {
+
+    @Provides
+    @Singleton
+    fun provideAlertsApiService(retrofit: Retrofit): AlertsApiService {
+        return retrofit.create(AlertsApiService::class.java)
     }
 
-    // Repositorio inyectado
-    single { AlertsRepository(get()) }
+    @Provides
+    @Singleton
+    fun provideAlertsRepository(api: AlertsApiService): AlertsRepository {
+        return AlertsRepository(api)
+    }
 }

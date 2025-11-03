@@ -108,6 +108,7 @@ fun Login(
     LaunchedEffect(user) {
         user?.let {
             accountViewModel.fetchAccountStatus()
+            accountViewModel.fetchAccountRole()
         }
     }
 

@@ -1,6 +1,6 @@
-package alerts.data.remote.services
+package com.liquotrack.stocksip.features.alerts.data.remote.services
 
-import Alert
+import com.liquotrack.stocksip.features.alerts.data.remote.models.Alert
 import retrofit2.http.GET
 import retrofit2.http.Path
 
