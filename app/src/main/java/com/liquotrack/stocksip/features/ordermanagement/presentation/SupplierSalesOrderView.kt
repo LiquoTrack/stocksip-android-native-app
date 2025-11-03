@@ -17,11 +17,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,7 +37,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.shared.ui.components.NavDrawer
+import com.liquotrack.stocksip.shared.ui.components.TopBar
+import kotlinx.coroutines.launch
 
 data class SupplierOrderItemUi(
     val id: String,
@@ -45,46 +57,75 @@ data class SupplierOrderItemUi(
 @Composable
 fun SupplierSalesOrdersView(
     onNavigate: (String) -> Unit,
-    onChangeStatus: (SupplierOrderItemUi) -> Unit
+    onChangeStatus: (SupplierOrderItemUi) -> Unit,
+    onLogout: () -> Unit = {},
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val bg = Color(0xFFF4ECEC)
-    DrawerScaffold(
-        title = "Orders",
-        currentRoute = "orders_supplier",
-        onNavigate = onNavigate,
-        backgroundColor = bg
-    ) { padding ->
-        val orders = remember {
-            listOf(
-                SupplierOrderItemUi(
-                    id = "#OR001",
-                    title = "Vino Blanco",
-                    priceLabel = "S/. 50.00",
-                    quantity = 1,
-                    status = "Received",
-                    ownerEmail = "janedoe@gmail.com",
-                    ownerPhone = "987654321",
-                    generatedAt = "2/9/2025s"
-                )
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
+    LaunchedEffect(isLoggedOut) {
+        if (isLoggedOut) {
+            onLogout()
+            loginViewModel.resetLogoutState()
+        }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            NavDrawer(
+                currentRoute = "making_orders",
+                onNavigate = onNavigate,
+                onClose = { scope.launch { drawerState.close() } },
+                onLogout = { loginViewModel.logout() }
             )
         }
+    ) {
+        Scaffold(
+            topBar = {
+                TopBar(
+                    title = "Orders",
+                    showBackButton = false,
+                    onNavigationClick = { scope.launch { drawerState.open() } }
+                )
+            },
+            containerColor = bg
+        ) { padding ->
+            val orders = remember {
+                listOf(
+                    SupplierOrderItemUi(
+                        id = "#OR001",
+                        title = "Vino Blanco",
+                        priceLabel = "S/. 50.00",
+                        quantity = 1,
+                        status = "Received",
+                        ownerEmail = "janedoe@gmail.com",
+                        ownerPhone = "987654321",
+                        generatedAt = "2/9/2025s"
+                    )
+                )
+            }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .background(bg)
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Top
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .background(bg)
+                    .padding(horizontal = 16.dp)
             ) {
-                items(orders) { order ->
-                    SupplierOrderCard(order = order, onChangeStatus = onChangeStatus)
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    items(orders) { order ->
+                        SupplierOrderCard(order = order, onChangeStatus = onChangeStatus)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
             }
         }
@@ -154,8 +195,7 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
                     shape = MaterialTheme.shapes.small
                 ) {
                     Box(
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(

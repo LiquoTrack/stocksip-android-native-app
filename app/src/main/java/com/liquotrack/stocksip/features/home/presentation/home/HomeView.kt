@@ -27,28 +27,42 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.R
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.home.domain.model.ShortcutItem
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
-import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeView(
-    onNavigate: (String) -> Unit = {}
+    onNavigate: (String) -> Unit = {},
+    onLogout: () -> Unit = {},
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
+    // Listen for logout event
+    LaunchedEffect(isLoggedOut) {
+        if (isLoggedOut) {
+            onLogout()
+            loginViewModel.resetLogoutState()
+        }
+    }
 
     val shortcuts = listOf(
         ShortcutItem(
@@ -81,9 +95,12 @@ fun HomeView(
         drawerState = drawerState,
         drawerContent = {
             NavDrawer(
-                currentRoute = "home",
+                currentRoute = "main",
                 onNavigate = onNavigate,
-                onClose = { scope.launch { drawerState.close() } }
+                onClose = { scope.launch { drawerState.close() } },
+                onLogout = {
+                    loginViewModel.logout()
+                }
             )
         }
     ) {
@@ -103,7 +120,7 @@ fun HomeView(
             ) {
                 Spacer(modifier = Modifier.height(30.dp))
 
-                // ======== Banner Section ========
+                // Banner Section
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -152,13 +169,12 @@ fun HomeView(
                         Image(
                             painter = painterResource(id = R.drawable.coheteespacial1),
                             contentDescription = "Rocket illustration",
-                            modifier = Modifier
-                                .size(120.dp)
+                            modifier = Modifier.size(120.dp)
                         )
                     }
                 }
 
-                // ======== Shortcuts Section (LazyColumn) ========
+                // Shortcuts Section (LazyColumn)
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -218,13 +234,5 @@ fun HomeView(
                 }
             }
         }
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun PreviewHomeScreen() {
-    StockSipTheme {
-        HomeView()
     }
 }
