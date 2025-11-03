@@ -20,7 +20,6 @@ class AlertsViewModel @Inject constructor(
     private val _alerts = MutableStateFlow<List<Alert>>(emptyList<Alert>())
     val alerts: StateFlow<List<Alert>> = _alerts
 
-    // Puedes cambiar el accountId por el valor real que necesites
     fun loadAlerts(accountId: String = "68e49ffad906e587b9a91e4b") {
         viewModelScope.launch {
             _alerts.value = repository.fetchAlerts(accountId)

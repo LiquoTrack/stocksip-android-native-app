@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import kotlinx.coroutines.launch
 
@@ -49,7 +51,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun AdminPanel(
     onNavigate: (String) -> Unit = {},
-    viewModel: AdminPanelViewModel = hiltViewModel()
+    viewModel: AdminPanelViewModel = hiltViewModel(),
+    onLogout: () -> Unit = {},
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val users by viewModel.users.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -58,6 +62,14 @@ fun AdminPanel(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
+    LaunchedEffect(isLoggedOut) {
+        if (isLoggedOut) {
+            onLogout()
+            loginViewModel.resetLogoutState()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -65,11 +77,8 @@ fun AdminPanel(
             NavDrawer(
                 currentRoute = "user",
                 onNavigate = onNavigate,
-                onClose = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                }
+                onClose = { scope.launch { drawerState.close() } },
+                onLogout = { loginViewModel.logout() }
             )
         }
     ) {
@@ -84,11 +93,7 @@ fun AdminPanel(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                drawerState.open()
-                            }
-                        }) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Menu",
@@ -109,11 +114,8 @@ fun AdminPanel(
                     .padding(padding)
                     .padding(16.dp)
             ) {
-                // Tabs: Users / Roles
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     AdminTabButton(
@@ -129,49 +131,32 @@ fun AdminPanel(
                     )
                 }
 
-                // New User Button
                 Button(
                     onClick = { showNewUserDialog = true },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .height(55.dp)
-                        .padding(bottom = 16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4A1B2A)
-                    ),
+                    modifier = Modifier.align(Alignment.CenterHorizontally).height(55.dp).padding(bottom = 16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add",
                         tint = Color.White,
-                        modifier = Modifier
-                            .size(18.dp)
-                            .padding(end = 4.dp)
+                        modifier = Modifier.size(18.dp).padding(end = 4.dp)
                     )
                     Text("New", color = Color.White, fontSize = 14.sp)
                 }
 
-                // Content based on selected tab
                 when (selectedTab) {
                     AdminTab.USERS -> {
                         UsersList(
                             users = users,
                             isLoading = isLoading,
-                            onEditUser = { user ->
-                                viewModel.selectUserForEdit(user)
-                            },
-                            onDeleteUser = { user ->
-                                viewModel.selectUserForDelete(user)
-                            }
+                            onEditUser = { user -> viewModel.selectUserForEdit(user) },
+                            onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
                         )
                     }
-
                     AdminTab.ROLES -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text("Roles Management - Coming Soon")
                         }
                     }
@@ -180,7 +165,6 @@ fun AdminPanel(
         }
     }
 
-    // New User Dialog
     if (showNewUserDialog) {
         NewUserDialog(
             onDismiss = { showNewUserDialog = false },
@@ -191,7 +175,6 @@ fun AdminPanel(
         )
     }
 
-    // Edit User Dialog
     viewModel.userToEdit.value?.let { user ->
         EditUserDialog(
             user = user,
@@ -203,7 +186,6 @@ fun AdminPanel(
         )
     }
 
-    // Delete User Dialog
     viewModel.userToDelete.value?.let { user ->
         DeleteUserDialog(
             userName = user.username,
@@ -230,9 +212,7 @@ private fun AdminTabButton(
         ),
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, Color(0xFFD1C4C4)),
-        modifier = Modifier
-            .width(100.dp)
-            .height(36.dp)
+        modifier = Modifier.width(100.dp).height(36.dp)
     ) {
         Text(text, fontSize = 14.sp)
     }
@@ -265,9 +245,7 @@ private fun DeleteUserDialog(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                 shape = RoundedCornerShape(20.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
             ) {
                 Text("Delete", color = Color.White)
             }
@@ -278,9 +256,7 @@ private fun DeleteUserDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 border = BorderStroke(1.dp, Color(0xFFD1C4C4)),
                 shape = RoundedCornerShape(20.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
             ) {
                 Text("Cancel", color = Color(0xFF4A1B2A))
             }
