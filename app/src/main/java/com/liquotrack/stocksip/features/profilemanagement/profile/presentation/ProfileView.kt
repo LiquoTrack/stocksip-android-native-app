@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,20 +37,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
-import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun Profile(
     viewModel: ProfileViewModel = hiltViewModel(),
-    onNavigate: (String) -> Unit = {}
+    onNavigate: (String) -> Unit = {},
+    onLogout: () -> Unit = {},
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val name by viewModel.name.collectAsState()
     val email by viewModel.email.collectAsState()
@@ -61,6 +63,14 @@ fun Profile(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
+    LaunchedEffect(isLoggedOut) {
+        if (isLoggedOut) {
+            onLogout()
+            loginViewModel.resetLogoutState()
+        }
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -74,11 +84,8 @@ fun Profile(
             NavDrawer(
                 currentRoute = "profile",
                 onNavigate = onNavigate,
-                onClose = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                }
+                onClose = { scope.launch { drawerState.close() } },
+                onLogout = { loginViewModel.logout() }
             )
         },
         gesturesEnabled = !isEditMode
@@ -92,9 +99,7 @@ fun Profile(
                         if (isEditMode && !isSaving) {
                             viewModel.toggleEditMode()
                         } else if (!isEditMode) {
-                            scope.launch {
-                                drawerState.open()
-                            }
+                            scope.launch { drawerState.open() }
                         }
                     }
                 )
@@ -110,10 +115,7 @@ fun Profile(
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Profile Image
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(contentAlignment = Alignment.Center) {
                     if (profileImageUrl.isNullOrEmpty()) {
                         Box(
                             modifier = Modifier
@@ -144,26 +146,18 @@ fun Profile(
 
                 if (isEditMode) {
                     Spacer(modifier = Modifier.height(16.dp))
-
                     Button(
                         onClick = { imagePickerLauncher.launch("image/*") },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A1B2A)
-                        ),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                         shape = RoundedCornerShape(20.dp),
                         enabled = !isSaving
                     ) {
-                        Text(
-                            text = "Select Image",
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
+                        Text(text = "Select Image", color = Color.White, fontSize = 14.sp)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Name Field
                 ProfileField(
                     label = "Name",
                     value = name,
@@ -174,7 +168,6 @@ fun Profile(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Email Field
                 ProfileField(
                     label = "Email",
                     value = email,
@@ -185,7 +178,6 @@ fun Profile(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Contact Number Field
                 ProfileField(
                     label = "Contact Number",
                     value = contactNumber,
@@ -196,7 +188,6 @@ fun Profile(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Action Button
                 Button(
                     onClick = {
                         if (isEditMode) {
@@ -205,20 +196,13 @@ fun Profile(
                             viewModel.toggleEditMode()
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4A1B2A)
-                    ),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                     shape = RoundedCornerShape(24.dp),
                     enabled = !isSaving
                 ) {
                     if (isSaving) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
                         Text(
                             text = if (isEditMode) "Save" else "Edit Profile",
@@ -232,13 +216,5 @@ fun Profile(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun ProfilePreview() {
-    StockSipTheme {
-        Profile()
     }
 }
