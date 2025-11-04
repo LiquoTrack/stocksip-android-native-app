@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.liquotrack.stocksip.core.navigation.AppNavigation
-import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan.ChoosePlanScreen
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import dagger.hilt.android.AndroidEntryPoint
 
