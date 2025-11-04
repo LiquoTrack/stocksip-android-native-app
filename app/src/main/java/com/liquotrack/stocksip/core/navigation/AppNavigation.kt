@@ -15,9 +15,9 @@ import com.liquotrack.stocksip.features.authentication.register.presentation.reg
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
-import com.liquotrack.stocksip.features.careguides.presentation.CareGuideCreate
-import com.liquotrack.stocksip.features.careguides.presentation.CareGuideEdit
-import com.liquotrack.stocksip.features.careguides.presentation.CareGuides
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuideCreate
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuideEdit
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuides
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseCreateAndEditView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView

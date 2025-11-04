@@ -21,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderResponse
 import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
 
 data class OrderItemUi(
@@ -46,24 +50,16 @@ fun SalesOrdersView(
     onNewClick: () -> Unit
 ) {
     val bg = Color(0xFFF4ECEC)
+    val viewModel: OwnerSalesOrdersViewModel = hiltViewModel()
+    val ordersState = viewModel.ownerOrders.collectAsState()
+
     DrawerScaffold(
         title = "Orders",
         currentRoute = "orders",
         onNavigate = onNavigate,
         backgroundColor = bg
     ) { padding ->
-        val orders = remember {
-            listOf(
-                OrderItemUi(
-                    id = "#OR001",
-                    title = "Vino Blanco",
-                    priceLabel = "S/. 50.00",
-                    quantity = 1,
-                    status = "Sent",
-                    generatedAt = "2/9/2025"
-                )
-            )
-        }
+        LaunchedEffect(Unit) { viewModel.loadOwnerOrders() }
 
         Column(
             modifier = Modifier
@@ -96,8 +92,12 @@ fun SalesOrdersView(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Top
             ) {
-                items(orders) { order ->
-                    OrderCard(order)
+                items(ordersState.value) { order ->
+                    OwnerOrderCard(
+                        order = order,
+                        onAccept = { viewModel.respondToDeliveryProposal(order.id, true) },
+                        onReject = { viewModel.respondToDeliveryProposal(order.id, false) }
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
@@ -123,7 +123,7 @@ fun NewPillButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun OrderCard(order: OrderItemUi) {
+fun OwnerOrderCard(order: SalesOrderResponse, onAccept: () -> Unit, onReject: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFCF4EF)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -131,7 +131,7 @@ fun OrderCard(order: OrderItemUi) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = order.id,
+                text = order.orderCode,
                 color = Color(0xFF9A9A9A),
                 fontSize = 14.sp,
                 maxLines = 1,
@@ -141,7 +141,7 @@ fun OrderCard(order: OrderItemUi) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = order.title,
+                text = "Status: ${order.status}",
                 color = Color(0xFF4A1B2A),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -150,7 +150,7 @@ fun OrderCard(order: OrderItemUi) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Price: ${'$'}{order.priceLabel}",
+                text = "Items: ${order.items.sumOf { it.quantityToSell }}",
                 color = Color(0xFF9A6E6E),
                 fontSize = 14.sp
             )
@@ -159,7 +159,7 @@ fun OrderCard(order: OrderItemUi) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Quantity: ${order.quantity}",
+                    text = "Generated at: ${order.receiptDate}",
                     color = Color(0xFF9A6E6E),
                     fontSize = 14.sp
                 )
@@ -176,7 +176,7 @@ fun OrderCard(order: OrderItemUi) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = order.status,
+                            text = order.deliveryProposal?.status ?: "No delivery proposal",
                             color = Color(0xFF6A4E00),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
@@ -187,11 +187,34 @@ fun OrderCard(order: OrderItemUi) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = "Generated at: ${order.generatedAt}",
-                color = Color(0xFF9A6E6E),
-                fontSize = 14.sp
-            )
+            val canRespond = order.deliveryProposal?.status == "Proposed"
+            if (canRespond) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        onClick = onAccept,
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF9CF2CC),
+                            contentColor = Color(0xFF0B6F45)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                    ) {
+                        Text(text = "Accept", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = onReject,
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFF9C0C0),
+                            contentColor = Color(0xFF6B0F0F)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                    ) {
+                        Text(text = "Reject", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
         }
     }
 }

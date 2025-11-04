@@ -17,18 +17,28 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.collectAsState
 import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
 
 data class SupplierOrderItemUi(
@@ -48,26 +58,19 @@ fun SupplierSalesOrdersView(
     onChangeStatus: (SupplierOrderItemUi) -> Unit
 ) {
     val bg = Color(0xFFF4ECEC)
+    var showStatusDialog by remember { mutableStateOf(false) }
+    var selectedOrder by remember { mutableStateOf<SupplierOrderItemUi?>(null) }
+    var selectedStatus by remember { mutableStateOf<String?>(null) }
+    val viewModel: SalesOrdersViewModel = hiltViewModel()
+    val orders by viewModel.supplierOrders.collectAsState()
+
     DrawerScaffold(
         title = "Orders",
         currentRoute = "orders_supplier",
         onNavigate = onNavigate,
         backgroundColor = bg
     ) { padding ->
-        val orders = remember {
-            listOf(
-                SupplierOrderItemUi(
-                    id = "#OR001",
-                    title = "Vino Blanco",
-                    priceLabel = "S/. 50.00",
-                    quantity = 1,
-                    status = "Received",
-                    ownerEmail = "janedoe@gmail.com",
-                    ownerPhone = "987654321",
-                    generatedAt = "2/9/2025s"
-                )
-            )
-        }
+        LaunchedEffect(Unit) { viewModel.loadSupplierOrders() }
 
         Column(
             modifier = Modifier
@@ -83,11 +86,31 @@ fun SupplierSalesOrdersView(
                 verticalArrangement = Arrangement.Top
             ) {
                 items(orders) { order ->
-                    SupplierOrderCard(order = order, onChangeStatus = onChangeStatus)
+                    SupplierOrderCard(
+                        order = order,
+                        onChangeStatus = { clickedOrder ->
+                            selectedOrder = clickedOrder
+                            selectedStatus = clickedOrder.status
+                            showStatusDialog = true
+                        }
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
+    }
+
+    if (showStatusDialog && selectedOrder != null) {
+        SupplierSalesOrderChangeStatus(
+            isVisible = showStatusDialog,
+            currentStatus = selectedStatus ?: selectedOrder!!.status,
+            onSelect = { option ->
+                selectedStatus = option
+                selectedOrder = selectedOrder?.copy(status = option)
+                selectedOrder?.let { viewModel.updateOrderStatus(it.id, option) }
+            },
+            onDismiss = { showStatusDialog = false }
+        )
     }
 }
 
