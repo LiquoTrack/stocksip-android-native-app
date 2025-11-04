@@ -33,9 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderResponse
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
 
 data class OrderItemUi(
@@ -54,7 +51,7 @@ fun SalesOrdersView(
 ) {
     val bg = Color(0xFFF4ECEC)
     val viewModel: OwnerSalesOrdersViewModel = hiltViewModel()
-    val ordersState = viewModel.ownerOrdersUi.collectAsState()
+    val ordersState = viewModel.ownerOrders.collectAsState()
 
     DrawerScaffold(
         title = "Orders",
@@ -95,11 +92,11 @@ fun SalesOrdersView(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Top
             ) {
-                items(ordersState.value) { item ->
+                items(ordersState.value) { order ->
                     OwnerOrderCard(
-                        order = item,
-                        onAccept = { },
-                        onReject = { }
+                        order = order,
+                        onAccept = { viewModel.respondToDeliveryProposal(order.id, true) },
+                        onReject = { viewModel.respondToDeliveryProposal(order.id, false) }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -126,7 +123,7 @@ fun NewPillButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun OwnerOrderCard(order: OrderItemUi, onAccept: () -> Unit, onReject: () -> Unit) {
+fun OwnerOrderCard(order: SalesOrderResponse, onAccept: () -> Unit, onReject: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFCF4EF)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -134,7 +131,7 @@ fun OwnerOrderCard(order: OrderItemUi, onAccept: () -> Unit, onReject: () -> Uni
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "#${order.title}",
+                text = order.orderCode,
                 color = Color(0xFF9A9A9A),
                 fontSize = 14.sp,
                 maxLines = 1,
@@ -144,7 +141,7 @@ fun OwnerOrderCard(order: OrderItemUi, onAccept: () -> Unit, onReject: () -> Uni
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = order.title,
+                text = "Status: ${order.status}",
                 color = Color(0xFF4A1B2A),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -153,50 +150,71 @@ fun OwnerOrderCard(order: OrderItemUi, onAccept: () -> Unit, onReject: () -> Uni
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Price: ${order.priceLabel}",
+                text = "Items: ${order.items.sumOf { it.quantityToSell }}",
                 color = Color(0xFF9A6E6E),
                 fontSize = 14.sp
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = "Quantity: ${order.quantity}",
-                color = Color(0xFFDE9AA7),
-                fontSize = 14.sp
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Generated at: ${order.receiptDate}",
+                    color = Color(0xFF9A6E6E),
+                    fontSize = 14.sp
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
-            val (chipBg, chipFg, chipText) = when (order.status.trim().uppercase()) {
-                "PROCESSING", "PENDING", "SENT" -> Triple(Color(0xFFFFE28F), Color(0xFF000000), "Sent")
-                "CONFIRMED", "RECEIVED" -> Triple(Color(0xFF9CF2CC), Color(0xFF0B6F45), order.status)
-                "CANCELED" -> Triple(Color(0xFFFFD1D1), Color(0xFF8F1E1E), order.status)
-                else -> Triple(Color(0xFFE5E5E5), Color(0xFF6B6B6B), order.status)
-            }
-            Surface(color = chipBg, shape = MaterialTheme.shapes.small) {
-                Box(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), contentAlignment = Alignment.Center) {
-                    Text(text = chipText, color = chipFg, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Surface(
+                    color = Color(0xFFFFE28F),
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = order.deliveryProposal?.status ?: "No delivery proposal",
+                            color = Color(0xFF6A4E00),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val generatedText = try {
-                val instant = Instant.parse(order.generatedAt)
-                val local = instant.atZone(ZoneId.systemDefault()).toLocalDate()
-                val formatted = DateTimeFormatter.ofPattern("M/d/yyyy").format(local)
-                "Generated at: $formatted"
-            } catch (_: Exception) {
-                "Generated at: ${order.generatedAt}"
-            }
-            Text(
-                text = generatedText,
-                color = Color(0xFF9A6E6E),
-                fontSize = 14.sp
-            )
-
             Spacer(modifier = Modifier.height(12.dp))
+
+            val canRespond = order.deliveryProposal?.status == "Proposed"
+            if (canRespond) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        onClick = onAccept,
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF9CF2CC),
+                            contentColor = Color(0xFF0B6F45)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                    ) {
+                        Text(text = "Accept", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = onReject,
+                        shape = MaterialTheme.shapes.medium,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFF9C0C0),
+                            contentColor = Color(0xFF6B0F0F)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                    ) {
+                        Text(text = "Reject", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
         }
     }
 }

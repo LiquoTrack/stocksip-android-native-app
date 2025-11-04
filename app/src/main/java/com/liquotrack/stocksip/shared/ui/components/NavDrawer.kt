@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CardMembership
 import androidx.compose.material.icons.filled.ChevronRight
@@ -43,12 +44,14 @@ import androidx.compose.ui.unit.sp
  * @param currentRoute Currently selected route
  * @param onNavigate Callback for navigation with route destination
  * @param onClose Callback to close the drawer
+ * @param onLogout Callback for logout action
  */
 @Composable
 fun NavDrawer(
     currentRoute: String,
     onNavigate: (String) -> Unit = {},
-    onClose: () -> Unit = {}
+    onClose: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     ModalDrawerSheet(
         drawerContainerColor = Color(0xFF4A1B2A),
@@ -165,6 +168,18 @@ fun NavDrawer(
             )
 
             Spacer(modifier = Modifier.weight(1f))
+
+            // Logout Button
+            NavDrawerItem(
+                icon = Icons.AutoMirrored.Filled.Logout,
+                title = "Log Out",
+                route = "logout",
+                currentRoute = "",
+                onClick = {
+                    onLogout()
+                    onClose()
+                }
+            )
         }
     }
 }

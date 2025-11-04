@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.WarehouseList
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
@@ -41,15 +42,25 @@ import kotlinx.coroutines.launch
 @Composable
 fun WarehouseView(
     viewModel: WarehouseViewModel = hiltViewModel(),
-    onNavigate: (String) -> Unit = {}
+    onNavigate: (String) -> Unit = {},
+    onLogout: () -> Unit = {},
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val warehouses by viewModel.warehouses.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
 
     val backgroundColor  = Color(0xFFF4ECEC)
 
     val isMaxReached by viewModel.isMaxReached.collectAsState()
+
+    LaunchedEffect(isLoggedOut) {
+        if (isLoggedOut) {
+            onLogout()
+            loginViewModel.resetLogoutState()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getAllWarehousesByAccountId()
@@ -67,6 +78,9 @@ fun WarehouseView(
                 onNavigate = onNavigate,
                 onClose = {
                     scope.launch { drawerState.close() }
+                },
+                onLogout = {
+                    loginViewModel.logout()
                 }
             )
         }

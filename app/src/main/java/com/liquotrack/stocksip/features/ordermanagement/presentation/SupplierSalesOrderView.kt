@@ -40,9 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.collectAsState
 import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 data class SupplierOrderItemUi(
     val id: String,
@@ -126,7 +123,7 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "#${order.title}",
+                text = order.id,
                 color = Color(0xFF9A9A9A),
                 fontSize = 14.sp,
                 maxLines = 1,
@@ -175,14 +172,8 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                val (chipBg, chipFg, chipText) = when (order.status.trim().uppercase()) {
-                    "RECEIVED", "CONFIRMED" -> Triple(Color(0xFF9CF2CC), Color(0xFF0B6F45), order.status)
-                    "PROCESSING", "PENDING", "SENT" -> Triple(Color(0xFFF6E7A8), Color(0xFF7A6515), "Sent")
-                    "CANCELED" -> Triple(Color(0xFFFFD1D1), Color(0xFF8F1E1E), order.status)
-                    else -> Triple(Color(0xFFE5E5E5), Color(0xFF6B6B6B), order.status)
-                }
                 Surface(
-                    color = chipBg,
+                    color = Color(0xFF9CF2CC),
                     shape = MaterialTheme.shapes.small
                 ) {
                     Box(
@@ -191,8 +182,8 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = chipText,
-                            color = chipFg,
+                            text = order.status,
+                            color = Color(0xFF0B6F45),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -214,16 +205,8 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
-            val generatedText = try {
-                val instant = Instant.parse(order.generatedAt)
-                val local = instant.atZone(ZoneId.systemDefault()).toLocalDate()
-                val formatted = DateTimeFormatter.ofPattern("M/d/yyyy").format(local)
-                "Generated at: $formatted"
-            } catch (_: Exception) {
-                "Generated at: ${order.generatedAt}"
-            }
             Text(
-                text = generatedText,
+                text = "Generated at: ${order.generatedAt}",
                 color = Color(0xFF9A6E6E),
                 fontSize = 14.sp
             )
