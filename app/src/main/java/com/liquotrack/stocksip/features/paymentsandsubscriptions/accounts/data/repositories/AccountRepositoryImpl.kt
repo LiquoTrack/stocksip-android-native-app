@@ -28,4 +28,14 @@ class AccountRepositoryImpl @Inject constructor(private val service: AccountServ
         }
         return@withContext "Unknown"
     }
+
+    override suspend fun getAccountContacts(accountId: String): Pair<String?, String?> = withContext(Dispatchers.IO) {
+        val response = service.getAccountById(accountId)
+        if (response.isSuccessful) {
+            response.body()?.let { accountDto ->
+                return@withContext Pair(accountDto.email, accountDto.phone)
+            }
+        }
+        return@withContext Pair(null, null)
+    }
 }

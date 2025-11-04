@@ -29,6 +29,7 @@ fun DrawerScaffold(
     title: String,
     currentRoute: String,
     onNavigate: (String) -> Unit,
+    onLogout: () -> Unit = {},
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {},
     topBarActions: @Composable () -> Unit = {},
@@ -45,6 +46,7 @@ fun DrawerScaffold(
             NavDrawer(
                 currentRoute = currentRoute,
                 onNavigate = onNavigate,
+                onLogout = onLogout,
                 onClose = {
                     scope.launch {
                         drawerState.close()
