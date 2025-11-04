@@ -55,7 +55,8 @@ data class SupplierOrderItemUi(
 @Composable
 fun SupplierSalesOrdersView(
     onNavigate: (String) -> Unit,
-    onChangeStatus: (SupplierOrderItemUi) -> Unit
+    onChangeStatus: (SupplierOrderItemUi) -> Unit,
+    onLogout: () -> Unit
 ) {
     val bg = Color(0xFFF4ECEC)
     var showStatusDialog by remember { mutableStateOf(false) }
@@ -68,6 +69,7 @@ fun SupplierSalesOrdersView(
         title = "Orders",
         currentRoute = "orders_supplier",
         onNavigate = onNavigate,
+        onLogout = onLogout,
         backgroundColor = bg
     ) { padding ->
         LaunchedEffect(Unit) { viewModel.loadSupplierOrders() }

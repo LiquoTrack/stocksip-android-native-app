@@ -1,10 +1,8 @@
 package com.liquotrack.stocksip.core.navigation
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,15 +27,16 @@ import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.p
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
-
+/**
+ * Main navigation graph of the app.
+ * Includes authentication, home, warehouse, products, care guides, etc.
+ */
 @Composable
 fun AppNavigation(startDestination: String = Route.Login.route) {
-
     val navController = rememberNavController()
-
     NavHost(navController, startDestination = startDestination) {
-
         // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
             Login(
@@ -78,7 +77,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
+        // REGISTER USER FLOW
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -87,7 +86,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
+        // REGISTER ACCOUNT AND BUSINESS FLOW
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(
@@ -99,7 +98,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             val email = backStackEntry.arguments?.getString(Route.RegisterAccount.emailArg) ?: ""
             val fullName = backStackEntry.arguments?.getString(Route.RegisterAccount.fullNameArg) ?: ""
             val password = backStackEntry.arguments?.getString(Route.RegisterAccount.passwordArg) ?: ""
-
             RegisterAccount(
                 email = email,
                 username = fullName,
@@ -112,7 +110,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
@@ -122,7 +119,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-
         composable(
             route = Route.ConfirmationCode.routeWithArguments,
             arguments = listOf(
@@ -139,7 +135,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         // MAIN FLOW
         composable(route = Route.Main.route) {
             HomeView(
@@ -147,45 +142,27 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
                 }
             )
         }
-
         composable(route = Route.Profile.route) {
             Profile(
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
                 }
             )
         }
-
         composable(route = Route.Warehouses.route) {
             WarehouseView(
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
                 }
             )
         }
-
         composable(
             route = "warehouse_create_edit/{warehouseId}",
             arguments = listOf(navArgument("warehouseId") {
@@ -198,26 +175,17 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-
         composable(route = Route.UserManagement.route) {
             AdminPanel(
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
                 }
             )
         }
-
         composable(route = Route.Products.route) {
-
         }
-
         composable(route = Route.CareGuides.route) {
             CareGuides(
                 onNavigate = { route ->
@@ -227,13 +195,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         composable(route = Route.CareGuideCreate.route) {
             CareGuideCreate(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-
         composable(
             route = Route.CareGuideEdit.routeWithArguments,
             arguments = listOf(
@@ -249,21 +215,16 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         composable(route = Route.Catalogs.route) {
-
         }
-
         composable(route = Route.MakingOrders.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
-
             LaunchedEffect(role) {
                 if (role == null) {
                     accountViewModel.loadAccountRoleFromStorage()
                 }
             }
-
             val roleNormalized = role?.trim()?.lowercase()
             if (roleNormalized == "supplier") {
                 SupplierSalesOrdersView(
@@ -295,7 +256,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 )
             }
         }
-
         composable(route = Route.MakingOrdersSupplier.route) {
             SupplierSalesOrdersView(
                 onNavigate = { route ->
@@ -311,7 +271,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         composable(route = Route.Plans.route) {
             ChoosePlanScreen(
                 onContinue = { selectedPlan ->
@@ -324,7 +283,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         composable(route = Route.Congrats.route) {
             Congrats(
                 onNavigateToHome = {
@@ -334,7 +292,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         composable(route = Route.Failure.route) {
             Failure(
                 onNavigateToHome = {
@@ -344,7 +301,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
         composable(route = Route.Pending.route) {
             Pending(
                 onNavigateToHome = {

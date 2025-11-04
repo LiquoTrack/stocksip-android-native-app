@@ -53,6 +53,7 @@ class OwnerSalesOrdersViewModel @Inject constructor(
                     }
                     OrderItemUi(
                         id = order.id,
+                        code = order.orderCode,
                         title = order.orderCode,
                         priceLabel = priceText,
                         quantity = order.items.sumOf { it.quantityToSell },

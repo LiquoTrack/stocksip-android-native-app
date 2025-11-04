@@ -37,6 +37,7 @@ import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
 
 data class OrderItemUi(
     val id: String,
+    val code: String,
     val title: String,
     val priceLabel: String,
     val quantity: Int,
@@ -47,16 +48,18 @@ data class OrderItemUi(
 @Composable
 fun SalesOrdersView(
     onNavigate: (String) -> Unit,
-    onNewClick: () -> Unit
+    onNewClick: () -> Unit,
+    onLogout: () -> Unit
 ) {
     val bg = Color(0xFFF4ECEC)
     val viewModel: OwnerSalesOrdersViewModel = hiltViewModel()
-    val ordersState = viewModel.ownerOrders.collectAsState()
+    val ordersUi = viewModel.ownerOrdersUi.collectAsState()
 
     DrawerScaffold(
         title = "Orders",
         currentRoute = "orders",
         onNavigate = onNavigate,
+        onLogout = onLogout,
         backgroundColor = bg
     ) { padding ->
         LaunchedEffect(Unit) { viewModel.loadOwnerOrders() }
@@ -92,12 +95,8 @@ fun SalesOrdersView(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Top
             ) {
-                items(ordersState.value) { order ->
-                    OwnerOrderCard(
-                        order = order,
-                        onAccept = { viewModel.respondToDeliveryProposal(order.id, true) },
-                        onReject = { viewModel.respondToDeliveryProposal(order.id, false) }
-                    )
+                items(ordersUi.value) { item ->
+                    OwnerOrderCard(item)
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
@@ -123,7 +122,7 @@ fun NewPillButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun OwnerOrderCard(order: SalesOrderResponse, onAccept: () -> Unit, onReject: () -> Unit) {
+fun OwnerOrderCard(item: OrderItemUi) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFCF4EF)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -131,7 +130,7 @@ fun OwnerOrderCard(order: SalesOrderResponse, onAccept: () -> Unit, onReject: ()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = order.orderCode,
+                text = "#" + item.code,
                 color = Color(0xFF9A9A9A),
                 fontSize = 14.sp,
                 maxLines = 1,
@@ -141,7 +140,7 @@ fun OwnerOrderCard(order: SalesOrderResponse, onAccept: () -> Unit, onReject: ()
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Status: ${order.status}",
+                text = item.title,
                 color = Color(0xFF4A1B2A),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -150,16 +149,22 @@ fun OwnerOrderCard(order: SalesOrderResponse, onAccept: () -> Unit, onReject: ()
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Items: ${order.items.sumOf { it.quantityToSell }}",
-                color = Color(0xFF9A6E6E),
-                fontSize = 14.sp
+                text = "Price: ${item.priceLabel}",
+                color = Color(0xFFD88492),
+                fontSize = 16.sp
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Quantity: ${item.quantity}",
+                color = Color(0xFFD88492),
+                fontSize = 16.sp
+            )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Generated at: ${order.receiptDate}",
+                    text = "Generated at: ${item.generatedAt}",
                     color = Color(0xFF9A6E6E),
                     fontSize = 14.sp
                 )
@@ -176,42 +181,14 @@ fun OwnerOrderCard(order: SalesOrderResponse, onAccept: () -> Unit, onReject: ()
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = order.deliveryProposal?.status ?: "No delivery proposal",
+                            text = when (item.status.uppercase()) {
+                                "PROCESSING" -> "Sent"
+                                else -> item.status
+                            },
                             color = Color(0xFF6A4E00),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            val canRespond = order.deliveryProposal?.status == "Proposed"
-            if (canRespond) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Button(
-                        onClick = onAccept,
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF9CF2CC),
-                            contentColor = Color(0xFF0B6F45)
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
-                    ) {
-                        Text(text = "Accept", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Button(
-                        onClick = onReject,
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFF9C0C0),
-                            contentColor = Color(0xFF6B0F0F)
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
-                    ) {
-                        Text(text = "Reject", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
