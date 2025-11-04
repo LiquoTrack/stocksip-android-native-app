@@ -21,6 +21,9 @@ class OwnerSalesOrdersViewModel @Inject constructor(
     private val _ownerOrders = MutableStateFlow<List<SalesOrderResponse>>(emptyList())
     val ownerOrders: StateFlow<List<SalesOrderResponse>> = _ownerOrders.asStateFlow()
 
+    private val _ownerOrdersUi = MutableStateFlow<List<OrderItemUi>>(emptyList())
+    val ownerOrdersUi: StateFlow<List<OrderItemUi>> = _ownerOrdersUi.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -32,15 +35,31 @@ class OwnerSalesOrdersViewModel @Inject constructor(
             _isLoading.value = true
             _error.value = null
             try {
-                // Prefer userId from JWT (sid) to match backend liquorStoreOwnerId
                 val ownerId = tokenManager.getUserIdFromToken() ?: tokenManager.getAccountId()
                 if (ownerId.isNullOrBlank()) {
-                    _error.value = "No hay sesión activa (accountId vacío). Inicia sesión."
+                    _error.value = "There is no active session (empty accountId). Please log in."
                     _isLoading.value = false
                     return@launch
                 }
                 val response = repository.getOrdersByLiquorStoreOwnerId(ownerId)
                 _ownerOrders.value = response.orders
+                _ownerOrdersUi.value = response.orders.map { order ->
+                    val total = order.items.fold(0.0) { acc, it -> acc + (it.unitPrice * it.quantityToSell) }
+                    val firstCurrency = order.items.firstOrNull()?.currency ?: "PEN"
+                    val priceText = when (firstCurrency.uppercase()) {
+                        "PEN", "S/.", "SOL", "SOLES" -> "S/. %.2f".format(total)
+                        "USD", "$" -> "$. %.2f".format(total)
+                        else -> "$firstCurrency %.2f".format(total)
+                    }
+                    OrderItemUi(
+                        id = order.id,
+                        title = order.orderCode,
+                        priceLabel = priceText,
+                        quantity = order.items.sumOf { it.quantityToSell },
+                        status = order.status,
+                        generatedAt = order.receiptDate
+                    )
+                }
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.domain.repositories.AccountRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SalesOrdersViewModel @Inject constructor(
     private val repository: SalesOrderRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val accountRepository: AccountRepository
 ) : ViewModel() {
 
     private val _supplierOrders = MutableStateFlow<List<SupplierOrderItemUi>>(emptyList())
@@ -34,14 +36,26 @@ class SalesOrdersViewModel @Inject constructor(
                 val supplierId = tokenManager.getAccountId() ?: return@launch
                 val response = repository.getOrdersBySupplierId(supplierId)
                 _supplierOrders.value = response.orders.map { order ->
+                    val (email, phone) = try {
+                        accountRepository.getAccountContacts(order.buyer)
+                    } catch (_: Exception) {
+                        Pair(null, null)
+                    }
+                    val total = order.items.fold(0.0) { acc, it -> acc + (it.unitPrice * it.quantityToSell) }
+                    val firstCurrency = order.items.firstOrNull()?.currency ?: "PEN"
+                    val priceText = when (firstCurrency.uppercase()) {
+                        "PEN", "S/.", "SOL", "SOLES" -> "S/. %.2f".format(total)
+                        "USD", "$" -> "$. %.2f".format(total)
+                        else -> "$firstCurrency %.2f".format(total)
+                    }
                     SupplierOrderItemUi(
                         id = order.id,
                         title = order.orderCode,
-                        priceLabel = "-",
+                        priceLabel = priceText,
                         quantity = order.items.sumOf { it.quantityToSell },
                         status = order.status,
-                        ownerEmail = order.buyer,
-                        ownerPhone = "-",
+                        ownerEmail = email ?: "-",
+                        ownerPhone = phone ?: "-",
                         generatedAt = order.receiptDate
                     )
                 }
