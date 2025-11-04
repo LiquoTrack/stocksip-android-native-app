@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,12 +24,15 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,18 +56,25 @@ fun Profile(
     onLogout: () -> Unit = {},
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
-    val name by viewModel.name.collectAsState()
-    val email by viewModel.email.collectAsState()
-    val contactNumber by viewModel.contactNumber.collectAsState()
-    val profileImageUrl by viewModel.profileImageUrl.collectAsState()
+    val firstName by viewModel.firstName.collectAsState()
+    val lastName by viewModel.lastName.collectAsState()
+    val fullName by viewModel.fullName.collectAsState()
+    val phoneNumber by viewModel.phoneNumber.collectAsState()
+    val assignedRole by viewModel.assignedRole.collectAsState()
+    val profilePictureUrl by viewModel.profilePictureUrl.collectAsState()
+    val selectedImageUri by viewModel.selectedImageUri.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val successMessage by viewModel.successMessage.collectAsState()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
+    // Handle logout
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
             onLogout()
@@ -72,10 +82,26 @@ fun Profile(
         }
     }
 
+    // Handle error messages
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
+        }
+    }
+
+    // Handle success messages
+    LaunchedEffect(successMessage) {
+        successMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearSuccess()
+        }
+    }
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { viewModel.uploadProfileImage(it) }
+        uri?.let { viewModel.updateProfileImage(it) }
     }
 
     ModalNavigationDrawer(
@@ -104,116 +130,154 @@ fun Profile(
                     }
                 )
             },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             containerColor = Color(0xFFF4ECEC)
         ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(32.dp))
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF4A1B2A))
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Box(contentAlignment = Alignment.Center) {
-                    if (profileImageUrl.isNullOrEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFB8D4E8)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Default Profile",
-                                tint = Color(0xFF4A1B2A),
-                                modifier = Modifier.size(60.dp)
+                    Box(contentAlignment = Alignment.Center) {
+                        // Show selected image preview or current profile picture
+                        val imageToShow = if (isEditMode && selectedImageUri != null) {
+                            selectedImageUri
+                        } else {
+                            profilePictureUrl
+                        }
+
+                        if (imageToShow == null) {
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFB8D4E8)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AddReaction,
+                                    contentDescription = "Default Profile",
+                                    tint = Color(0xFF2196F3),
+                                    modifier = Modifier.size(60.dp)
+                                )
+                            }
+                        } else {
+                            AsyncImage(
+                                model = imageToShow,
+                                contentDescription = "Profile Image",
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(CircleShape)
+                                    .border(2.dp, Color(0xFF4A1B2A), CircleShape),
+                                contentScale = ContentScale.Crop
                             )
                         }
-                    } else {
-                        AsyncImage(
-                            model = profileImageUrl,
-                            contentDescription = "Profile Image",
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(CircleShape)
-                                .border(2.dp, Color(0xFF4A1B2A), CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
                     }
-                }
 
-                if (isEditMode) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    if (isEditMode) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { imagePickerLauncher.launch("image/*") },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
+                            shape = RoundedCornerShape(20.dp),
+                            enabled = !isSaving
+                        ) {
+                            Text(
+                                text = if (selectedImageUri != null) "Change Image" else "Select Image",
+                                color = Color.White,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(40.dp))
+
+                    ProfileField(
+                        label = "First Name",
+                        value = firstName,
+                        onValueChange = viewModel::updateFirstName,
+                        isEditMode = isEditMode,
+                        enabled = !isSaving
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    ProfileField(
+                        label = "Last Name",
+                        value = lastName,
+                        onValueChange = viewModel::updateLastName,
+                        isEditMode = isEditMode,
+                        enabled = !isSaving
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    ProfileField(
+                        label = "Phone Number",
+                        value = phoneNumber,
+                        onValueChange = viewModel::updatePhoneNumber,
+                        isEditMode = isEditMode,
+                        enabled = !isSaving
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    ProfileField(
+                        label = "Assigned Role",
+                        value = assignedRole,
+                        onValueChange = viewModel::updateAssignedRole,
+                        isEditMode = isEditMode,
+                        enabled = !isSaving
+                    )
+
+                    Spacer(modifier = Modifier.height(40.dp))
+
                     Button(
-                        onClick = { imagePickerLauncher.launch("image/*") },
+                        onClick = {
+                            if (isEditMode) {
+                                viewModel.saveProfile()
+                            } else {
+                                viewModel.toggleEditMode()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(24.dp),
                         enabled = !isSaving
                     ) {
-                        Text(text = "Select Image", color = Color.White, fontSize = 14.sp)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                ProfileField(
-                    label = "Name",
-                    value = name,
-                    onValueChange = viewModel::updateName,
-                    isEditMode = isEditMode,
-                    enabled = !isSaving
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                ProfileField(
-                    label = "Email",
-                    value = email,
-                    onValueChange = viewModel::updateEmail,
-                    isEditMode = isEditMode,
-                    enabled = !isSaving
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                ProfileField(
-                    label = "Contact Number",
-                    value = contactNumber,
-                    onValueChange = viewModel::updateContactNumber,
-                    isEditMode = isEditMode,
-                    enabled = !isSaving
-                )
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                Button(
-                    onClick = {
-                        if (isEditMode) {
-                            viewModel.saveProfile()
+                        if (isSaving) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
                         } else {
-                            viewModel.toggleEditMode()
+                            Text(
+                                text = if (isEditMode) "Save" else "Edit Profile",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
-                    shape = RoundedCornerShape(24.dp),
-                    enabled = !isSaving
-                ) {
-                    if (isSaving) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text(
-                            text = if (isEditMode) "Save" else "Edit Profile",
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
             }
         }
     }

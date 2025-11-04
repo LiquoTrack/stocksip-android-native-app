@@ -1,26 +1,26 @@
 package com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services
 
-import com.liquotrack.stocksip.features.profilemanagement.profile.data.repositories.ProfileResponse
-import com.liquotrack.stocksip.features.profilemanagement.profile.data.repositories.UpdateProfileRequest
-import com.liquotrack.stocksip.features.profilemanagement.profile.data.repositories.UploadImageResponse
+import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.model.ProfileResponse
 import okhttp3.MultipartBody
-import retrofit2.http.Body
+import okhttp3.RequestBody
 import retrofit2.http.GET
 import retrofit2.http.Multipart
-import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 interface ProfileService {
-    @GET("api/profile")
+    @GET("profiles/me")
     suspend fun getProfile(): ProfileResponse
 
-    @PUT("api/profile")
-    suspend fun updateProfile(@Body request: UpdateProfileRequest)
-
     @Multipart
-    @POST("api/profile/upload-image")
-    suspend fun uploadProfileImage(
-        @Part file: MultipartBody.Part
-    ): UploadImageResponse
+    @PUT("profiles/{profileId}")
+    suspend fun updateProfile(
+        @Path("profileId") profileId: String,
+        @Part("FirstName") firstName: RequestBody?,
+        @Part("LastName") lastName: RequestBody?,
+        @Part("PhoneNumber") phoneNumber: RequestBody?,
+        @Part("AssignedRole") assignedRole: RequestBody?,
+        @Part profilePicture: MultipartBody.Part?
+    ): ProfileResponse
 }
