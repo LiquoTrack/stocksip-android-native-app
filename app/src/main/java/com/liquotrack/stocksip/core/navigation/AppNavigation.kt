@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,13 +29,8 @@ import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.p
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 
-/**
- * Main navigation graph of the app.
- * Includes authentication, home, warehouse, products, care guides, etc.
- */
 @Composable
 fun AppNavigation(startDestination: String = Route.Login.route) {
 
@@ -83,7 +79,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // REGISTER USER FLOW
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -93,7 +88,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // REGISTER ACCOUNT AND BUSINESS FLOW
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(
@@ -153,6 +147,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -163,6 +162,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -172,6 +176,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -195,6 +204,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -258,7 +272,12 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                             launchSingleTop = true
                         }
                     },
-                    onChangeStatus = { }
+                    onChangeStatus = { },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 )
             } else {
                 SalesOrdersView(
@@ -267,7 +286,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                             launchSingleTop = true
                         }
                     },
-                    onNewClick = {
+                    onNewClick = { },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 )
             }
@@ -280,7 +303,12 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                         launchSingleTop = true
                     }
                 },
-                onChangeStatus = {}
+                onChangeStatus = { },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -316,7 +344,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             )
         }
-
 
         composable(route = Route.Pending.route) {
             Pending(

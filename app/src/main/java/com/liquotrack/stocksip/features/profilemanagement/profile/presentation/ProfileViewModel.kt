@@ -16,17 +16,32 @@ class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository
 ) : ViewModel() {
 
-    private val _name = MutableStateFlow("")
-    val name: StateFlow<String> = _name.asStateFlow()
+    private val _profileId = MutableStateFlow("")
+    val profileId: StateFlow<String> = _profileId.asStateFlow()
 
-    private val _email = MutableStateFlow("")
-    val email: StateFlow<String> = _email.asStateFlow()
+    private val _firstName = MutableStateFlow("")
+    val firstName: StateFlow<String> = _firstName.asStateFlow()
+
+    private val _lastName = MutableStateFlow("")
+    val lastName: StateFlow<String> = _lastName.asStateFlow()
+
+    private val _fullName = MutableStateFlow("")
+    val fullName: StateFlow<String> = _fullName.asStateFlow()
+
+    private val _phoneNumber = MutableStateFlow("")
+    val phoneNumber: StateFlow<String> = _phoneNumber.asStateFlow()
 
     private val _contactNumber = MutableStateFlow("")
     val contactNumber: StateFlow<String> = _contactNumber.asStateFlow()
 
-    private val _profileImageUrl = MutableStateFlow<String?>(null)
-    val profileImageUrl: StateFlow<String?> = _profileImageUrl.asStateFlow()
+    private val _assignedRole = MutableStateFlow("")
+    val assignedRole: StateFlow<String> = _assignedRole.asStateFlow()
+
+    private val _profilePictureUrl = MutableStateFlow<String?>(null)
+    val profilePictureUrl: StateFlow<String?> = _profilePictureUrl.asStateFlow()
+
+    private val _selectedImageUri = MutableStateFlow<Uri?>(null)
+    val selectedImageUri: StateFlow<Uri?> = _selectedImageUri.asStateFlow()
 
     private val _isEditMode = MutableStateFlow(false)
     val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
@@ -40,11 +55,15 @@ class ProfileViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val _successMessage = MutableStateFlow<String?>(null)
+    val successMessage: StateFlow<String?> = _successMessage.asStateFlow()
+
     // Store original values for cancel functionality
-    private var originalName = ""
-    private var originalEmail = ""
-    private var originalContactNumber = ""
-    private var originalProfileImageUrl: String? = null
+    private var originalFirstName = ""
+    private var originalLastName = ""
+    private var originalPhoneNumber = ""
+    private var originalAssignedRole = ""
+    private var originalProfilePictureUrl: String? = null
 
     init {
         loadProfile()
@@ -55,16 +74,21 @@ class ProfileViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 repository.getProfile().collect { profile ->
-                    _name.value = profile.name
-                    _email.value = profile.email
+                    _profileId.value = profile.id
+                    _firstName.value = profile.firstName
+                    _lastName.value = profile.lastName
+                    _fullName.value = profile.fullName
+                    _phoneNumber.value = profile.phoneNumber
                     _contactNumber.value = profile.contactNumber
-                    _profileImageUrl.value = profile.profileImageUrl
+                    _assignedRole.value = profile.assignedRole
+                    _profilePictureUrl.value = profile.profilePictureUrl
 
-                    // Store original values
-                    originalName = profile.name
-                    originalEmail = profile.email
-                    originalContactNumber = profile.contactNumber
-                    originalProfileImageUrl = profile.profileImageUrl
+                    // Save original values
+                    originalFirstName = profile.firstName
+                    originalLastName = profile.lastName
+                    originalPhoneNumber = profile.phoneNumber
+                    originalAssignedRole = profile.assignedRole
+                    originalProfilePictureUrl = profile.profilePictureUrl
                 }
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Failed to load profile"
@@ -74,25 +98,35 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun updateName(newName: String) {
-        _name.value = newName
+    fun updateFirstName(newFirstName: String) {
+        _firstName.value = newFirstName
     }
 
-    fun updateEmail(newEmail: String) {
-        _email.value = newEmail
+    fun updateLastName(newLastName: String) {
+        _lastName.value = newLastName
     }
 
-    fun updateContactNumber(newNumber: String) {
-        _contactNumber.value = newNumber
+    fun updatePhoneNumber(newPhoneNumber: String) {
+        _phoneNumber.value = newPhoneNumber
+    }
+
+    fun updateAssignedRole(newRole: String) {
+        _assignedRole.value = newRole
+    }
+
+    fun updateProfileImage(uri: Uri) {
+        _selectedImageUri.value = uri
     }
 
     fun toggleEditMode() {
         if (_isEditMode.value) {
             // Cancel editing - restore original values
-            _name.value = originalName
-            _email.value = originalEmail
-            _contactNumber.value = originalContactNumber
-            _profileImageUrl.value = originalProfileImageUrl
+            _firstName.value = originalFirstName
+            _lastName.value = originalLastName
+            _phoneNumber.value = originalPhoneNumber
+            _assignedRole.value = originalAssignedRole
+            _profilePictureUrl.value = originalProfilePictureUrl
+            _selectedImageUri.value = null
         }
         _isEditMode.value = !_isEditMode.value
     }
@@ -100,21 +134,39 @@ class ProfileViewModel @Inject constructor(
     fun saveProfile() {
         viewModelScope.launch {
             _isSaving.value = true
+            _errorMessage.value = null
+            _successMessage.value = null
+
             try {
-                repository.updateProfile(
-                    name = _name.value,
-                    email = _email.value,
-                    contactNumber = _contactNumber.value,
-                    profileImageUrl = _profileImageUrl.value
+                val updatedProfile = repository.updateProfile(
+                    profileId = _profileId.value,
+                    firstName = _firstName.value.takeIf { it.isNotBlank() },
+                    lastName = _lastName.value.takeIf { it.isNotBlank() },
+                    phoneNumber = _phoneNumber.value.takeIf { it.isNotBlank() },
+                    assignedRole = _assignedRole.value.takeIf { it.isNotBlank() },
+                    profilePictureUri = _selectedImageUri.value
                 )
 
-                // Update original values after successful save
-                originalName = _name.value
-                originalEmail = _email.value
-                originalContactNumber = _contactNumber.value
-                originalProfileImageUrl = _profileImageUrl.value
+                // Update all values with the response from server
+                _profileId.value = updatedProfile.id
+                _firstName.value = updatedProfile.firstName
+                _lastName.value = updatedProfile.lastName
+                _fullName.value = updatedProfile.fullName
+                _phoneNumber.value = updatedProfile.phoneNumber
+                _contactNumber.value = updatedProfile.contactNumber
+                _assignedRole.value = updatedProfile.assignedRole
+                _profilePictureUrl.value = updatedProfile.profilePictureUrl
 
+                // Update original values after successful save
+                originalFirstName = updatedProfile.firstName
+                originalLastName = updatedProfile.lastName
+                originalPhoneNumber = updatedProfile.phoneNumber
+                originalAssignedRole = updatedProfile.assignedRole
+                originalProfilePictureUrl = updatedProfile.profilePictureUrl
+
+                _selectedImageUri.value = null
                 _isEditMode.value = false
+                _successMessage.value = "Profile updated successfully"
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Failed to save profile"
             } finally {
@@ -123,21 +175,11 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun uploadProfileImage(uri: Uri) {
-        viewModelScope.launch {
-            _isSaving.value = true
-            try {
-                val imageUrl = repository.uploadProfileImage(uri)
-                _profileImageUrl.value = imageUrl
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to upload image"
-            } finally {
-                _isSaving.value = false
-            }
-        }
-    }
-
     fun clearError() {
         _errorMessage.value = null
+    }
+
+    fun clearSuccess() {
+        _successMessage.value = null
     }
 }
