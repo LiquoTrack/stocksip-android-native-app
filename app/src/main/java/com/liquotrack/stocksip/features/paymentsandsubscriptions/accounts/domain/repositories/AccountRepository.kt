@@ -18,4 +18,10 @@ interface AccountRepository {
      * @return The role string for the account.
      */
     suspend fun getAccountRole(accountId: String): String
+
+    /**
+     * Retrieves the email and phone of the account with the given ID.
+     * @return Pair(email, phone). Nulls when not available.
+     */
+    suspend fun getAccountContacts(accountId: String): Pair<String?, String?>
 }

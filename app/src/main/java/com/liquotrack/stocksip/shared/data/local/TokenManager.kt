@@ -1,8 +1,10 @@
 package com.liquotrack.stocksip.shared.data.local
 
 import android.content.SharedPreferences
+import android.util.Base64
 import javax.inject.Inject
 import androidx.core.content.edit
+import org.json.JSONObject
 
 /**
  * Manages the storage and retrieval of authentication tokens and account IDs using SharedPreferences.
@@ -121,5 +123,28 @@ class TokenManager @Inject constructor(
      */
     fun hasToken(): Boolean {
         return getToken() != null
+    }
+
+    /**
+     * Extracts the user id from the JWT token payload using common claim keys.
+     * Tries: "sid" then "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid" then "sub".
+     */
+    fun getUserIdFromToken(): String? {
+        val token = getToken() ?: return null
+        val parts = token.split(".")
+        if (parts.size < 2) return null
+        return try {
+            val payloadB64 = parts[1]
+            val decoded = Base64.decode(payloadB64, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+            val json = JSONObject(String(decoded))
+            when {
+                json.has("sid") -> json.getString("sid")
+                json.has("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid") -> json.getString("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid")
+                json.has("sub") -> json.getString("sub")
+                else -> null
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 }

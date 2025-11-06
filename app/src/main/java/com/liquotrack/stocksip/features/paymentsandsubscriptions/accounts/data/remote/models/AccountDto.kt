@@ -7,5 +7,7 @@ data class AccountDto(
     @SerializedName("businessId") val businessId: String,
     @SerializedName("status") val status: String,
     @SerializedName("role") val role: String,
-    @SerializedName("creationDate") val creationDate: String
+    @SerializedName("creationDate") val creationDate: String,
+    @SerializedName("email") val email: String?,
+    @SerializedName("phone") val phone: String?
 )
