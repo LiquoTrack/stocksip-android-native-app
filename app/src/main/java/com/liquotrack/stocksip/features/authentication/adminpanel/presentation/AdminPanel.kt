@@ -133,9 +133,9 @@ fun AdminPanel(
                     )
 
                     AdminTabButton(
-                        text = "Employees",
-                        isSelected = selectedTab == AdminTab.EMPLOYEES,
-                        onClick = { viewModel.selectTab(AdminTab.EMPLOYEES) }
+                        text = "Employee",
+                        isSelected = selectedTab == AdminTab.EMPLOYEE,
+                        onClick = { viewModel.selectTab(AdminTab.EMPLOYEE) }
                     )
                 }
 
@@ -171,9 +171,14 @@ fun AdminPanel(
                             onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
                         )
                     }
-                    AdminTab.EMPLOYEES -> {
+                    AdminTab.EMPLOYEE -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Roles Management - Coming Soon")
+                            UsersList(
+                                users = users.flatMap { it.users },
+                                isLoading = isLoading,
+                                onEditUser = { user -> viewModel.selectUserForEdit(user) },
+                                onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
+                            )
                         }
                     }
                 }
@@ -285,5 +290,5 @@ private fun DeleteUserDialog(
 enum class AdminTab {
     ALL,
     ADMIN,
-    EMPLOYEES,
+    EMPLOYEE,
 }

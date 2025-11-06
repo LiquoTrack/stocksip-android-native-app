@@ -25,36 +25,44 @@ class UserRepositoryImpl @Inject constructor(
      * @param role The role of the users to retrieve.
      * @return A Response containing a list of AccountUsers.
      */
-    override suspend fun getAllSubUsers(accountId: String, role: String): Response<List<AccountUsers>> = withContext(Dispatchers.IO) {
+    override suspend fun getAllSubUsers(accountId: String, role: String): Response<AccountUsers> =
+        withContext(Dispatchers.IO) {
 
+            try {
+                val response = apiService.getAllSubUsers(accountId, role)
 
-        val response = apiService.getAllSubUsers(accountId, role)
+                if (response.isSuccessful) {
+                    val userWrapperDto = response.body()
 
-        if (response.isSuccessful) {
-            val users = response.body()?.map { userWrapperDto ->
-                AccountUsers(
-                    maxUsersAllowed = userWrapperDto.maxUsersAllowed,
-                    totalUsers = userWrapperDto.totalUsers,
-                    users = userWrapperDto.users.map { subUserDto ->
-                        SubUser(
-                            id = subUserDto.userId,
-                            email = subUserDto.email,
-                            userRole = subUserDto.role,
-                            profileId = subUserDto.profileId,
-                            fullName = subUserDto.fullName,
-                            phoneNumber = subUserDto.phoneNumber,
-                            profilePictureUrl = subUserDto.profilePictureUrl,
-                            profileRole = subUserDto.profileRole
+                    val accountUsers = userWrapperDto?.let {
+                        AccountUsers(
+                            maxUsersAllowed = it.maxUsersAllowed,
+                            totalUsers = it.totalUsers,
+                            users = it.users.map { subUserDto ->
+                                SubUser(
+                                    id = subUserDto.userId,
+                                    email = subUserDto.email,
+                                    userRole = subUserDto.role,
+                                    profileId = subUserDto.profileId,
+                                    fullName = subUserDto.fullName,
+                                    phoneNumber = subUserDto.phoneNumber,
+                                    profilePictureUrl = subUserDto.profilePictureUrl,
+                                    profileRole = subUserDto.profileRole
+                                )
+                            }
                         )
                     }
-                )
-            } ?: emptyList()
 
-            Response.success(users)
-        } else {
-            Response.error(response.code(), response.errorBody()!!)
+                    Response.success(accountUsers)
+                } else {
+                    response.errorBody()?.string()
+                    Response.error(response.code(), response.errorBody()!!)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw e
+            }
         }
-    }
 
     override suspend fun createSubUser(user: SubUser) : Response<SubUser> {
         TODO("Not yet implemented")

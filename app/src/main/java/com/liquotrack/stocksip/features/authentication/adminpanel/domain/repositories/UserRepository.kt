@@ -14,7 +14,7 @@ interface UserRepository {
      *
      * @return A flow emitting a list of all sub-users.
      */
-    suspend fun getAllSubUsers(accountId: String, role: String): Response<List<AccountUsers>>
+    suspend fun getAllSubUsers(accountId: String, role: String): Response<AccountUsers>
 
     /**
      * Creates a new sub-user.

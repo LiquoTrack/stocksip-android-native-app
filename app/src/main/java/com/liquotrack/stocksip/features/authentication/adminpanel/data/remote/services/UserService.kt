@@ -27,7 +27,7 @@ interface UserService {
     suspend fun getAllSubUsers(
         @Path("accountId") accountId: String,
         @Query("role") role: String
-    ): Response<List<SubUserWrapperDto>>
+    ): Response<SubUserWrapperDto>
 
     /**
      * Registers a new sub-user under a specific account.
@@ -39,7 +39,7 @@ interface UserService {
     @POST("accounts/{accountId}/users")
     suspend fun registerSubUser(
         @Path("accountId") accountId: String,
-        @Body subUser: RegisterSubUserDto) : Response<List<UserDto>>
+        @Body subUser: RegisterSubUserDto) : Response<UserDto>
 
     /**
      * Deletes a user by their user ID.

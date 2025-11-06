@@ -51,7 +51,9 @@ class AdminPanelViewModel @Inject constructor(
                 val response = repository.getAllSubUsers(account, role)
 
                 if (response.isSuccessful) {
-                    _users.value = response.body() ?: emptyList()
+                    response.body()?.let { accountUsers ->
+                        _users.value = listOf(accountUsers)
+                    }
                 } else {
                     _errorMessage.value = "Failed to load users: ${response.code()}"
                 }
@@ -69,7 +71,7 @@ class AdminPanelViewModel @Inject constructor(
         when (tab) {
             AdminTab.ALL -> loadUsers("All")
             AdminTab.ADMIN -> loadUsers("SuperAdmin")
-            AdminTab.EMPLOYEES -> loadUsers("Employee")
+            AdminTab.EMPLOYEE -> loadUsers("Employee")
         }
     }
 
