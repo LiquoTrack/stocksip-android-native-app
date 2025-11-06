@@ -119,16 +119,23 @@ fun AdminPanel(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+
                     AdminTabButton(
-                        text = "Users",
-                        isSelected = selectedTab == AdminTab.USERS,
-                        onClick = { viewModel.selectTab(AdminTab.USERS) }
+                        text = "All",
+                        isSelected = selectedTab == AdminTab.ALL,
+                        onClick = { viewModel.selectTab(AdminTab.ALL) }
                     )
 
                     AdminTabButton(
-                        text = "Roles",
-                        isSelected = selectedTab == AdminTab.ROLES,
-                        onClick = { viewModel.selectTab(AdminTab.ROLES) }
+                        text = "Admin",
+                        isSelected = selectedTab == AdminTab.ADMIN,
+                        onClick = { viewModel.selectTab(AdminTab.ADMIN) }
+                    )
+
+                    AdminTabButton(
+                        text = "Employees",
+                        isSelected = selectedTab == AdminTab.EMPLOYEES,
+                        onClick = { viewModel.selectTab(AdminTab.EMPLOYEES) }
                     )
                 }
 
@@ -148,15 +155,23 @@ fun AdminPanel(
                 }
 
                 when (selectedTab) {
-                    AdminTab.USERS -> {
+                    AdminTab.ALL -> {
                         UsersList(
-                            users = users,
+                            users = users.flatMap { it.users },
                             isLoading = isLoading,
                             onEditUser = { user -> viewModel.selectUserForEdit(user) },
                             onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
                         )
                     }
-                    AdminTab.ROLES -> {
+                    AdminTab.ADMIN -> {
+                        UsersList(
+                            users = users.flatMap { it.users },
+                            isLoading = isLoading,
+                            onEditUser = { user -> viewModel.selectUserForEdit(user) },
+                            onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
+                        )
+                    }
+                    AdminTab.EMPLOYEES -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text("Roles Management - Coming Soon")
                         }
@@ -181,7 +196,7 @@ fun AdminPanel(
             user = user,
             onDismiss = { viewModel.clearUserToEdit() },
             onSave = { updatedUser ->
-                viewModel.updateUser(updatedUser)
+                viewModel.updateUser(user)
                 viewModel.clearUserToEdit()
             }
         )
@@ -189,7 +204,7 @@ fun AdminPanel(
 
     viewModel.userToDelete.value?.let { user ->
         DeleteUserDialog(
-            userName = user.username,
+            userName = user.id,
             onConfirm = {
                 viewModel.deleteUser(user)
                 viewModel.clearUserToDelete()
@@ -268,6 +283,7 @@ private fun DeleteUserDialog(
 }
 
 enum class AdminTab {
-    USERS,
-    ROLES
+    ALL,
+    ADMIN,
+    EMPLOYEES,
 }

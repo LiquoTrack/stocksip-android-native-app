@@ -26,11 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.liquotrack.stocksip.shared.domain.model.User
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 
 @Composable
 fun UserCard(
-    user: User,
+    user: SubUser,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -51,7 +52,7 @@ fun UserCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = user.username,
+                        text = user.fullName,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4A1B2A)

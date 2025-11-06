@@ -33,12 +33,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.liquotrack.stocksip.shared.domain.model.User
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 
 @Composable
 fun NewUserDialog(
     onDismiss: () -> Unit,
-    onSave: (User) -> Unit
+    onSave: (SubUser) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -135,15 +136,6 @@ fun NewUserDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onSave(
-                        User(
-                            userId = "",
-                            email = email,
-                            username = name,
-                            token = "",
-                            accountId = ""
-                        )
-                    )
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                 shape = RoundedCornerShape(20.dp)
@@ -168,15 +160,15 @@ fun NewUserDialog(
 
 @Composable
 fun EditUserDialog(
-    user: User,
+    user: SubUser,
     onDismiss: () -> Unit,
-    onSave: (User) -> Unit
+    onSave: (SubUser) -> Unit
 ) {
-    var name by remember { mutableStateOf(user.username) }
+    var name by remember { mutableStateOf(user.fullName) }
     var email by remember { mutableStateOf(user.email) }
     var showRoleDropdown by remember { mutableStateOf(false) }
 
-    val roles = listOf("Admin", "Manager", "Cashier", "Worker")
+    val roles = listOf("Admin", "Employee")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -241,12 +233,6 @@ fun EditUserDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onSave(
-                        user.copy(
-                            email = email,
-                            username = name
-                        )
-                    )
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                 shape = RoundedCornerShape(20.dp)

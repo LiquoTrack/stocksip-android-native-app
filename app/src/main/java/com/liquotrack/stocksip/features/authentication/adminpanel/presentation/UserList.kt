@@ -11,14 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.liquotrack.stocksip.shared.domain.model.User
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 
 @Composable
 fun UsersList(
-    users: List<User>,
+    users: List<SubUser>,
     isLoading: Boolean,
-    onEditUser: (User) -> Unit,
-    onDeleteUser: (User) -> Unit
+    onEditUser: (SubUser) -> Unit,
+    onDeleteUser: (SubUser) -> Unit
 ) {
     if (isLoading) {
         Box(

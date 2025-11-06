@@ -1,7 +1,8 @@
 package com.liquotrack.stocksip.features.authentication.adminpanel.domain.repositories
 
-import com.liquotrack.stocksip.shared.domain.model.User
-import kotlinx.coroutines.flow.Flow
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
+import retrofit2.Response
 
 /**
  * Repository interface for managing user-related operations in the admin panel.
@@ -13,14 +14,14 @@ interface UserRepository {
      *
      * @return A flow emitting a list of all sub-users.
      */
-    fun getAllSubUsersUsers(): Flow<List<User>>
+    suspend fun getAllSubUsers(accountId: String, role: String): Response<List<AccountUsers>>
 
     /**
      * Creates a new sub-user.
      *
      * @param user The user object containing details of the sub-user to be created.
      */
-    suspend fun createSubUser(user: User)
+    suspend fun createSubUser(user: SubUser) : Response<SubUser>
 
     /**
      * Updates an existing sub-user.

@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.s
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.RegisterSubUserDto
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.SubUserWrapperDto
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.UserDto
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -23,10 +24,10 @@ interface UserService {
      * @return A list of SubUserWrapperDto representing the users.
      */
     @GET("accounts/{accountId}/users")
-    suspend fun getUsers(
+    suspend fun getAllSubUsers(
         @Path("accountId") accountId: String,
         @Query("role") role: String
-    ): List<SubUserWrapperDto>
+    ): Response<List<SubUserWrapperDto>>
 
     /**
      * Registers a new sub-user under a specific account.
@@ -38,7 +39,7 @@ interface UserService {
     @POST("accounts/{accountId}/users")
     suspend fun registerSubUser(
         @Path("accountId") accountId: String,
-        @Body subUser: RegisterSubUserDto) : List<UserDto>
+        @Body subUser: RegisterSubUserDto) : Response<List<UserDto>>
 
     /**
      * Deletes a user by their user ID.
@@ -48,5 +49,5 @@ interface UserService {
      */
     @DELETE("users/{userId}")
     suspend fun deleteUser(
-        @Path("userId") userId: String) : UserDto
+        @Path("userId") userId: String) : Response<UserDto>
 }
