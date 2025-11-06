@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.adminpanel.presentation
+package com.liquotrack.stocksip.features.authentication.adminpanel.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable

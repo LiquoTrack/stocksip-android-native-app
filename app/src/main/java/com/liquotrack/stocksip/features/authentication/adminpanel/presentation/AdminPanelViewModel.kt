@@ -1,9 +1,9 @@
-package com.liquotrack.stocksip.features.adminpanel.presentation
+package com.liquotrack.stocksip.features.authentication.adminpanel.presentation
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.liquotrack.stocksip.features.adminpanel.domain.repositories.UserRepository
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.repositories.UserRepository
 import com.liquotrack.stocksip.shared.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,15 +39,7 @@ class AdminPanelViewModel @Inject constructor(
     private fun loadUsers() {
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                repository.getAllUsers().collect { usersList ->
-                    _users.value = usersList
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to load users"
-            } finally {
-                _isLoading.value = false
-            }
+
         }
     }
 
@@ -74,28 +66,14 @@ class AdminPanelViewModel @Inject constructor(
     fun createUser(user: User) {
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                repository.createUser(user)
-                loadUsers()
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to create user"
-            } finally {
-                _isLoading.value = false
-            }
+
         }
     }
 
     fun updateUser(user: User) {
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                repository.updateUser(user)
-                loadUsers()
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to update user"
-            } finally {
-                _isLoading.value = false
-            }
+
         }
     }
 

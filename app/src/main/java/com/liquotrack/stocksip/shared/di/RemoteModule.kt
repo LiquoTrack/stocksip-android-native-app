@@ -1,7 +1,7 @@
 package com.liquotrack.stocksip.shared.di
 
 import com.liquotrack.stocksip.BuildConfig
-import com.liquotrack.stocksip.features.adminpanel.data.remote.services.UserService
+import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
 import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuideService
 import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.ProductService

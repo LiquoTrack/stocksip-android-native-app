@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.adminpanel.presentation
+package com.liquotrack.stocksip.features.authentication.adminpanel.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -234,7 +235,7 @@ private fun DeleteUserDialog(
             ) {
                 Text(
                     "Are you sure you\nwant to delete this\nuser?",
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    textAlign = TextAlign.Center,
                     fontSize = 16.sp,
                     color = Color(0xFF4A1B2A)
                 )
