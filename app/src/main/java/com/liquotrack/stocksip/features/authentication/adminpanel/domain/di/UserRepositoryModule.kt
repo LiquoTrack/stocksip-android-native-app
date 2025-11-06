@@ -1,7 +1,7 @@
-package com.liquotrack.stocksip.features.adminpanel.domain.di
+package com.liquotrack.stocksip.features.authentication.adminpanel.domain.di
 
-import com.liquotrack.stocksip.features.adminpanel.data.repositories.UserRepositoryImpl
-import com.liquotrack.stocksip.features.adminpanel.domain.repositories.UserRepository
+import com.liquotrack.stocksip.features.authentication.adminpanel.data.repositories.UserRepositoryImpl
+import com.liquotrack.stocksip.features.authentication.adminpanel.domain.repositories.UserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
