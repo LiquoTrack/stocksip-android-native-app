@@ -24,9 +24,10 @@ interface UserRepository {
     suspend fun createSubUser(user: SubUser) : Response<SubUser>
 
     /**
-     * Updates an existing sub-user.
+     * Deletes an existing sub-user.
      *
-     * @param userId The ID of the user to be updated.
+     * @param userId The ID of the user to be deleted.
+     * @param profileId The ID of the profile.
      */
-    suspend fun deleteUser(userId: String)
+    suspend fun deleteUser(userId: String, profileId: String)
 }

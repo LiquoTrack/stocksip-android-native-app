@@ -1,12 +1,15 @@
 package com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.services
 
+import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.DeleteUserRequest
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.RegisterSubUserDto
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.SubUserWrapperDto
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.UserDto
+
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -47,7 +50,9 @@ interface UserService {
      * @param userId The ID of the user to delete.
      * @return The UserDto of the deleted user.
      */
-    @DELETE("users/{userId}")
+    @HTTP(method = "DELETE", path = "users/{userId}", hasBody = true)
     suspend fun deleteUser(
-        @Path("userId") userId: String) : Response<UserDto>
+        @Path("userId") userId: String,
+        @Body request: DeleteUserRequest
+    ): Response<Unit>
 }

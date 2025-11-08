@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.authentication.adminpanel.data.repositories
 
+import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.DeleteUserRequest
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
@@ -68,8 +69,20 @@ class UserRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteUser(userId: String) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun deleteUser(userId: String, profileId: String) = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.deleteUser(
+                userId = userId,
+                request = DeleteUserRequest(profileId = profileId)
+            )
 
+            if (!response.isSuccessful) {
+                val errorBody = response.errorBody()?.string()
+                throw Exception(errorBody ?: "Failed to delete user")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
 }

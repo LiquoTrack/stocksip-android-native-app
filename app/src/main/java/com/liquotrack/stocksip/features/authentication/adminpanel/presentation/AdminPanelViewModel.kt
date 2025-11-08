@@ -109,7 +109,14 @@ class AdminPanelViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-
+                repository.deleteUser(userId = user.id, profileId = user.profileId)
+                loadUsers(
+                    when (selectedTab.value) {
+                        AdminTab.ALL -> "All"
+                        AdminTab.ADMIN -> "SuperAdmin"
+                        AdminTab.EMPLOYEE -> "Employee"
+                    }
+                )
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Failed to delete user"
             } finally {

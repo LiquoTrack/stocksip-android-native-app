@@ -59,6 +59,8 @@ fun AdminPanel(
     val users by viewModel.users.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedTab by viewModel.selectedTab.collectAsState()
+    val userToDelete by viewModel.userToDelete.collectAsState()
+    val userToEdit by viewModel.userToEdit.collectAsState()
     var showNewUserDialog by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -196,7 +198,7 @@ fun AdminPanel(
         )
     }
 
-    viewModel.userToEdit.value?.let { user ->
+    userToEdit?.let { user ->
         EditUserDialog(
             user = user,
             onDismiss = { viewModel.clearUserToEdit() },
@@ -207,7 +209,7 @@ fun AdminPanel(
         )
     }
 
-    viewModel.userToDelete.value?.let { user ->
+    userToDelete?.let { user ->
         DeleteUserDialog(
             userName = user.id,
             onConfirm = {

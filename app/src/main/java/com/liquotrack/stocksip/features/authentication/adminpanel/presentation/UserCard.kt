@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 
 @Composable
@@ -35,6 +34,12 @@ fun UserCard(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val displayRole = when {
+        user.profileRole.isNotBlank() -> user.profileRole
+        user.userRole.isNotBlank() -> user.userRole
+        else -> "Role"
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,24 +70,34 @@ fun UserCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
-                // Edit Button
-                IconButton(onClick = onEdit) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        tint = Color(0xFF4A1B2A)
-                    )
-                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    RoleBadge(displayRole)
 
-                // Delete Button
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = Color.Red
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        IconButton(onClick = onEdit) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                tint = Color(0xFF4A1B2A)
+                            )
+                        }
+
+                        IconButton(onClick = onDelete) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = Color.Red
+                            )
+                        }
+                    }
                 }
             }
 
@@ -97,4 +112,16 @@ fun UserCard(
             }
         }
     }
+}
+
+@Composable
+private fun RoleBadge(role: String) {
+    Text(
+        text = role,
+        color = Color(0xFF4A1B2A),
+        fontSize = 13.sp,
+        modifier = Modifier
+            .background(Color(0xFFE0E0E5), RoundedCornerShape(18.dp))
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+    )
 }
