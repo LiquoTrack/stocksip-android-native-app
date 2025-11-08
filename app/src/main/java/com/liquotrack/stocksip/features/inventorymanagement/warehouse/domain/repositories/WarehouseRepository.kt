@@ -1,6 +1,9 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories
 
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.Warehouse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehousesWithCount
+import java.io.File
 
 /**
  * Repository interface for managing Warehouse entities.
@@ -12,9 +15,9 @@ interface WarehouseRepository {
      * Retrieves all warehouses associated with a specific account ID.
      * @param accountId The unique identifier of the account.
      *
-     * @return A list of Warehouse entities associated with the given account ID.
+     * @return A WarehouseWithCount object containing the total count and list of Warehouse entities.
      */
-    suspend fun getAllByAccountIdWarehouses(accountId: String): List<Warehouse>
+    suspend fun getAllWarehousesByAccountId(accountId: String): WarehousesWithCount
 
     /**
      * Retrieves a warehouse by its unique identifier.
@@ -22,7 +25,7 @@ interface WarehouseRepository {
      *
      * @return The Warehouse entity if found, null otherwise.
      */
-    suspend fun getWarehouseById(warehouseId: String): Warehouse
+    suspend fun getWarehouseById(warehouseId: String): WarehouseResponse
 
     /**
      * Registers a new warehouse.
@@ -30,7 +33,7 @@ interface WarehouseRepository {
      * @param warehouse The Warehouse entity to be registered.
      * @return The registered Warehouse entity with its unique identifier.
      */
-    suspend fun registerWarehouse(warehouse: Warehouse): Warehouse
+    suspend fun registerWarehouse(warehouse: WarehouseRequest, accountId: String, imageFile: File?): WarehouseResponse
 
     /**
      * Updates an existing warehouse.
@@ -38,7 +41,7 @@ interface WarehouseRepository {
      * @param warehouse The Warehouse entity with updated information.
      * @return The updated Warehouse entity.
      */
-    suspend fun updateWarehouse(warehouse: Warehouse): Warehouse
+    suspend fun updateWarehouse(warehouse: WarehouseRequest, warehouseId: String, imageFile: File?): WarehouseResponse
 
     /**
      * Deletes a warehouse by its unique identifier.

@@ -1,6 +1,8 @@
 package com.liquotrack.stocksip.core.navigation
-
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,27 +10,33 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
-import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterAccount
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
-import com.liquotrack.stocksip.features.careguides.presentation.CareGuideCreate
-import com.liquotrack.stocksip.features.careguides.presentation.CareGuides
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuideCreate
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuideEdit
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuides
 import com.liquotrack.stocksip.features.home.presentation.home.HomeView
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseCreateAndEditView
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseView
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan.ChoosePlanScreen
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Congrats
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Failure
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Pending
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
-
+import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
+import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 /**
  * Main navigation graph of the app.
  * Includes authentication, home, warehouse, products, care guides, etc.
  */
 @Composable
-fun AppNavigation() {
-
+fun AppNavigation(startDestination: String = Route.Login.route) {
     val navController = rememberNavController()
-
-    NavHost(navController, startDestination = Route.Login.route) {
-
+    NavHost(navController, startDestination = startDestination) {
         // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
             Login(
@@ -42,10 +50,34 @@ fun AppNavigation() {
                     navController.navigate(Route.Main.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
+                },
+                onNavigateToPlans = {
+                    navController.navigate(Route.Plans.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToPending = {
+                    navController.navigate(Route.Pending.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onGoogleSignInSuccess = { email, fullName, accountExists ->
+                    if (accountExists) {
+                        navController.navigate(Route.Main.route) {
+                            popUpTo(Route.Login.route) { inclusive = true }
+                        }
+                    } else {
+                        val route = Route.RegisterAccount.buildRoute(
+                            email = email,
+                            fullName = fullName,
+                            password = "GOOGLE_AUTH"
+                        )
+                        navController.navigate(route)
+                    }
                 }
             )
         }
-
+        // REGISTER USER FLOW
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -54,7 +86,7 @@ fun AppNavigation() {
                 }
             )
         }
-
+        // REGISTER ACCOUNT AND BUSINESS FLOW
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(
@@ -66,7 +98,6 @@ fun AppNavigation() {
             val email = backStackEntry.arguments?.getString(Route.RegisterAccount.emailArg) ?: ""
             val fullName = backStackEntry.arguments?.getString(Route.RegisterAccount.fullNameArg) ?: ""
             val password = backStackEntry.arguments?.getString(Route.RegisterAccount.passwordArg) ?: ""
-
             RegisterAccount(
                 email = email,
                 username = fullName,
@@ -74,11 +105,11 @@ fun AppNavigation() {
                 onRegistrationSuccess = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )
         }
-
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
@@ -88,7 +119,6 @@ fun AppNavigation() {
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-
         composable(
             route = Route.ConfirmationCode.routeWithArguments,
             arguments = listOf(
@@ -105,7 +135,6 @@ fun AppNavigation() {
                 }
             )
         }
-
         // MAIN FLOW
         composable(route = Route.Main.route) {
             HomeView(
@@ -116,7 +145,6 @@ fun AppNavigation() {
                 }
             )
         }
-
         composable(route = Route.Profile.route) {
             Profile(
                 onNavigate = { route ->
@@ -126,7 +154,6 @@ fun AppNavigation() {
                 }
             )
         }
-
         composable(route = Route.Warehouses.route) {
             WarehouseView(
                 onNavigate = { route ->
@@ -136,7 +163,18 @@ fun AppNavigation() {
                 }
             )
         }
-
+        composable(
+            route = "warehouse_create_edit/{warehouseId}",
+            arguments = listOf(navArgument("warehouseId") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString("warehouseId")
+            WarehouseCreateAndEditView(
+                warehouseId = warehouseId ?: "new",
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
         composable(route = Route.UserManagement.route) {
             AdminPanel(
                 onNavigate = { route ->
@@ -146,11 +184,8 @@ fun AppNavigation() {
                 }
             )
         }
-
         composable(route = Route.Products.route) {
-
         }
-
         composable(route = Route.CareGuides.route) {
             CareGuides(
                 onNavigate = { route ->
@@ -160,23 +195,120 @@ fun AppNavigation() {
                 }
             )
         }
-
         composable(route = Route.CareGuideCreate.route) {
             CareGuideCreate(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-
+        composable(
+            route = Route.CareGuideEdit.routeWithArguments,
+            arguments = listOf(
+                navArgument(Route.CareGuideEdit.careGuideIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val careGuideId = backStackEntry.arguments?.getString(Route.CareGuideEdit.careGuideIdArg).orEmpty()
+            CareGuideEdit(
+                careGuideId = careGuideId,
+                onNavigateBack = { navController.popBackStack() },
+                onDeleted = {
+                    navController.popBackStack(Route.CareGuides.route, false)
+                }
+            )
+        }
         composable(route = Route.Catalogs.route) {
-
         }
-
         composable(route = Route.MakingOrders.route) {
-
+            val accountViewModel: AccountViewModel = hiltViewModel()
+            val role by accountViewModel.accountRole.collectAsState()
+            LaunchedEffect(role) {
+                if (role == null) {
+                    accountViewModel.loadAccountRoleFromStorage()
+                }
+            }
+            val roleNormalized = role?.trim()?.lowercase()
+            if (roleNormalized == "supplier") {
+                SupplierSalesOrdersView(
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onChangeStatus = { },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            } else {
+                SalesOrdersView(
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNewClick = { },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
-
+        composable(route = Route.MakingOrdersSupplier.route) {
+            SupplierSalesOrdersView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onChangeStatus = { },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(route = Route.Plans.route) {
-
+            ChoosePlanScreen(
+                onContinue = { selectedPlan ->
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Plans.route) { inclusive = true }
+                    }
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(route = Route.Congrats.route) {
+            Congrats(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Congrats.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(route = Route.Failure.route) {
+            Failure(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Failure.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(route = Route.Pending.route) {
+            Pending(
+                onNavigateToHome = {
+                    navController.navigate(Route.Main.route) {
+                        popUpTo(Route.Pending.route) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

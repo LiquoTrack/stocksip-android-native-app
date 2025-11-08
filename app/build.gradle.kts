@@ -25,13 +25,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
-        release {
+        getByName("debug") {
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:5283/api/v1/\"")
+        }
+
+
+        create("usb") {
+            initWith(getByName("debug"))
+            buildConfigField("String", "BASE_URL", "\"http://localhost:5283/api/v1/\"")
+            matchingFallbacks += listOf("debug")
+        }
+
+        getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "BASE_URL", "\"https://stocksip-back-end.azurewebsites.net/api/v1/\"")
         }
     }
     compileOptions {
@@ -60,6 +77,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+
     // Material Icons dependency
     implementation(libs.androidx.material.icons.extended)
 
@@ -83,6 +101,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.foundation)
+    implementation(libs.googleid)
+    implementation("com.google.android.gms:play-services-auth")
+    implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-auth")
     ksp(libs.androidx.room.compiler)
 
     // Hilt dependency for injection of dependencies in the app
@@ -99,6 +122,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Mercado Pago SDK
+    implementation("androidx.browser:browser:1.4.0")
+
     // Firebase dependencies
     // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
@@ -107,5 +133,9 @@ dependencies {
 
     // Add the dependency for the Firebase SDK for Google Analytics
     implementation(libs.firebase.analytics)
+
+    //Google Identity Services
+    implementation("androidx.credentials:credentials:1.6.0-beta01")
+    implementation("androidx.credentials:credentials-play-services-auth:1.6.0-beta01")
 
 }

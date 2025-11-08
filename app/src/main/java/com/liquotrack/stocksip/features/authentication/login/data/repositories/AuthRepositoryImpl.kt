@@ -1,6 +1,5 @@
 package com.liquotrack.stocksip.features.authentication.login.data.repositories
 
-import android.content.SharedPreferences
 import com.liquotrack.stocksip.common.utils.Resource
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
@@ -10,7 +9,6 @@ import com.liquotrack.stocksip.features.authentication.login.domain.repositories
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import androidx.core.content.edit
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 
 class AuthRepositoryImpl @Inject constructor(
@@ -32,8 +30,6 @@ class AuthRepositoryImpl @Inject constructor(
                             token = loginResponse.token,
                             accountId = loginResponse.accountId
                         )
-                        tokenManager.saveToken(loginResponse.token)
-                        tokenManager.saveAccountId(loginResponse.accountId)
 
                         return@withContext Resource.Success(data = user)
                     }

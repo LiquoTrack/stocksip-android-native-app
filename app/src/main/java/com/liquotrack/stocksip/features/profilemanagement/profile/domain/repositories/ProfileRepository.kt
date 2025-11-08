@@ -8,11 +8,11 @@ interface ProfileRepository {
     fun getProfile(): Flow<Profile>
 
     suspend fun updateProfile(
-        name: String,
-        email: String,
-        contactNumber: String,
-        profileImageUrl: String?
-    )
-
-    suspend fun uploadProfileImage(uri: Uri): String
+        profileId: String,
+        firstName: String?,
+        lastName: String?,
+        phoneNumber: String?,
+        assignedRole: String?,
+        profilePictureUri: Uri?
+    ): Profile
 }
