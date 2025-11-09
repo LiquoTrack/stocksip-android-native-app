@@ -1,6 +1,7 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.services
 
 import androidx.room.Query
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.AccountSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.ConfirmSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.InitialSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.SubscriptionResponseDto
@@ -41,4 +42,12 @@ interface SubscriptionService {
      */
     @GET("subscriptions/status")
     suspend fun fetchSubscriptionStatusByPreferenceId(@Path("preferenceId") preferenceId: String) : Response<SubscriptionStatusDto>
+
+    /**
+     * Fetches the current subscription details for a specific account ID.
+     * @param accountId The ID of the account whose subscription details are to be fetched.
+     * @return A [Response] containing [AccountSubscriptionDto] with the subscription information.
+     */
+    @GET("accounts/{accountId}/subscriptions")
+    suspend fun fetchSubscriptionByAccountId(@Path("accountId") accountId: String) : Response<AccountSubscriptionDto>
 }

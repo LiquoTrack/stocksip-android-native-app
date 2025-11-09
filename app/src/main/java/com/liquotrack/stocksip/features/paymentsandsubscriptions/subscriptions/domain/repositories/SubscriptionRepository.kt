@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.repositories
 
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.AccountSubscription
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.Subscription
 
 /**
@@ -32,4 +33,12 @@ interface SubscriptionRepository {
      * @return A [String] representing the current status of the subscription.
      */
     suspend fun fetchSubscriptionStatus(preferenceId: String): String
+
+    /**
+     * Fetches the subscription details for the given account ID.
+     *
+     * @param accountId The ID of the account whose subscription details are to be fetched.
+     * @return A [Subscription] object containing the subscription information.
+     */
+     suspend fun fetchSubscriptionByAccountId(accountId: String): AccountSubscription
 }
