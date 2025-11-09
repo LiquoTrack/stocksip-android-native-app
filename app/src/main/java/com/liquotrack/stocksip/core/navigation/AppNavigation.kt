@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.liquotrack.stocksip.features.adminpanel.presentation.AdminPanel
+import com.liquotrack.stocksip.features.authentication.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
 import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
 import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
@@ -28,6 +28,7 @@ import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.P
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.authentication.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 /**
  * Main navigation graph of the app.

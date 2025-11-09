@@ -1,19 +1,22 @@
-package com.liquotrack.stocksip.features.adminpanel.presentation
+package com.liquotrack.stocksip.features.authentication.adminpanel.presentation
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -40,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -58,6 +62,14 @@ fun AdminPanel(
     val users by viewModel.users.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedTab by viewModel.selectedTab.collectAsState()
+    val userToDelete by viewModel.userToDelete.collectAsState()
+    val userToEdit by viewModel.userToEdit.collectAsState()
+    val accountStats = users.firstOrNull()
+    val displayedUsers = accountStats?.users ?: emptyList()
+    val currentUsersCount = accountStats?.totalUsers ?: displayedUsers.size
+    val maxUsersAllowed = accountStats?.maxUsersAllowed
+    val isMaxUsersReached = maxUsersAllowed != null && maxUsersAllowed != 0 &&
+        currentUsersCount >= maxUsersAllowed
     var showNewUserDialog by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -116,48 +128,114 @@ fun AdminPanel(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AdminTabButton(
-                        text = "Users",
-                        isSelected = selectedTab == AdminTab.USERS,
-                        onClick = { viewModel.selectTab(AdminTab.USERS) }
+                        text = "All",
+                        isSelected = selectedTab == AdminTab.ALL,
+                        onClick = { viewModel.selectTab(AdminTab.ALL) },
+                        modifier = Modifier.weight(1f)
                     )
 
                     AdminTabButton(
-                        text = "Roles",
-                        isSelected = selectedTab == AdminTab.ROLES,
-                        onClick = { viewModel.selectTab(AdminTab.ROLES) }
+                        text = "Admin",
+                        isSelected = selectedTab == AdminTab.ADMIN,
+                        onClick = { viewModel.selectTab(AdminTab.ADMIN) },
+                        modifier = Modifier.weight(1f)
                     )
-                }
 
-                Button(
-                    onClick = { showNewUserDialog = true },
-                    modifier = Modifier.align(Alignment.CenterHorizontally).height(55.dp).padding(bottom = 16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp).padding(end = 4.dp)
+                    AdminTabButton(
+                        text = "Employee",
+                        isSelected = selectedTab == AdminTab.EMPLOYEE,
+                        onClick = { viewModel.selectTab(AdminTab.EMPLOYEE) },
+                        modifier = Modifier.weight(1f)
                     )
-                    Text("New", color = Color.White, fontSize = 14.sp)
-                }
 
-                when (selectedTab) {
-                    AdminTab.USERS -> {
-                        UsersList(
-                            users = users,
-                            isLoading = isLoading,
-                            onEditUser = { user -> viewModel.selectUserForEdit(user) },
-                            onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
-                        )
+                    Button(
+                        onClick = { showNewUserDialog = true },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(40.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
+                        shape = RoundedCornerShape(24.dp),
+                        enabled = !isMaxUsersReached,
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text("+ New", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
-                    AdminTab.ROLES -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Roles Management - Coming Soon")
+                }
+
+                if (accountStats != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFEADFE0), RoundedCornerShape(16.dp))
+                            .padding(horizontal = 20.dp, vertical = 16.dp)
+                            .padding(bottom = 16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "Users Capacity",
+                                    color = Color(0xFF4A1B2A),
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 16.sp
+                                )
+                                Text(
+                                    text = "${currentUsersCount}/${maxUsersAllowed ?: "--"}",
+                                    color = Color(0xFF4A1B2A),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp
+                                )
+                            }
+
+                            Text(
+                                text = if (isMaxUsersReached) "Max reached" else "Available",
+                                color = if (isMaxUsersReached) Color(0xFFD32F2F) else Color(0xFF2E7D32),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = true)
+                ) {
+                    when (selectedTab) {
+                        AdminTab.ALL -> {
+                            UsersList(
+                                users = displayedUsers,
+                                isLoading = isLoading,
+                                onEditUser = { user -> viewModel.selectUserForEdit(user) },
+                                onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
+                            )
+                        }
+                        AdminTab.ADMIN -> {
+                            UsersList(
+                                users = displayedUsers,
+                                isLoading = isLoading,
+                                onEditUser = { user -> viewModel.selectUserForEdit(user) },
+                                onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
+                            )
+                        }
+                        AdminTab.EMPLOYEE -> {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                UsersList(
+                                    users = displayedUsers,
+                                    isLoading = isLoading,
+                                    onEditUser = { user -> viewModel.selectUserForEdit(user) },
+                                    onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
+                                )
+                            }
                         }
                     }
                 }
@@ -175,20 +253,20 @@ fun AdminPanel(
         )
     }
 
-    viewModel.userToEdit.value?.let { user ->
+    userToEdit?.let { user ->
         EditUserDialog(
             user = user,
             onDismiss = { viewModel.clearUserToEdit() },
             onSave = { updatedUser ->
-                viewModel.updateUser(updatedUser)
+                viewModel.updateUser(user)
                 viewModel.clearUserToEdit()
             }
         )
     }
 
-    viewModel.userToDelete.value?.let { user ->
+    userToDelete?.let { user ->
         DeleteUserDialog(
-            userName = user.username,
+            userName = user.id,
             onConfirm = {
                 viewModel.deleteUser(user)
                 viewModel.clearUserToDelete()
@@ -202,7 +280,8 @@ fun AdminPanel(
 private fun AdminTabButton(
     text: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
@@ -212,9 +291,10 @@ private fun AdminTabButton(
         ),
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, Color(0xFFD1C4C4)),
-        modifier = Modifier.width(100.dp).height(36.dp)
+        modifier = modifier.defaultMinSize(minWidth = 108.dp, minHeight = 40.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        Text(text, fontSize = 14.sp)
+        Text(text, fontSize = 13.sp, maxLines = 1)
     }
 }
 
@@ -234,7 +314,7 @@ private fun DeleteUserDialog(
             ) {
                 Text(
                     "Are you sure you\nwant to delete this\nuser?",
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    textAlign = TextAlign.Center,
                     fontSize = 16.sp,
                     color = Color(0xFF4A1B2A)
                 )
@@ -267,6 +347,7 @@ private fun DeleteUserDialog(
 }
 
 enum class AdminTab {
-    USERS,
-    ROLES
+    ALL,
+    ADMIN,
+    EMPLOYEE,
 }
