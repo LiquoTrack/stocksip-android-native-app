@@ -44,6 +44,7 @@ fun NewUserDialog(
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var selectedRole by remember { mutableStateOf("Admin") }
+    var phone by remember { mutableStateOf("") }
     var showRoleDropdown by remember { mutableStateOf(false) }
 
     val roles = listOf("Admin", "Manager", "Cashier", "Worker")
@@ -80,6 +81,20 @@ fun NewUserDialog(
                     value = email,
                     onValueChange = { email = it },
                     placeholder = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = Color(0xFFD1C4C4),
+                        unfocusedBorderColor = Color(0xFFD1C4C4)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                )
+
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    placeholder = { Text("Phone number") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
@@ -136,6 +151,17 @@ fun NewUserDialog(
         confirmButton = {
             Button(
                 onClick = {
+                    val newUser = SubUser(
+                        id = "",
+                        email = email.trim(),
+                        userRole = selectedRole,
+                        profileId = "",
+                        fullName = name.trim(),
+                        phoneNumber = phone.trim(),
+                        profilePictureUrl = "",
+                        profileRole = selectedRole
+                    )
+                    onSave(newUser)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                 shape = RoundedCornerShape(20.dp)
