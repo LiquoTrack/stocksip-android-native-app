@@ -152,6 +152,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -163,6 +168,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     navController.navigate(route) {
                         launchSingleTop = true
                     }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -173,6 +183,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -213,6 +228,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -351,6 +371,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

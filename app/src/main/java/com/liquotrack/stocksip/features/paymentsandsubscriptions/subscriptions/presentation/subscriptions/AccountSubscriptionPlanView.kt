@@ -104,12 +104,6 @@ fun AccountSubscriptionPlanView(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text(
-                            "Update Your plan",
-                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                            color = Color(0xFF4A1B2A)
-                        )
-
                         AvailablePlansSection(currentPlanType = subscription.planType)
                     }
                 }
