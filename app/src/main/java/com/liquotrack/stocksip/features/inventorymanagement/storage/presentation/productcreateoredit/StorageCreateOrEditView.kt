@@ -1,7 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit
 
 import android.net.Uri
-import android.widget.Spinner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +38,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
 import com.liquotrack.stocksip.shared.presentation.components.CustomDoubleTextField
 import com.liquotrack.stocksip.shared.presentation.components.CustomSpinnerField
@@ -49,7 +49,7 @@ import java.io.File
 
 @Composable
 fun StorageCreateOrEditView(
-    viewModel: StorageCreateOrEditViewModel,
+    viewModel: StorageCreateOrEditViewModel = hiltViewModel(),
     productId: String?,
     product: ProductResponse? = null,
     onNavigateBack : () -> Unit

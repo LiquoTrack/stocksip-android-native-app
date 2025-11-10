@@ -28,6 +28,7 @@ import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.P
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.AccountSubscriptionPlanView
@@ -232,9 +233,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString(Route.ProductCreateEdit.productIdArg).orEmpty()
-            // Implement ProductCreateEdit Composable similarly to WarehouseCreateAndEditView
-
+            val productId = backStackEntry.arguments?.getString(Route.ProductCreateEdit.productIdArg)
+            StorageCreateOrEditView(
+                productId = productId ?: "new",
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
         // User Management
