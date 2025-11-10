@@ -9,6 +9,7 @@ package com.liquotrack.stocksip.features.inventorymanagement.storage.domain.mode
  * @property unitPrice The price per unit of the product.
  * @property currencyCode The currency code for the unit price (e.g., USD, EUR).
  * @property minimumStock The minimum stock level for the product.
+ * @property supplierId The unique identifier of the supplier for the product (optional).
  */
 data class ProductRequest(
     val name: String,
@@ -16,5 +17,6 @@ data class ProductRequest(
     val brand: String,
     val unitPrice: Double,
     val currencyCode: String,
-    val minimumStock: Int
+    val minimumStock: Int,
+    val supplierId: String?
 )

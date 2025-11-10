@@ -26,8 +26,6 @@ data class ProductDto(
     val totalStockInWarehouse: Int,
     @SerializedName("imageUrl")
     val imageUrl: String?,
-    @SerializedName("accountId")
-    val accountId: String,
     @SerializedName("supplierId")
     val supplierId: String?,
     @SerializedName("isInWarehouse")

@@ -12,7 +12,6 @@ package com.liquotrack.stocksip.features.inventorymanagement.storage.domain.mode
  * @param minimumStock Minimum stock level to maintain for the product.
  * @param totalStockInWarehouse Total stock of the product available in the warehouse.
  * @param imageUrl URL of an image representing the product.
- * @param accountId Identifier for the account associated with the product.
  * @param supplierId Identifier for the supplier of the product.
  * @param isInWarehouse Boolean indicating if the product is currently in the warehouse.
  */
@@ -26,7 +25,6 @@ data class ProductResponse (
     val minimumStock: Int,
     val totalStockInWarehouse: Int,
     val imageUrl: String,
-    val accountId: String,
     val supplierId: String,
     val isInWarehouse: Boolean
 )
