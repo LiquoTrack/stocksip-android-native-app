@@ -5,33 +5,42 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,17 +49,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 
-/**
- * Screen for password recovery.
- * Allows the user to input their email and navigate to confirmation code screen.
- */
 @Composable
-fun RecoverPassword(
+fun UpdatePasswordView(
+    email: String,
+    onNavigateToLogin: () -> Unit = {},
     viewModel: RecoverPasswordViewModel = hiltViewModel(),
-    onNavigateToConfirmation: (String) -> Unit = {},
-    onNavigateBack: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     var isLoading by remember { mutableStateOf(false) }
 
@@ -76,7 +81,7 @@ fun RecoverPassword(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Recover",
+                text = "Update your",
                 fontSize = 40.sp,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold,
@@ -93,7 +98,7 @@ fun RecoverPassword(
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
-                text = "Enter your email address. We'll send you a message to recover your account.",
+                text = "Enter your password associated with your account to reset it.",
                 color = Color.White.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
@@ -103,13 +108,13 @@ fun RecoverPassword(
             Spacer(modifier = Modifier.height(40.dp))
 
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                placeholder = { Text("Email", color = Color(0xFF8B7375)) },
+                value = password,
+                onValueChange = { password = it },
+                placeholder = { Text("Password", color = Color(0xFF8B7375)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = "Email Icon",
+                        imageVector = Icons.Default.Password,
+                        contentDescription = "Password Icon",
                         tint = Color(0xFF8B7375)
                     )
                 },
@@ -133,11 +138,11 @@ fun RecoverPassword(
             Button(
                 onClick = {
                     isLoading = true
-                    viewModel.sendRecoveryCode(email) { result ->
+                    viewModel.updatePassword(email, password) { result ->
                         isLoading = false
                         result.onSuccess { message ->
-                            onNavigateToConfirmation(email)
                             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                            onNavigateToLogin()
                         }
                         result.onFailure { error ->
                             Toast.makeText(context, error.localizedMessage, Toast.LENGTH_LONG).show()
@@ -149,7 +154,7 @@ fun RecoverPassword(
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                 shape = RoundedCornerShape(28.dp),
-                enabled = email.isNotBlank() && !isLoading,
+                enabled = password.isNotBlank() && !isLoading,
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -158,8 +163,7 @@ fun RecoverPassword(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text(
-                        text = "Send Code",
+                    Text("Reset Password",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -171,8 +175,8 @@ fun RecoverPassword(
 
 @Preview
 @Composable
-fun PasswordRecoverPreview() {
+fun UpdatePasswordPreview() {
     StockSipTheme {
-        RecoverPassword()
+        UpdatePasswordView(email = "")
     }
 }

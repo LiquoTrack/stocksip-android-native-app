@@ -34,5 +34,45 @@ class RecoverPasswordViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Verifies the recovery code for the specified email.
+     *
+     * @param email The email address associated with the recovery code.
+     * @param code The recovery code to verify.
+     */
+    fun verifyRecoveryCode(
+        code: String,
+        email: String,
+        onResult: (Result<String>) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val message = recoverPasswordRepository.verifyRecoveryCode(code, email)
+                onResult(Result.success(message))
+            } catch (e: Exception) {
+                onResult(Result.failure(e))
+            }
+        }
+    }
 
+    /**
+     * Updates the password for the specified email.
+     *
+     * @param email The email address to update the password for.
+     * @param newPassword The new password to set.
+     */
+    fun updatePassword(
+        email: String,
+        newPassword: String,
+        onResult: (Result<String>) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val message = recoverPasswordRepository.resetPassword(email, newPassword)
+                onResult(Result.success(message))
+            } catch (e: Exception) {
+                onResult(Result.failure(e))
+            }
+        }
+    }
 }
