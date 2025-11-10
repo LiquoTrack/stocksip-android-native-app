@@ -46,7 +46,19 @@ sealed class Route(val route: String) {
     }
 
     object Products : Route(route = "products_storage")
-    object ProductDetail : Route(route = "product_detail")
+
+    object ProductCreateEdit {
+        const val route = "product_create_edit"
+        const val productIdArg = "productId"
+        val routeWithArgs = "$route/{$productIdArg}"
+    }
+
+    object ProductDetail {
+        const val route = "product_detail"
+        const val productIdArg = "productId"
+        val routeWithArgs = "$route/{$productIdArg}"
+    }
+
     object Alerts : Route(route = "alerts")
     object Inventory : Route(route = "inventory")
     object Catalogs : Route(route = "catalogs")

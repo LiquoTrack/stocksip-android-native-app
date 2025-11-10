@@ -28,6 +28,7 @@ import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.P
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.AccountSubscriptionPlanView
 
@@ -118,6 +119,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // PASSWORD RECOVERY FLOW
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
@@ -207,6 +209,34 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // Products Storage
+        composable(route = Route.Products.route) {
+            StorageView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // Product Create And Edit
+        composable(
+            route = Route.ProductCreateEdit.routeWithArgs,
+            arguments = listOf(navArgument(Route.ProductCreateEdit.productIdArg) {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString(Route.ProductCreateEdit.productIdArg).orEmpty()
+            // Implement ProductCreateEdit Composable similarly to WarehouseCreateAndEditView
+
+        }
+
         // User Management
         composable(route = Route.UserManagement.route) {
             AdminPanel(
@@ -216,10 +246,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     }
                 }
             )
-        }
-
-        // Products Storage
-        composable(route = Route.Products.route) {
         }
 
         // Care Guides
