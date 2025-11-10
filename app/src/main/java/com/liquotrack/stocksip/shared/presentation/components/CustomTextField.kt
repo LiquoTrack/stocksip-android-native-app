@@ -16,6 +16,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * A customizable text field component with label, placeholder, and error handling.
+ *
+ * @param value The current text value of the text field.
+ * @param onValueChange Callback function to handle text changes.
+ * @param label The label to display above the text field.
+ * @param placeholder The placeholder text to display when the text field is empty.
+ * @param modifier Modifier to be applied to the text field.
+ * @param keyboardType The type of keyboard to use for the text field.
+ * @param isRequired Boolean indicating if the field is required (adds an asterisk to the label).
+ * @param showError Boolean indicating if an error state should be shown.
+ */
 @Composable
 fun CustomTextField(
     value: String,
