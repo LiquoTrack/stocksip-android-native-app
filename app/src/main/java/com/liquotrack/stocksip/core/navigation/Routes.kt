@@ -71,6 +71,7 @@ sealed class Route(val route: String) {
 
     // Payments and Subscriptions Bounded Context
     object Plans : Route(route = "plans")
+    object Subscriptions : Route(route = "subscriptions")
     object Congrats : Route(route = "congrats")
     object Failure : Route(route = "failure")
     object Pending: Route(route = "pending")
@@ -87,7 +88,7 @@ object DrawerRoutes {
     const val ORDERS = "orders"
     const val PRODUCTS = "products"
     const val CATALOG = "catalog"
-    const val PLANS = "plans"
+    const val SUBSCRIPTIONS = "subscriptions"
     const val ADMIN = "admin"
     const val PROFILE = "profile"
     const val LOGOUT = "logout"

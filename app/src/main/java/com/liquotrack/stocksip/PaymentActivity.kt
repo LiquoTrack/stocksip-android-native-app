@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import com.liquotrack.stocksip.core.navigation.AppNavigation
 import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PaymentActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

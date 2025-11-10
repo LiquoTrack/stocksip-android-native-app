@@ -2,95 +2,57 @@ package com.liquotrack.stocksip.features.ordermanagement.domain
 
 interface SalesOrderRepository {
     /**
-     * Generate a new purchase order.
-     *
-     * @param orderCode The order code to generate the purchase order for.
-     * @return A string representing the generated purchase order.
-     */
-    suspend fun generatePurchaseOrder(orderCode: String): String
-    
-    /**
-     * Create a Sales Order from a completed Procurement order payload.
-     *
-     * @return A string representing the created Sales Order.
-     */
-    suspend fun createSalesOrderFromCompletedProcurementOrder(): String
-    
-    /**
      * Get order by ID.
-     *
-     * @param orderCode The order code to retrieve the order for.
-     * @return A string representing the order.
      */
-    suspend fun getOrderById(orderCode: String): String
-    
+    suspend fun getOrderById(orderId: String): SalesOrderResponse
+
     /**
      * Get all orders.
-     *
-     * @return A string representing the list of orders.
      */
-    suspend fun getAllOrders(): String
-    
+    suspend fun getAllOrders(): List<SalesOrderResponse>
+
     /**
      * Create order.
-     *
-     * @return A string representing the created order.
      */
-    suspend fun createOrder(): String
-    
+    suspend fun createOrder(request: CreateOrderRequest): SalesOrderResponse
+
     /**
      * Propose a delivery schedule for an order (Supplier).
-     *
-     * @return A string representing the proposed delivery schedule.
      */
-    suspend fun proposeDeliveryScheduleForOrder(): String
-    
+    suspend fun proposeDeliveryScheduleForOrder(orderId: String, proposedDate: String, notes: String?): SalesOrderResponse
+
     /**
      * Get current delivery proposal for an order (Supplier).
-     *
-     * @return A string representing the current delivery proposal.
      */
-    suspend fun getDeliveryProposalForOrder(): String
-    
+    suspend fun getDeliveryProposalForOrder(orderId: String): SalesOrderResponse
+
     /**
      * Respond to a delivery proposal (LiquorStoreOwner).
-     *
-     * @return A string representing the response to the delivery proposal.
      */
-    suspend fun respondToDeliveryProposal(): String
-    
+    suspend fun respondToDeliveryProposal(orderId: String, accept: Boolean, notes: String?): SalesOrderResponse
+
     /**
      * Get current delivery proposal and response (LiquorStoreOwner).
-     *
-     * @return A string representing the current delivery proposal and response.
      */
-    suspend fun getDeliveryProposalAndResponse(): String
-    
+    suspend fun getDeliveryProposalAndResponse(orderId: String): SalesOrderResponse
+
     /**
-     * Update order status.
-     *
-     * @return A string representing the updated order status.
+     * Update order status (alias values supported: PENDING, CONFIRM, CANCEL).
      */
-    suspend fun updateOrderStatus(): String
-    
+    suspend fun updateOrderStatus(orderId: String, newStatusAlias: String, reason: String? = null): SalesOrderResponse
+
     /**
-     * Get order status.
-     *
-     * @return A string representing the order status.
+     * Get order status summary and last update.
      */
-    suspend fun getOrderStatus(): String
-    
+    suspend fun getOrderStatus(orderId: String): OrderStatusResponse
+
     /**
      * Get orders by supplier ID.
-     *
-     * @return A string representing the list of orders.
      */
-    suspend fun getOrdersBySupplierId(): String
-    
+    suspend fun getOrdersBySupplierId(supplierId: String): SupplierOrdersResponse
+
     /**
      * Get orders by Liquor Store Owner ID.
-     *
-     * @return A string representing the list of orders.
      */
-    suspend fun getOrdersByLiquorStoreOwnerId(): String
+    suspend fun getOrdersByLiquorStoreOwnerId(liquorStoreOwnerId: String): LiquorStoreOwnerOrdersResponse
 }
