@@ -94,7 +94,24 @@ class AdminPanelViewModel @Inject constructor(
     fun createUser(user: SubUser) {
         viewModelScope.launch {
             _isLoading.value = true
-
+            try {
+                val response = repository.createSubUser(user)
+                if (response.isSuccessful) {
+                    loadUsers(
+                        when (selectedTab.value) {
+                            AdminTab.ALL -> "All"
+                            AdminTab.ADMIN -> "SuperAdmin"
+                            AdminTab.EMPLOYEE -> "Employee"
+                        }
+                    )
+                } else {
+                    _errorMessage.value = "Failed to create user: ${'$'}{response.code()}"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "An unexpected error occurred"
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
