@@ -8,7 +8,7 @@ package com.liquotrack.stocksip.features.inventorymanagement.storage.domain.mode
  * @param productType Type or category of the product.
  * @param brand Brand associated with the product.
  * @param unitPrice Price per unit of the product.
- * @param moneyCode Currency code for the unit price (e.g., USD, EUR).
+ * @param currencyCode Currency code for the unit price (e.g., USD, EUR).
  * @param minimumStock Minimum stock level to maintain for the product.
  * @param totalStockInWarehouse Total stock of the product available in the warehouse.
  * @param imageUrl URL of an image representing the product.
@@ -16,7 +16,7 @@ package com.liquotrack.stocksip.features.inventorymanagement.storage.domain.mode
  * @param supplierId Identifier for the supplier of the product.
  * @param isInWarehouse Boolean indicating if the product is currently in the warehouse.
  */
-data class Product (
+data class ProductResponse (
     val id: String,
     val name: String,
     val productType: String,
