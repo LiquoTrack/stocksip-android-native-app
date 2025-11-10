@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.AvailablePlansSection
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.SubscriptionPlanCard
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
@@ -98,18 +99,19 @@ fun AccountSubscriptionPlanView(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     accountSubscription?.let { subscription ->
-                        val formattedExpiration = subscriptionsViewModel.formatExpirationDate(subscription.expirationDate)
-                        val formattedSubscription = subscription.copy(expirationDate = formattedExpiration)
+                        val formattedSubscription = subscriptionsViewModel.formatSubscription(subscription)
                         SubscriptionPlanCard(accountSubscription = formattedSubscription)
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            "Update Your plan",
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = Color(0xFF4A1B2A)
+                        )
+
+                        AvailablePlansSection(currentPlanType = subscription.planType)
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        "Update Your plan",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        color = Color(0xFF4A1B2A)
-                    )
                 }
             }
         }

@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName
  * @property message A message related to the upgrade process.
  * @property preferenceId The ID of the payment preference.
  */
-data class UpgradeSubscriptionPlanDto(
+data class UpgradeSubscriptionResponseDto(
     @SerializedName("initPoint")
     val initPoint: String,
     @SerializedName("message")

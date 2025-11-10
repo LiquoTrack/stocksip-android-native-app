@@ -3,7 +3,7 @@ package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.
 
 import com.google.gson.annotations.SerializedName
 
-data class SubscriptionStatusDto(
-    @SerializedName("subscriptionStatus")
-    val subscriptionStatus: String
+data class UpgradeSubscriptionDto(
+    @SerializedName("newPlanId")
+    val newPlanId: String
 )
