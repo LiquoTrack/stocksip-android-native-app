@@ -1,14 +1,12 @@
 package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductRequest
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductsWithCount
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.ProductRepository
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-import kotlin.collections.filter
-import kotlin.collections.orEmpty
 
 /**
  * ViewModel for managing product data in the inventory management system.

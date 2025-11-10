@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components
+package com.liquotrack.stocksip.shared.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,13 +17,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun CustomTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
+fun CustomDoubleTextField(
+    value: Double,
+    onValueChange: (Double) -> Unit,
     label: String,
     placeholder: String,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text,
+    keyboardType: KeyboardType = KeyboardType.Decimal,
     isRequired: Boolean = false,
     showError: Boolean = false
 ) {
@@ -36,8 +36,11 @@ fun CustomTextField(
             modifier = Modifier.padding(bottom = 4.dp)
         )
         OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = if (value == 0.0) "" else value.toString(),
+            onValueChange = { newValue ->
+                val doubleValue = newValue.toDoubleOrNull() ?: 0.0
+                onValueChange(doubleValue)
+            },
             placeholder = {
                 Text(
                     text = placeholder,
@@ -48,8 +51,8 @@ fun CustomTextField(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
-                focusedBorderColor = if (showError && value.isBlank()) Color.Red else Color(0xFF2B000D),
-                unfocusedBorderColor = if (showError && value.isBlank()) Color.Red else Color.LightGray,
+                focusedBorderColor = if (showError && value == 0.0) Color.Red else Color(0xFF2B000D),
+                unfocusedBorderColor = if (showError && value == 0.0) Color.Red else Color.LightGray,
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black
             ),
@@ -58,7 +61,7 @@ fun CustomTextField(
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
         )
 
-        if (showError && value.isBlank() && isRequired) {
+        if (showError && value == 0.0 && isRequired) {
             Text(
                 text = "This field is required",
                 color = Color.Red,

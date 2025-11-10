@@ -27,8 +27,8 @@ import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
 import java.io.File
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomTextField
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomDoubleTextField
+import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
+import com.liquotrack.stocksip.shared.presentation.components.CustomDoubleTextField
 import androidx.core.net.toUri
 
 @Composable
