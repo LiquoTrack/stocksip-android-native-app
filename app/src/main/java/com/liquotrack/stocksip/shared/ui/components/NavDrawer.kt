@@ -136,11 +136,11 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.Default.CardMembership,
-                title = "Plans",
-                route = "plans",
+                title = "Subscriptions",
+                route = "subscriptions",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("plans")
+                    onNavigate("subscriptions")
                     onClose()
                 }
             )

@@ -55,8 +55,8 @@ class DrawerNavigationHandler(
                 }
             }
 
-            DrawerRoutes.PLANS -> {
-                val route = "plans/$userId"
+            DrawerRoutes.SUBSCRIPTIONS -> {
+                val route = "subscriptions/$userId"
                 navController.navigate(route) {
                     launchSingleTop = true
                 }
