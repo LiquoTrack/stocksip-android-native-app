@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage
+package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -15,22 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-import kotlin.collections.map
-import kotlin.collections.orEmpty
-import kotlin.collections.plus
-import kotlin.compareTo
 
 @HiltViewModel
 class StorageCreateOrEditViewModel @Inject constructor(
     private val repository: ProductRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
-
-    // StateFlow to hold the list of products
-    private val _products = MutableStateFlow<ProductsWithCount?>(null)
-
-    // Publicly exposed StateFlow for observing product data
-    val products: StateFlow<ProductsWithCount?> = _products.asStateFlow()
 
     private val _productName = MutableStateFlow("")
     val productName: StateFlow<String> = _productName
@@ -144,28 +134,18 @@ class StorageCreateOrEditViewModel @Inject constructor(
                 )
 
                 if (isEditing && productId != null) {
-                    val updated = repository.updateProduct(
+                    repository.updateProduct(
                         productRequest,
                         productId,
                         imageFile
                     )
-                    _products.value = _products.value?.copy(
-                        products = _products.value?.products.orEmpty().map {
-                            if (it.id == updated.id) updated else it
-                        }
-                    )
                 } else {
-                    val created = repository.registerProduct(
+                    repository.registerProduct(
                         productRequest,
                         accountId,
                         imageFile
                     )
-
-                    _products.value = _products.value?.copy(
-                        products = _products.value?.products.orEmpty() + created
-                    )
                 }
-
                 clearForm()
                 onSuccess()
             } catch (e: Exception) {
