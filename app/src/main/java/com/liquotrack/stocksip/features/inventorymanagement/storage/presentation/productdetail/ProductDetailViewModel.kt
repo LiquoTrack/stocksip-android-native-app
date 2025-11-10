@@ -15,10 +15,14 @@ import javax.inject.Inject
 import kotlin.collections.filter
 import kotlin.collections.orEmpty
 
+/**
+ * ViewModel for managing product details, including fetching, editing and deleting products.
+ *
+ * @param repository The repository for product data operations
+ */
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
-    private val repository: ProductRepository,
-    private val tokenManager: TokenManager
+    private val repository: ProductRepository
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -26,12 +30,6 @@ class ProductDetailViewModel @Inject constructor(
 
     private val _selectedProduct = MutableStateFlow<ProductResponse?>(null)
     val selectedProduct: StateFlow<ProductResponse?> = _selectedProduct
-
-    // StateFlow to hold the list of products
-    private val _products = MutableStateFlow<ProductsWithCount?>(null)
-
-    // Publicly exposed StateFlow for observing product data
-    val products: StateFlow<ProductsWithCount?> = _products.asStateFlow()
 
     private val _showDeleteDialog = MutableStateFlow(false)
     val showDeleteDialog: StateFlow<Boolean> = _showDeleteDialog.asStateFlow()
@@ -61,10 +59,6 @@ class ProductDetailViewModel @Inject constructor(
             try {
                 _isLoading.value = true
                 repository.deleteProduct(productId)
-
-                _products.value = _products.value?.copy(
-                    products = _products.value?.products.orEmpty().filter { it.id != productId }
-                )
                 onSuccess()
             } catch (e: Exception) {
                 e.printStackTrace()
