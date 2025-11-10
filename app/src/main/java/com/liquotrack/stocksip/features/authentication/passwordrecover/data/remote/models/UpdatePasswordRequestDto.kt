@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models
+package com.liquotrack.stocksip.features.authentication.passwordrecover.data.remote.models
 
 
 import com.google.gson.annotations.SerializedName

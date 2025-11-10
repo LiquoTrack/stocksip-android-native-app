@@ -30,6 +30,7 @@ import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSal
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.AccountSubscriptionPlanView
+import java.net.URLEncoder
 
 /**
  * Main navigation graph of the app.
@@ -121,8 +122,8 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
-                    val route = "confirmation_code/$email"
-                    navController.navigate(route)
+                    val encodedEmail = URLEncoder.encode(email, "UTF-8")
+                    navController.navigate("confirmation_code/$encodedEmail")
                 },
                 onNavigateBack = { navController.popBackStack() }
             )
@@ -134,12 +135,19 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 navArgument(Route.ConfirmationCode.emailArg) { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString(Route.ConfirmationCode.emailArg) ?: ""
+            val email = backStackEntry.arguments?.getString("email")
+                ?.let { java.net.URLDecoder.decode(it, "UTF-8") } ?: ""
+
             ConfirmationCode(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToLogin = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
+                    }
+                },
+                onConfirmClick = { code ->
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
                     }
                 }
             )

@@ -3,16 +3,13 @@ package com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.s
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.DeleteUserRequest
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.RegisterSubUserDto
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.SubUserWrapperDto
-import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.UpdatePasswordRequestDto
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.UserDto
-import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.models.VerifyCodeRequestDto
 
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HTTP
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -56,40 +53,5 @@ interface UserService {
     suspend fun deleteUser(
         @Path("userId") userId: String,
         @Body request: DeleteUserRequest
-    ): Response<Unit>
-
-    /**
-     * Sends a recovery code to the specified user.
-     *
-     * @param userId The ID of the user to send the recovery code to.
-     * @return A Response indicating the success or failure of the operation.
-     */
-    @POST("users/{userId}/recovery-code")
-    suspend fun sendRecoveryCode(@Path("userId") userId: String): Response<Unit>
-
-    /**
-     * Verifies the recovery code for the specified user.
-     *
-     * @param userId The ID of the user whose code is to be verified.
-     * @param verifyCodeRequestDto The verification code details.
-     * @return A Response indicating the success or failure of the operation.
-     */
-    @POST("users/{userId}/verify-code")
-    suspend fun verifyRecoveryCode(
-        @Path("userId") userId: String,
-        @Body verifyCodeRequestDto: VerifyCodeRequestDto)
-    : Response<Unit>
-
-    /**
-     * Resets the password for the specified user.
-     *
-     * @param userId The ID of the user whose password is to be reset.
-     * @param newPassword The new password details.
-     * @return A Response indicating the success or failure of the operation.
-     */
-    @PUT("users/{userId}/reset-password")
-    suspend fun resetPassword(
-        @Path("userId") userId: String,
-        @Body newPassword: UpdatePasswordRequestDto
     ): Response<Unit>
 }
