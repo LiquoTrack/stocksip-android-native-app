@@ -153,7 +153,7 @@ fun HomeView(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
-                                onClick = { onNavigate("plans") },
+                                onClick = { onNavigate("subscriptions") },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF4A1B2A),
                                     contentColor = Color.White

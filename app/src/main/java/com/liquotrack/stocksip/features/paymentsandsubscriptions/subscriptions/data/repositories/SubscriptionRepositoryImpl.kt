@@ -1,12 +1,16 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.repositories
 
+import android.util.Log
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.ConfirmSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.InitialSubscriptionDto
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.UpgradeSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.services.SubscriptionService
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.AccountSubscription
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.Subscription
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.repositories.SubscriptionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import javax.inject.Inject
 
 /**
@@ -61,19 +65,76 @@ class SubscriptionRepositoryImpl @Inject constructor(private val service: Subscr
     }
 
     /**
-     * Fetches the subscription status for a given preference ID.
-     * @param preferenceId The ID of the payment preference.
-     * @return A [String] representing the subscription status.
+     * Fetches the current subscription details for a specific account ID.
+     * @param accountId The ID of the account whose subscription details are to be fetched.
+     * @return An [AccountSubscription] containing the subscription information.
      * @throws Exception if the API call fails or the response is invalid.
      */
-    override suspend fun fetchSubscriptionStatus(preferenceId: String): String = withContext(Dispatchers.IO) {
-        val response = service.fetchSubscriptionStatusByPreferenceId(preferenceId)
+    override suspend fun fetchSubscriptionByAccountId(accountId: String): AccountSubscription =
+        withContext(Dispatchers.IO) {
+            val response = service.fetchSubscriptionByAccountId(accountId)
 
-        if (response.isSuccessful) {
-            val body = response.body() ?: throw Exception("Response body is null")
-            body.subscriptionStatus
-        } else {
-            throw Exception("Failed to fetch subscription status: ${response.code()} ${response.message()}")
+            try {
+                if (response.isSuccessful) {
+                    val currentSubscription = response.body()
+                        ?: throw Exception("Response body is null")
+
+                    return@withContext AccountSubscription(
+                        subscriptionId = currentSubscription.subscriptionId,
+                        planId = currentSubscription.planId,
+                        status = currentSubscription.status,
+                        expirationDate = currentSubscription.expirationDate,
+                        planType = currentSubscription.planType,
+                        paymentFrequency = currentSubscription.paymentFrequency,
+                        maxUsers = currentSubscription.maxUsers,
+                        maxProducts = currentSubscription.maxProducts,
+                        maxWarehouses = currentSubscription.maxWarehouses,
+                    )
+                } else {
+                    throw Exception("Failed to fetch subscription by account ID: ${response.code()} ${response.message()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw e
+            }
         }
+
+    /**
+     * Upgrades the subscription for a given account to a new plan.
+     *
+     * @param accountId The ID of the account whose subscription is to be upgraded.
+     * @param subscriptionId The ID of the subscription to be upgraded.
+     * @param newPlanId The ID of the new subscription plan.
+     * @return A [Subscription] containing the details of the upgraded subscription.
+     */
+    override suspend fun upgradeSubscription(
+        accountId: String,
+        subscriptionId: String,
+        newPlanId: String
+    ): Subscription = withContext(Dispatchers.IO) {
+
+        try {
+            val requestBody = UpgradeSubscriptionDto(newPlanId)
+            val response = service.upgradeSubscription(accountId, subscriptionId, requestBody)
+
+
+            if (!response.isSuccessful) {
+                throw Exception("Failed to upgrade subscription: ${response.code()} ${response.message()}")
+            }
+
+            val body = response.body() ?: throw Exception("Response body is null")
+
+            Subscription(
+                accountId = accountId,
+                planId = newPlanId,
+                preferenceId = body.preferenceId,
+                initPoint = body.initPoint,
+                message = body.message ?: "Subscription upgraded successfully"
+            )
+        } catch (e: Exception) {
+            throw Exception("Error upgrading subscription: ${e.message}", e)
+        }
+
     }
+
 }

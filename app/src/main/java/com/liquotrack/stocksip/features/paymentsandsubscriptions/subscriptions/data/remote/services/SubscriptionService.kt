@@ -1,14 +1,16 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.services
 
-import androidx.room.Query
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.AccountSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.ConfirmSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.InitialSubscriptionDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.SubscriptionResponseDto
-import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.SubscriptionStatusDto
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.UpgradeSubscriptionDto
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.models.UpgradeSubscriptionResponseDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 /**
@@ -35,10 +37,24 @@ interface SubscriptionService {
     suspend fun confirmSubscription(@Body body: ConfirmSubscriptionDto) : Response<ConfirmSubscriptionDto>
 
     /**
-     * Retrieves the subscription status using the preference ID.
-     * @param preferenceId The preference ID associated with the subscription.
-     * @return A [Response] containing a [String] representing the subscription status.
+     * Fetches the current subscription details for a specific account ID.
+     * @param accountId The ID of the account whose subscription details are to be fetched.
+     * @return A [Response] containing [AccountSubscriptionDto] with the subscription information.
      */
-    @GET("subscriptions/status")
-    suspend fun fetchSubscriptionStatusByPreferenceId(@Path("preferenceId") preferenceId: String) : Response<SubscriptionStatusDto>
+    @GET("accounts/{accountId}/subscriptions")
+    suspend fun fetchSubscriptionByAccountId(@Path("accountId") accountId: String) : Response<AccountSubscriptionDto>
+
+    /**
+     * Upgrades the subscription plan for a given account and subscription ID.
+     * @param accountId The ID of the account.
+     * @param subscriptionId The ID of the subscription to be upgraded.
+     * @return A [Response] containing [UpgradeSubscriptionResponseDto] with upgrade details.
+     */
+    @PUT("accounts/{accountId}/subscriptions/{subscriptionId}")
+    suspend fun upgradeSubscription(
+        @Path("accountId") accountId: String,
+        @Path("subscriptionId") subscriptionId: String,
+        @Body newPlan: UpgradeSubscriptionDto
+    ): Response<UpgradeSubscriptionResponseDto>
+
 }

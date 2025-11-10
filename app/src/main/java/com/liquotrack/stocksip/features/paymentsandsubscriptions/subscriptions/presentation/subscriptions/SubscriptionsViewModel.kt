@@ -2,6 +2,7 @@ package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.AccountSubscription
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.Subscription
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.repositories.SubscriptionRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
@@ -21,12 +22,20 @@ class SubscriptionsViewModel @Inject constructor(
     private val _subscriptions = MutableStateFlow<Subscription?>(null)
     val subscriptions: StateFlow<Subscription?> = _subscriptions.asStateFlow()
 
+    private val _accountSubscriptions = MutableStateFlow<AccountSubscription?>(null)
+    val accountSubscriptions: StateFlow<AccountSubscription?> = _accountSubscriptions.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    /**
+     * Creates an initial subscription for the user based on the selected plan ID.
+     *
+     * @param selectedPlanId The ID of the selected subscription plan.
+     */
     fun createInitialSubscription(selectedPlanId: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -46,41 +55,72 @@ class SubscriptionsViewModel @Inject constructor(
     }
 
     /**
-     * Confirms a subscription based on the provided preference ID and status.
-     *
-     * @param preferenceId The ID of the payment preference.
-     * @param status The status of the subscription process.
-     * @param onResult A callback function that receives a Boolean indicating whether the confirmation was successful.
+     * Fetches the account subscription details for the current user's account.
      */
-    fun confirmSubscription(preferenceId: String, status: String, onResult: (Boolean) -> Unit) {
+    fun fetchAccountSubscription() {
         viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            val accountId = tokenModel.getAccountId() ?: throw Exception("Account ID not found")
 
             try {
-                val result = repository.confirmSubscription(preferenceId, status)
-                onResult(result)
+                val subscriptions = repository.fetchSubscriptionByAccountId(accountId)
+                _accountSubscriptions.value = subscriptions
             } catch (e: Exception) {
                 _errorMessage.value = e.message
-                onResult(false)
+            } finally {
+                _isLoading.value = false
             }
         }
+
     }
 
     /**
-     * Fetches the subscription status for a given preference ID.
+     * Formats the subscription details for display purposes.
      *
-     * @param preferenceId The ID of the payment preference.
-     * @param onResult A callback function that receives the subscription status as a String, or null if an error occurred.
+     * @param subscription The [AccountSubscription] object to format.
+     * @return A formatted [AccountSubscription] object.
      */
-    fun fetchSubscriptionStatus(preferenceId: String, onResult: (String?) -> Unit) {
+    fun formatSubscription(subscription: AccountSubscription): AccountSubscription {
+        val formattedDate =
+            if (subscription.expirationDate == "31/12/9999") "Unlimited"
+            else subscription.expirationDate
+
+        val formattedStatus =
+            if (subscription.status == "PendingUpgradePayment") "Active"
+            else subscription.status
+
+        return subscription.copy(
+            expirationDate = formattedDate,
+            status = formattedStatus
+        )
+    }
+
+    /**
+     * Upgrades the subscription to a new plan.
+     *
+     * @param subscriptionId The ID of the current subscription.
+     * @param newPlanId The ID of the new plan to upgrade to.
+     */
+    fun upgradeSubscription(subscriptionId: String, newPlanId: String) {
         viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            val accountId = tokenModel.getAccountId() ?: throw Exception("Account ID not found")
 
             try {
-                val status = repository.fetchSubscriptionStatus(preferenceId)
-                onResult(status)
+                val upgradedSubscription = repository.upgradeSubscription(accountId, subscriptionId, newPlanId)
+                _subscriptions.value = upgradedSubscription
+
             } catch (e: Exception) {
                 _errorMessage.value = e.message
-                onResult(null)
+
+            } finally {
+                _isLoading.value = false
             }
         }
     }
+
 }
