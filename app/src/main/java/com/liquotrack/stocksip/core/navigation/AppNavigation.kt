@@ -28,8 +28,10 @@ import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.P
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.AccountSubscriptionPlanView
+import java.net.URLEncoder
 
 /**
  * Main navigation graph of the app.
@@ -121,8 +123,8 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
-                    val route = "confirmation_code/$email"
-                    navController.navigate(route)
+                    val encodedEmail = URLEncoder.encode(email, "UTF-8")
+                    navController.navigate("confirmation_code/$encodedEmail")
                 },
                 onNavigateBack = { navController.popBackStack() }
             )
@@ -134,9 +136,35 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 navArgument(Route.ConfirmationCode.emailArg) { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString(Route.ConfirmationCode.emailArg) ?: ""
+            val email = backStackEntry.arguments?.getString("email")
+                ?.let { java.net.URLDecoder.decode(it, "UTF-8") } ?: ""
+
             ConfirmationCode(
+                email = email,
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToUpdatePassword = {
+                    val encodedEmail = URLEncoder.encode(email, "UTF-8")
+                    navController.navigate("update_password/$encodedEmail")
+                },
+                onConfirmClick = { code ->
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Route.UpdatePassword.routeWithArguments,
+            arguments = listOf(
+                navArgument(Route.UpdatePassword.emailArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString(Route.UpdatePassword.emailArg)
+                ?.let { java.net.URLDecoder.decode(it, "UTF-8") } ?: ""
+
+            UpdatePasswordView(
+                email = email,
                 onNavigateToLogin = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }

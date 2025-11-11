@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.shared.di
 import com.liquotrack.stocksip.BuildConfig
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
+import com.liquotrack.stocksip.features.authentication.passwordrecover.data.remote.services.RecoverPasswordService
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.data.remote.services.CareGuideService
 import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.ProductService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
@@ -112,5 +113,11 @@ object RemoteModule {
     @Singleton
     fun provideSalesOrderService(retrofit: Retrofit): SalesOrderService {
         return retrofit.create(SalesOrderService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecoverPasswordService(retrofit: Retrofit): RecoverPasswordService {
+        return retrofit.create(RecoverPasswordService::class.java)
     }
 }
