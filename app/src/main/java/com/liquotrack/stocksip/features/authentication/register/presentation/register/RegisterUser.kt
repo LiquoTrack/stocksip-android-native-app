@@ -148,7 +148,7 @@ fun RegisterUser(
                     onValueChange = viewModel::updateFullName,
                     placeholder = {
                         Text(
-                            text = stringResource(R.string.label_full_name),
+                            text = stringResource(R.string.label_name),
                             color = Color(0xFF8B7375)
                         )
                     },

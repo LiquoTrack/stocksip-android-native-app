@@ -39,11 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
@@ -119,7 +121,7 @@ fun Profile(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Profile",
+                    title = stringResource(R.string.label_profile),
                     showBackButton = isEditMode,
                     onNavigationClick = {
                         if (isEditMode && !isSaving) {
@@ -197,7 +199,7 @@ fun Profile(
                             enabled = !isSaving
                         ) {
                             Text(
-                                text = if (selectedImageUri != null) "Change Image" else "Select Image",
+                                text = if (selectedImageUri != null) stringResource(R.string.label_change_image) else stringResource(R.string.label_select_image),
                                 color = Color.White,
                                 fontSize = 14.sp
                             )
@@ -207,7 +209,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(40.dp))
 
                     ProfileField(
-                        label = "First Name",
+                        label = stringResource(R.string.label_first_name),
                         value = firstName,
                         onValueChange = viewModel::updateFirstName,
                         isEditMode = isEditMode,
@@ -217,7 +219,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileField(
-                        label = "Last Name",
+                        label = stringResource(R.string.label_last_name),
                         value = lastName,
                         onValueChange = viewModel::updateLastName,
                         isEditMode = isEditMode,
@@ -227,7 +229,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileField(
-                        label = "Phone Number",
+                        label = stringResource(R.string.label_phone_number),
                         value = phoneNumber,
                         onValueChange = viewModel::updatePhoneNumber,
                         isEditMode = isEditMode,
@@ -237,7 +239,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileField(
-                        label = "Assigned Role",
+                        label = stringResource(R.string.label_assigned_role),
                         value = assignedRole,
                         onValueChange = viewModel::updateAssignedRole,
                         isEditMode = isEditMode,
@@ -268,7 +270,7 @@ fun Profile(
                             )
                         } else {
                             Text(
-                                text = if (isEditMode) "Save" else "Edit Profile",
+                                text = if (isEditMode) stringResource(R.string.label_save) else stringResource(R.string.label_edit_profile),
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium
