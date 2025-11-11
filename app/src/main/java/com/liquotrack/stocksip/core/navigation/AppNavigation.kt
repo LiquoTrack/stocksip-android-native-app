@@ -145,11 +145,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigateToUpdatePassword = {
                     val encodedEmail = URLEncoder.encode(email, "UTF-8")
                     navController.navigate("update_password/$encodedEmail")
-                },
-                onConfirmClick = { code ->
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(Route.Login.route) { inclusive = true }
-                    }
                 }
             )
         }

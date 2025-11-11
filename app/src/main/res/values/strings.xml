@@ -28,4 +28,14 @@
     <string name="label_empty_warehouses">You don\'t have any warehouses yet.</string>
     <string name="label_empty_warehouses_description">Tap the button above to create one</string>
     <string name="label_email">Email</string>
+    <string name="label_recover">Recover</string>
+    <string name="label_recover_messsage">Enter your email address. We\'ll send you a message to recover your account.</string>
+    <string name="label_send_code">Send Code</string>
+    <string name="label_confirmation">Confirmation</string>
+    <string name="label_enter_verification_code">Enter the verification code sent to your email.</string>
+    <string name="label_verify">Verify</string>
+    <string name="label_update">Update</string>
+    <string name="label_enter_new_password">Enter your new password to reset your account.</string>
+    <string name="label_update_password">Update your</string>
+    <string name="label_confirmation_message">Message</string>
 </resources>

@@ -350,7 +350,7 @@ fun Login(
             // Register text
             val annotatedText = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.Black)) {
-                    append("Don't have an account?")
+                    append(stringResource(R.string.label_dont_have_an_account))
                 }
                 pushStringAnnotation(tag = "REGISTER", annotation = "register")
                 withStyle(
@@ -359,7 +359,7 @@ fun Login(
                         fontWeight = FontWeight.Medium
                     )
                 ) {
-                    append(" Register")
+                    append(" ${stringResource(R.string.label_sign_up)}")
                 }
                 pop()
             }

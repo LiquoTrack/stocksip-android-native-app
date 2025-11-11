@@ -6,7 +6,7 @@
     <string name="label_password">Contraseña</string>
     <string name="label_forgot_password">¿Te olvidaste tu contraseña?</string>
     <string name="label_sign_in">Iniciar Sesión</string>
-    <string name="label_sign_up">Registrarse</string>
+    <string name="label_sign_up">Registrate</string>
     <string name="label_sign_in_google">Inicia sesión con Google</string>
     <string name="label_dont_have_an_account">¿No tienes una cuenta?</string>
     <string name="label_warehouses">Almacenes</string>
@@ -29,4 +29,14 @@
     <string name="label_empty_warehouses">No tienes ningún almacén</string>
     <string name="label_empty_warehouses_description">Pulsa el botón para crear uno</string>
     <string name="label_email">Correo</string>
+    <string name="label_recover">Recuperar</string>
+    <string name="label_recover_messsage">Ingresa tu dirección de correo electrónico. Te enviaremos un mensaje para recuperar tu cuenta.</string>
+    <string name="label_send_code">Enviar codigo</string>
+    <string name="label_confirmation">Mensaje de</string>
+    <string name="label_enter_verification_code">Ingresa el código de verificación enviado a tu correo electrónico.</string>
+    <string name="label_verify">Verificar</string>
+    <string name="label_update">Actualizar</string>
+    <string name="label_enter_new_password">Ingresa la nueva contraseña para restablecerla tu cuenta.</string>
+    <string name="label_update_password">Actualizar</string>
+    <string name="label_confirmation_message">Confirmación</string>
 </resources>
