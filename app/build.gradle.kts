@@ -134,6 +134,8 @@ dependencies {
     // Add the dependency for the Firebase SDK for Google Analytics
     implementation(libs.firebase.analytics)
 
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
     //Google Identity Services
     implementation("androidx.credentials:credentials:1.6.0-beta01")
     implementation("androidx.credentials:credentials-play-services-auth:1.6.0-beta01")

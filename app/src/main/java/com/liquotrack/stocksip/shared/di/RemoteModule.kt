@@ -10,6 +10,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remot
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.data.remote.services.AccountService
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.data.remote.services.PlanService
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.services.SubscriptionService
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.services.CatalogService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
 import com.liquotrack.stocksip.features.ordermanagement.data.remote.services.SalesOrderService
 import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
@@ -119,5 +120,11 @@ object RemoteModule {
     @Singleton
     fun provideRecoverPasswordService(retrofit: Retrofit): RecoverPasswordService {
         return retrofit.create(RecoverPasswordService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCatalogService(retrofit: Retrofit): CatalogService {
+        return retrofit.create(CatalogService::class.java)
     }
 }
