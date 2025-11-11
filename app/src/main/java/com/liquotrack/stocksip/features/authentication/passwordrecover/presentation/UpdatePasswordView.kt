@@ -2,30 +2,14 @@ package com.liquotrack.stocksip.features.authentication.passwordrecover.presenta
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Password
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -33,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +36,7 @@ fun UpdatePasswordView(
     viewModel: RecoverPasswordViewModel = hiltViewModel(),
 ) {
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     var isLoading by remember { mutableStateOf(false) }
 
@@ -74,6 +61,7 @@ fun UpdatePasswordView(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Title
             Text(
                 text = stringResource(R.string.label_update_password),
                 fontSize = 40.sp,
@@ -94,27 +82,48 @@ fun UpdatePasswordView(
 
             Spacer(modifier = Modifier.height(30.dp))
 
+            // Subtitle
             Text(
                 text = stringResource(R.string.label_enter_new_password),
-                color = Color.White.copy(alpha = 0.8f),
+                color = Color.White,
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Password Input
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text(stringResource(R.string.label_password), color = Color(0xFF8B7375)) },
+                placeholder = {
+                    Text(
+                        stringResource(R.string.label_password),
+                        color = Color(0xFF8B7375)
+                    )
+                },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Password,
+                        imageVector = Icons.Default.Lock,
                         contentDescription = "Password Icon",
                         tint = Color(0xFF8B7375)
                     )
                 },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = if (passwordVisible)
+                                "label_hide_password"
+                            else
+                                "label_show_password",
+                            tint = Color(0xFF8B7375)
+                        )
+                    }
+                },
+                visualTransformation = if (passwordVisible)
+                    VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -132,6 +141,7 @@ fun UpdatePasswordView(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Button
             Button(
                 onClick = {
                     isLoading = true
@@ -160,7 +170,8 @@ fun UpdatePasswordView(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text(stringResource(R.string.label_update),
+                    Text(
+                        stringResource(R.string.label_update),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
                     )
