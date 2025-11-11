@@ -39,4 +39,12 @@
     <string name="label_enter_new_password">Ingresa la nueva contraseña para restablecerla tu cuenta.</string>
     <string name="label_update_password">Actualizar</string>
     <string name="label_confirmation_message">Confirmación</string>
+    <string name="label_user_information">Información de usuario</string>
+    <string name="label_full_name">Nombre Completo</string>
+    <string name="label_confirm_password">Confirmar Contraseña</string>
+    <string name="label_choose_role">Selecciona tu rol</string>
+    <string name="label_liquor_store_owner">Dueño de Licorería</string>
+    <string name="label_supplier">Proveedor</string>
+    <string name="label_business_name">Nombre del Negocio</string>
+    <string name="label_account_info">Información de la cuenta</string>
 </resources>
