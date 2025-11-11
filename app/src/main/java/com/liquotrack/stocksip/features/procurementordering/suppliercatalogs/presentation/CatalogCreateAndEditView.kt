@@ -2,56 +2,293 @@ package com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pr
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseViewModel
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 import kotlinx.coroutines.launch
 
-/**
- * Unified screen for creating and editing catalogs
- * @param isEditMode true for editing existing catalog, false for creating new one
- * @param catalogId ID of catalog being edited (null when creating)
- * @param initialName Initial catalog name (for edit mode)
- * @param initialDescription Initial catalog description (for edit mode)
- * @param initialItems Initial catalog items with selection state (for edit mode)
- * @param initialPublishStatus Initial publish status (for edit mode)
- * @param onBack Callback for back navigation
- * @param onSave Callback for save action (add or update)
- * @param onDelete Callback for delete action (only in edit mode)
- */
 @Composable
 fun CatalogCreateAndEditScreen(
     isEditMode: Boolean = false,
     catalogId: String? = null,
     onBack: () -> Unit,
-    viewModel: CatalogViewModel = hiltViewModel()
+    catalogViewModel: CatalogViewModel = hiltViewModel(),
+    warehouseViewModel: WarehouseViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
 
-    val catalogs by viewModel.catalogs.collectAsStateWithLifecycle()
+    // Catalog data
+    val catalogs by catalogViewModel.catalogs.collectAsStateWithLifecycle()
     val selectedCatalog = catalogs.find { it.id == catalogId }
+    val pendingItems by catalogViewModel.pendingItems.collectAsStateWithLifecycle()
 
+    // Warehouse data
+    val warehouses by warehouseViewModel.warehouses.collectAsStateWithLifecycle()
+    val warehouseProducts by warehouseViewModel.products.collectAsStateWithLifecycle()
+
+    // Form states
     var catalogName by remember { mutableStateOf(selectedCatalog?.name ?: "") }
     var catalogDescription by remember { mutableStateOf(selectedCatalog?.description ?: "") }
     var contactEmail by remember { mutableStateOf(selectedCatalog?.contactEmail ?: "") }
     var isPublished by remember { mutableStateOf(selectedCatalog?.isPublished ?: false) }
 
-    val items = selectedCatalog?.catalogItems ?: emptyList()
+    // Warehouse selection
+    var selectedWarehouseId by remember { mutableStateOf<String?>(null) }
+    var showWarehouseDialog by remember { mutableStateOf(false) }
+    var showProductDialog by remember { mutableStateOf(false) }
+
+    // Selected products to add to catalog
+    val selectedProductIds = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(Unit) {
-        viewModel.loadCatalogsByAccount()
+        catalogViewModel.loadCatalogsByAccount()
+        warehouseViewModel.getAllWarehousesByAccountId()
+    }
+
+    LaunchedEffect(selectedWarehouseId) {
+        selectedWarehouseId?.let {
+            warehouseViewModel.loadProductsByWarehouse(it)
+        }
+    }
+
+    // Limpiar pending items cuando se sale en modo creación
+    DisposableEffect(Unit) {
+        onDispose {
+            if (!isEditMode) {
+                catalogViewModel.clearPendingItems()
+            }
+        }
+    }
+
+    // Warehouse selection dialog
+    if (showWarehouseDialog) {
+        AlertDialog(
+            onDismissRequest = { showWarehouseDialog = false },
+            title = { Text("Select Warehouse") },
+            text = {
+                LazyColumn {
+                    items(warehouses?.warehouses ?: emptyList()) { warehouse ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable {
+                                    selectedWarehouseId = warehouse.id
+                                    selectedProductIds.clear()
+                                    showWarehouseDialog = false
+                                    showProductDialog = true
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (selectedWarehouseId == warehouse.id)
+                                    Color(0xFFF7E7E8) else Color.White
+                            )
+                        ) {
+                            Text(
+                                text = warehouse.name,
+                                modifier = Modifier.padding(16.dp),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showWarehouseDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Product selection dialog
+    if (showProductDialog && selectedWarehouseId != null) {
+        // Mapa para almacenar el stock ingresado por producto
+        val productStockInputs = remember { mutableStateMapOf<String, String>() }
+
+        AlertDialog(
+            onDismissRequest = {
+                showProductDialog = false
+                selectedProductIds.clear()
+                productStockInputs.clear()
+            },
+            title = { Text("Select Products to Add") },
+            text = {
+                LazyColumn {
+                    items(warehouseProducts) { product ->
+                        val isSelected = selectedProductIds.contains(product.id)
+                        val isAlreadyInCatalog = if (isEditMode && selectedCatalog != null) {
+                            selectedCatalog.catalogItems.any { it.productId == product.id }
+                        } else {
+                            pendingItems.any { it.productId == product.id }
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable(enabled = !isAlreadyInCatalog) {
+                                    if (isSelected) {
+                                        selectedProductIds.remove(product.id)
+                                    } else {
+                                        selectedProductIds.add(product.id)
+                                    }
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = when {
+                                    isAlreadyInCatalog -> Color(0xFFE0E0E0)
+                                    isSelected -> Color(0xFFF7E7E8)
+                                    else -> Color.White
+                                }
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (product.imageUrl != null) {
+                                        AsyncImage(
+                                            model = product.imageUrl,
+                                            contentDescription = product.name,
+                                            modifier = Modifier
+                                                .size(50.dp)
+                                                .background(Color(0xFFF7E7E8), RoundedCornerShape(8.dp)),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(50.dp)
+                                                .background(Color(0xFFF7E7E8), RoundedCornerShape(8.dp)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("?", fontSize = 20.sp, color = Color.Gray)
+                                        }
+                                    }
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(product.name, fontWeight = FontWeight.Medium)
+                                        Text(
+                                            "${product.price} ${product.currency}",
+                                            color = Color.Gray,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+
+                                    if (isAlreadyInCatalog) {
+                                        Text(
+                                            "Added",
+                                            color = Color.Gray,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    } else {
+                                        Checkbox(
+                                            checked = isSelected,
+                                            onCheckedChange = {
+                                                if (isSelected) selectedProductIds.remove(product.id)
+                                                else selectedProductIds.add(product.id)
+                                            }
+                                        )
+                                    }
+                                }
+
+                                // Campo de entrada para el stock, visible solo si el producto está seleccionado
+                                if (isSelected && !isAlreadyInCatalog) {
+                                    Spacer(Modifier.height(8.dp))
+                                    OutlinedTextField(
+                                        value = productStockInputs[product.id] ?: "",
+                                        onValueChange = { productStockInputs[product.id] = it },
+                                        label = { Text("Enter stock") },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                                        ),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = Color(0xFF8B4C5C),
+                                            unfocusedBorderColor = Color.LightGray
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showProductDialog = false
+
+                        if (isEditMode && catalogId != null && selectedWarehouseId != null) {
+                            selectedProductIds.forEach { productId ->
+                                val enteredStock = productStockInputs[productId]?.toIntOrNull() ?: 0
+                                if (enteredStock > 0) {
+                                    scope.launch {
+                                        catalogViewModel.addCatalogItem(
+                                            catalogId,
+                                            productId,
+                                            selectedWarehouseId!!,
+                                            enteredStock
+                                        )
+                                    }
+                                } else {
+                                    Log.w("CATALOG", "⚠️ Producto $productId sin stock válido")
+                                }
+                            }
+                        } else if (selectedWarehouseId != null) {
+                            selectedProductIds.forEach { productId ->
+                                val enteredStock = productStockInputs[productId]?.toIntOrNull() ?: 0
+                                if (enteredStock > 0) {
+                                    catalogViewModel.addPendingItem(
+                                        productId,
+                                        selectedWarehouseId!!,
+                                        enteredStock
+                                    )
+                                } else {
+                                    Log.w("CATALOG", "⚠️ Producto $productId sin stock válido")
+                                }
+                            }
+                        }
+
+                        selectedProductIds.clear()
+                        productStockInputs.clear()
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showProductDialog = false
+                    selectedProductIds.clear()
+                    productStockInputs.clear()
+                }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Column(
@@ -130,69 +367,179 @@ fun CatalogCreateAndEditScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            Text("Catalog items", color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Spacer(Modifier.height(8.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    if (items.isEmpty()) {
-                        Text("No products in this catalog", color = Color.Gray)
-                    } else {
-                        items.forEach { item ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "${item.productName} — ${item.unitPrice}",
-                                    color = Color.Black,
-                                    fontSize = 14.sp
-                                )
-                            }
-                            Spacer(Modifier.height(6.dp))
-                        }
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            Text("Status", color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Spacer(Modifier.height(8.dp))
-
+            // Catalog items section
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Publish/Unpublish", color = Color.Black, fontSize = 16.sp)
-                Switch(
-                    checked = isPublished,
-                    onCheckedChange = { isPublished = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = Color(0xFFE8B4BE),
-                        uncheckedThumbColor = Color.White,
-                        uncheckedTrackColor = Color.Gray
+                Text("Catalog items", color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                IconButton(onClick = { showWarehouseDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add products",
+                        tint = Color(0xFF8B4C5C)
                     )
-                )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                LazyColumn(modifier = Modifier.padding(16.dp)) {
+                    if (isEditMode) {
+                        // Modo edición: mostrar items del catálogo
+                        val items = selectedCatalog?.catalogItems ?: emptyList()
+
+                        if (items.isEmpty()) {
+                            item {
+                                Text(
+                                    "No products in this catalog",
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            }
+                        } else {
+                            items(items) { item ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = item.productName,
+                                            color = Color.Black,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = item.unitPrice ?: "N/A",
+                                            color = Color.Gray,
+                                            fontSize = 12.sp
+                                        )
+                                        Text(
+                                            text = "Stock: ${item.availableStock}",
+                                            color = Color.Gray,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                catalogViewModel.removeCatalogItem(catalogId!!, item.productId)
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Remove",
+                                            tint = Color.Red
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Divider()
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        }
+                    } else {
+                        // Modo creación: mostrar pending items
+                        if (pendingItems.isEmpty()) {
+                            item {
+                                Text(
+                                    "No products selected yet. Click + to add products.",
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(vertical = 16.dp)
+                                )
+                            }
+                        } else {
+                            items(pendingItems) { pendingItem ->
+                                val product = warehouseProducts.find { it.id == pendingItem.productId }
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = product?.name ?: "Product",
+                                            color = Color.Black,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = product?.let { "${it.price} ${it.currency}" } ?: "N/A",
+                                            color = Color.Gray,
+                                            fontSize = 12.sp
+                                        )
+                                        Text(
+                                            text = "Stock: ${pendingItem.stock}",
+                                            color = Color.Gray,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            catalogViewModel.removePendingItem(pendingItem.productId)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Remove",
+                                            tint = Color.Red
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Divider()
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        }
+                    }
+                }
             }
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(16.dp))
+
+            if (isEditMode) {
+                Text("Status", color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Publish/Unpublish", color = Color.Black, fontSize = 16.sp)
+                    Switch(
+                        checked = isPublished,
+                        onCheckedChange = { isPublished = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = Color(0xFFE8B4BE),
+                            uncheckedThumbColor = Color.White,
+                            uncheckedTrackColor = Color.Gray
+                        )
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+            }
 
             Button(
                 onClick = {
                     scope.launch {
                         if (isEditMode && catalogId != null) {
-                            viewModel.updateCatalog(catalogId, catalogName, catalogDescription, contactEmail)
-                            if (isPublished) viewModel.publishCatalog(catalogId)
-                            else viewModel.unpublishCatalog(catalogId)
+                            catalogViewModel.updateCatalog(catalogId, catalogName, catalogDescription, contactEmail)
+                            if (isPublished) catalogViewModel.publishCatalog(catalogId)
+                            else catalogViewModel.unpublishCatalog(catalogId)
                         } else {
-                            viewModel.createCatalog(catalogName, catalogDescription, contactEmail)
+                            catalogViewModel.createCatalog(catalogName, catalogDescription, contactEmail)
                         }
                         onBack()
                     }
@@ -205,7 +552,7 @@ fun CatalogCreateAndEditScreen(
                 enabled = catalogName.isNotBlank()
             ) {
                 Text(
-                    if (isEditMode) "Save" else "Add",
+                    if (isEditMode) "Save" else "Create",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
