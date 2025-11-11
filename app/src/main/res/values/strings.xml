@@ -73,4 +73,15 @@
     <string name="label_price">Price</string>
     <string name="label_highest_plan">You already have the highest plan!</string>
     <string name="label_highest_plan_thanks">Thank you for being a premium member</string>
+    <string name="label_payment_congratulations">Congratulations!</string>
+    <string name="label_subscription_successful">Your subscription was successful!</string>
+    <string name="label_subscriptions_succesful_message">You now have access to all premium features</string>
+    <string name="label_get_started">Get Started</string>
+    <string name="label_return_home">Return to Home</string>
+    <string name="label_subscription_failure">We couldn\'t process your payment.</string>
+    <string name="label_payment_failure">Payment Failed</string>
+    <string name="label_subscription_failure_message">Please check your payment method and try again</string>
+    <string name="label_payment_pending">Payment Pending</string>
+    <string name="label_subscription_pending">Your payment is being processed</string>
+    <string name="label_susbcription_pending_message">This may take a few moments. We\'ll notify you once it\'s complete</string>
 </resources>

@@ -74,4 +74,15 @@
     <string name="label_price">Precio</string>
     <string name="label_highest_plan">¡Ya tienes el plan más alto!</string>
     <string name="label_highest_plan_thanks">Muchas gracias por ser un miembro premium</string>
+    <string name="label_payment_congratulations">¡Felicitaciones!</string>
+    <string name="label_subscription_successful">¡Tu suscripción fue exitosa!</string>
+    <string name="label_subscriptions_succesful_message">Ahora tienes acceso a todas las funciones premium</string>
+    <string name="label_get_started">Comenzar</string>
+    <string name="label_return_home">Volver al inicio</string>
+    <string name="label_subscription_failure">No pudimos procesar tu pago.</string>
+    <string name="label_payment_failure">Pago fallido</string>
+    <string name="label_subscription_failure_message">Por favor, verifica tu método de pago e inténtalo de nuevo.</string>
+    <string name="label_payment_pending">Pago pendiente</string>
+    <string name="label_subscription_pending">Tu pago esta siendo procesado</string>
+    <string name="label_susbcription_pending_message">Esto puede tardar unos momentos. Te notificaremos una vez que se complete.</string>
 </resources>
