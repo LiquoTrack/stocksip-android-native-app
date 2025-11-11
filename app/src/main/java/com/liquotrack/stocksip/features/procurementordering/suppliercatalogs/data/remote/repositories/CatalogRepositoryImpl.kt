@@ -1,11 +1,10 @@
 package com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.repositories
 
-import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.models.AddCatalogItemRequest
-import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.models.CreateCatalogRequest
-import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.models.UpdateCatalogRequest
-import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.models.toDomain
+import android.util.Log
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.models.*
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.services.CatalogService
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.Catalog
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.CatalogItem
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.SupplierInfo
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.repositories.CatalogRepository
 import javax.inject.Inject
@@ -15,17 +14,14 @@ class CatalogRepositoryImpl @Inject constructor(
 ) : CatalogRepository {
 
     override suspend fun getAllSuppliersWithCatalogs(): List<SupplierInfo> {
-        val publishedCatalogs = apiService.getPublishedCatalogs()
-            .map { it.toDomain() }
-
-        val uniqueAccountIds = publishedCatalogs
-            .map { it.ownerAccount }
-            .distinct()
+        val publishedCatalogs = apiService.getPublishedCatalogs().map { it.toDomainSafe() }
+        val uniqueAccountIds = publishedCatalogs.map { it.ownerAccount }.distinct()
 
         return uniqueAccountIds.mapNotNull { accountId ->
             try {
                 apiService.getAccountWithCatalogs(accountId).toDomain()
             } catch (e: Exception) {
+                Log.e("CATALOG_REPO", "Error fetching supplier $accountId: ${e.message}")
                 null
             }
         }
@@ -36,15 +32,15 @@ class CatalogRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPublishedCatalogs(): List<Catalog> {
-        return apiService.getPublishedCatalogs().map { it.toDomain() }
+        return apiService.getPublishedCatalogs().map { it.toDomainSafe() }
     }
 
     override suspend fun getAllCatalogs(): List<Catalog> {
-        return apiService.getAllCatalogs().map { it.toDomain() }
+        return apiService.getAllCatalogs().map { it.toDomainSafe() }
     }
 
     override suspend fun getCatalogById(catalogId: String): Catalog {
-        return apiService.getCatalogById(catalogId).toDomain()
+        return apiService.getCatalogById(catalogId).toDomainSafe()
     }
 
     override suspend fun createCatalog(
@@ -54,15 +50,13 @@ class CatalogRepositoryImpl @Inject constructor(
         contactEmail: String
     ): Catalog {
         val request = CreateCatalogRequest(name, description, contactEmail)
-        return apiService.createCatalog(accountId, request).toDomain()
+        val response = apiService.createCatalog(accountId, request)
+        return response.toDomainSafe().also {
+            Log.d("CATALOG_REPO", "Catalog created: ${it.id}, items: ${it.catalogItems.size}")
+        }
     }
 
-    override suspend fun updateCatalog(
-        catalogId: String,
-        name: String,
-        description: String,
-        contactEmail: String
-    ) {
+    override suspend fun updateCatalog(catalogId: String, name: String, description: String, contactEmail: String) {
         val request = UpdateCatalogRequest(name, description, contactEmail)
         apiService.updateCatalog(catalogId, request)
     }
@@ -75,14 +69,12 @@ class CatalogRepositoryImpl @Inject constructor(
         apiService.unpublishCatalog(catalogId)
     }
 
-    override suspend fun addCatalogItem(
-        catalogId: String,
-        productId: String,
-        warehouseId: String,
-        stock: Int
-    ): Catalog {
+    override suspend fun addCatalogItem(catalogId: String, productId: String, warehouseId: String, stock: Int): Catalog {
         val request = AddCatalogItemRequest(productId, warehouseId, stock)
-        return apiService.addCatalogItem(catalogId, request).toDomain()
+        val response = apiService.addCatalogItem(catalogId, request)
+        return response.toDomainSafe().also {
+            Log.d("CATALOG_REPO", "Added item to catalog ${it.id}, total items: ${it.catalogItems.size}")
+        }
     }
 
     override suspend fun removeCatalogItem(catalogId: String, productId: String) {
@@ -90,7 +82,35 @@ class CatalogRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAllCatalogsByAccountId(accountId: String): List<Catalog> {
-        val response = apiService.getCatalogsByAccountId(accountId)
-        return response.map { it.toDomain() }
+        return apiService.getCatalogsByAccountId(accountId).map { it.toDomainSafe() }
     }
+
+    override suspend fun getCatalogItemById(catalogId: String, productId: String): CatalogItem? {
+        val catalogDto = apiService.getCatalogById(catalogId)
+        val catalog = catalogDto.toDomain()
+        return catalog.catalogItems.find { it.productId == productId }
+    }
+
+}
+fun CatalogDto.toDomainSafe(): Catalog {
+    return Catalog(
+        id = id,
+        name = name,
+        description = description,
+        catalogItems = catalogItems?.map { it.toDomainSafe() } ?: emptyList(),
+        ownerAccount = ownerAccount,
+        contactEmail = contactEmail,
+        isPublished = isPublished,
+        warehouseId = warehouseId
+    ).also { Log.d("CATALOG_MAPPER", "Mapped catalog: id=${it.id}, name=${it.name}, items=${it.catalogItems.size}") }
+}
+
+fun CatalogItemDto.toDomainSafe(): CatalogItem {
+    return CatalogItem(
+        productId = productId,
+        productName = productName,
+        unitPrice = unitPrice,
+        imageUrl = imageUrl,
+        availableStock = availableStock ?: 0
+    )
 }

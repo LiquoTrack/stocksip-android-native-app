@@ -1,6 +1,7 @@
 package com.liquotrack.stocksip.core.navigation
 
 import android.net.Uri
+import java.net.URLEncoder
 
 /**
  * Sealed class defining all navigation routes in the app.
@@ -35,6 +36,11 @@ sealed class Route(val route: String) {
         const val emailArg = "email"
     }
 
+    object UpdatePassword : Route(route = "update_password") {
+        const val routeWithArguments = "update_password/{email}"
+        const val emailArg = "email"
+    }
+
     // Main app routes
     object Main : Route(route = "main")
     object Warehouses : Route(route = "warehouses")
@@ -49,7 +55,14 @@ sealed class Route(val route: String) {
     object ProductDetail : Route(route = "product_detail")
     object Alerts : Route(route = "alerts")
     object Inventory : Route(route = "inventory")
-    // Supplier (Proveedor)
+    object CareGuides : Route(route = "care_guide")
+    object CareGuideCreate : Route(route = "care_guide_create")
+    object CareGuideEdit : Route(route = "care_guide_edit") {
+        const val routeWithArguments = "care_guide_edit/{careGuideId}"
+        const val careGuideIdArg = "careGuideId"
+        fun buildRoute(careGuideId: String): String = "care_guide_edit/$careGuideId"
+    }
+
     object Catalogs : Route("catalogs")
 
     object CatalogDetail : Route("catalog_detail") {
@@ -79,14 +92,6 @@ sealed class Route(val route: String) {
         const val catalogIdArg = "catalogId"
         fun buildRoute(catalogId: String): String =
             "catalog_detail_view/${Uri.encode(catalogId)}"
-    }
-
-    object CareGuides : Route(route = "care_guide")
-    object CareGuideCreate : Route(route = "care_guide_create")
-    object CareGuideEdit : Route(route = "care_guide_edit") {
-        const val routeWithArguments = "care_guide_edit/{careGuideId}"
-        const val careGuideIdArg = "careGuideId"
-        fun buildRoute(careGuideId: String): String = "care_guide_edit/$careGuideId"
     }
 
     object UserManagement : Route(route = "user")

@@ -188,6 +188,7 @@ fun CatalogListScreen(
                             items(filteredCatalogs) { catalog ->
                                 CatalogItemCard(
                                     catalogName = catalog.name,
+                                    catalogDescription = catalog.description,
                                     productCount = catalog.catalogItems.size,
                                     onClick = { onCatalogClick(catalog.id) }
                                 )

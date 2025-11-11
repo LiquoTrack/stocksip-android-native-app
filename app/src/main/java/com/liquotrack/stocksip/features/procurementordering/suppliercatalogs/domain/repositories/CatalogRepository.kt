@@ -1,6 +1,7 @@
 package com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.repositories
 
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.Catalog
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.CatalogItem
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.SupplierInfo
 
 interface CatalogRepository {
@@ -44,4 +45,5 @@ interface CatalogRepository {
 
     suspend fun getAllCatalogsByAccountId(accountId: String): List<Catalog>
 
+    suspend fun getCatalogItemById(catalogId: String, productId: String): CatalogItem?
 }

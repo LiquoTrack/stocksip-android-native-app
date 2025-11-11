@@ -33,20 +33,19 @@ fun CatalogDto.toDomain(): Catalog {
         id = id,
         name = name,
         description = description,
-        catalogItems = catalogItems.map { it.toDomain() },
+        catalogItems = catalogItems?.map { it.toDomain() } ?: emptyList(),
         ownerAccount = ownerAccount,
         contactEmail = contactEmail,
         isPublished = isPublished,
         warehouseId = warehouseId,
     )
 }
-
 fun CatalogItemDto.toDomain(): CatalogItem {
     return CatalogItem(
         productId = productId,
         productName = productName,
         unitPrice = unitPrice,
         imageUrl = imageUrl,
-        availableStock = availableStock
+        availableStock = availableStock ?: 0
     )
 }
