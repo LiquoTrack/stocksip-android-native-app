@@ -13,12 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.net.toUri
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.Plan
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.SubscriptionsViewModel
 
@@ -76,7 +78,7 @@ fun ChoosePlanScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             ) {
                 Text(
-                    text = "Choose Your Plan",
+                    text = stringResource(R.string.label_choose_plan),
                     fontSize = 36.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White,
@@ -137,7 +139,7 @@ fun ChoosePlanScreen(
                             modifier = Modifier.height(48.dp)
                         ) {
                             Text(
-                                text = "Retry",
+                                text = stringResource(R.string.label_retry),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -151,7 +153,7 @@ fun ChoosePlanScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No plans available at the moment.",
+                            text = "${stringResource(R.string.label_no_plans_available)}.",
                             color = Color.White.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center,
                             fontSize = 16.sp
@@ -194,7 +196,7 @@ fun ChoosePlanScreen(
                         enabled = selectedPlan != null
                     ) {
                         Text(
-                            text = "Continue",
+                            text = stringResource(R.string.label_continue),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,

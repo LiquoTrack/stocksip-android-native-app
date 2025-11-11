@@ -85,4 +85,15 @@
     <string name="label_payment_pending">Pago pendiente</string>
     <string name="label_subscription_pending">Tu pago esta siendo procesado</string>
     <string name="label_susbcription_pending_message">Esto puede tardar unos momentos. Te notificaremos una vez que se complete.</string>
+    <string name="label_choose_plan">Elige tu plan</string>
+    <string name="label_continue">Continuar</string>
+    <string name="label_no_plans_available">No hay planes disponibles en este momento</string>
+    <string name="label_retry">Reintentar</string>
+    <string name="label_payment_frequency_monthly">mes</string>
+    <string name="label_payment_frequency_yearly">año</string>
+    <string name="label_save_money">Ahorra</string>
+    <string name="label_up_to">Hasta</string>
+    <string name="label_up_to_users">usuarios</string>
+    <string name="label_up_to_warehouses">almacenes</string>
+    <string name="label_up_to_products">productos</string>
 </resources>

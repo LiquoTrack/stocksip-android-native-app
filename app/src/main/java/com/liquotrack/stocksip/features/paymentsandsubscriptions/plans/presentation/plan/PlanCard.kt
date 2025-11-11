@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.Plan
 import java.text.NumberFormat
 import java.util.Locale
@@ -118,8 +119,8 @@ fun PlanCard(
 
                         Text(
                             text = when (plan.paymentFrequency) {
-                                "Monthly" -> "/month"
-                                "Yearly" -> "/year"
+                                "Monthly" -> stringResource(R.string.label_payment_frequency_monthly)
+                                "Yearly" -> stringResource(R.string.label_payment_frequency_yearly)
                                 else -> ""
                             },
                             fontSize = 14.sp,
@@ -140,7 +141,7 @@ fun PlanCard(
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = "Save 39%!",
+                                text = "${stringResource(R.string.label_save_money)} 39%!",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -179,17 +180,17 @@ fun PlanCard(
                         plan.planLimits?.let { limits ->
                             limits.maxUsers?.let {
                                 val userText = if (it == Int.MAX_VALUE || it >= 2147483647) "Unlimited users"
-                                else "Up to $it user${if (it > 1) "s" else ""}"
+                                else "${stringResource(R.string.label_up_to)} $it ${stringResource(R.string.label_up_to_users)}"
                                 FeatureItem(userText, textColor)
                             }
                             limits.maxWarehouses?.let {
                                 val warehouseText = if (it == Int.MAX_VALUE || it >= 2147483647) "Unlimited warehouses"
-                                else "Up to $it warehouse${if (it > 1) "s" else ""}"
+                                else "${stringResource(R.string.label_up_to)} $it ${stringResource(R.string.label_up_to_warehouses)}"
                                 FeatureItem(warehouseText, textColor)
                             }
                             limits.maxProducts?.let {
                                 val productText = if (it == Int.MAX_VALUE || it >= 2147483647) "Unlimited products"
-                                else "Up to $it product${if (it > 1) "s" else ""}"
+                                else "${stringResource(R.string.label_up_to)} $it ${stringResource(R.string.label_up_to_products)}"
                                 FeatureItem(productText, textColor)
                             }
                             if (limits.storageGuides == true) {

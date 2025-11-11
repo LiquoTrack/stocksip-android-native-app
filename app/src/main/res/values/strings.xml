@@ -84,4 +84,15 @@
     <string name="label_payment_pending">Payment Pending</string>
     <string name="label_subscription_pending">Your payment is being processed</string>
     <string name="label_susbcription_pending_message">This may take a few moments. We\'ll notify you once it\'s complete</string>
+    <string name="label_choose_plan">Choose Your Plan</string>
+    <string name="label_continue">Continue</string>
+    <string name="label_no_plans_available">No plans available at the moment</string>
+    <string name="label_retry">Retry</string>
+    <string name="label_payment_frequency_monthly">month</string>
+    <string name="label_payment_frequency_yearly">year</string>
+    <string name="label_save_money">Save</string>
+    <string name="label_up_to">Up to</string>
+    <string name="label_up_to_users">users</string>
+    <string name="label_up_to_warehouses">warehouses</string>
+    <string name="label_up_to_products">products</string>
 </resources>
