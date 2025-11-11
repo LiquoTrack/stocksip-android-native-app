@@ -27,3 +27,4 @@ data class CatalogDto(
     @SerializedName("warehouseId")
     val warehouseId: String?
 )
+

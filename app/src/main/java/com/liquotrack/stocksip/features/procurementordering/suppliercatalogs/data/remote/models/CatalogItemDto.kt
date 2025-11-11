@@ -16,5 +16,10 @@ data class CatalogItemDto(
     val imageUrl: String?,
 
     @SerializedName("availableStock")
-    val availableStock: Int
+    val availableStock: Int? = 0
+)
+
+data class MongoId(
+    @SerializedName("\$oid")
+    val oid: String
 )

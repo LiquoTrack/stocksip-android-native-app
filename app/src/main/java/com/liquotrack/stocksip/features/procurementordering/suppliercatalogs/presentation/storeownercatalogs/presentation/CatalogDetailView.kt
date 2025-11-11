@@ -16,11 +16,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.Catalog
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.CatalogItem
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.SupplierInfo
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 
@@ -29,6 +30,7 @@ import com.liquotrack.stocksip.shared.ui.components.TopBar
 fun CatalogDetailViewScreen(
     catalogId: String,
     onBackClick: () -> Unit,
+    onProductClick: (CatalogItem) -> Unit,
     viewModel: CatalogDetailViewModel = hiltViewModel()
 ) {
     LaunchedEffect(catalogId) {
@@ -76,7 +78,8 @@ fun CatalogDetailViewScreen(
             catalog != null -> CatalogDetailContent(
                 catalog = catalog!!,
                 supplierInfo = supplierInfo,
-                modifier = Modifier.padding(padding)
+                modifier = Modifier.padding(padding),
+                onProductClick = onProductClick
             )
         }
     }
@@ -86,7 +89,8 @@ fun CatalogDetailViewScreen(
 private fun CatalogDetailContent(
     catalog: Catalog,
     supplierInfo: SupplierInfo?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onProductClick: (CatalogItem) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -140,18 +144,19 @@ private fun CatalogDetailContent(
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(catalog.catalogItems) { item ->
                     val formattedPrice = try {
-                        val numericPrice = item.unitPrice?.replace("[^0-9.]".toRegex(), "")?.toDoubleOrNull()
+                        val numericPrice =
+                            item.unitPrice?.replace("[^0-9.]".toRegex(), "")?.toDoubleOrNull()
                         if (numericPrice != null) "$" + String.format("%.2f", numericPrice)
                         else "N/A"
                     } catch (e: Exception) {
                         "N/A"
                     }
 
-
                     ProductCard(
-                        productImageUrl = item.imageUrl,
                         productName = item.productName,
-                        price = formattedPrice
+                        price = formattedPrice,
+                        productImageUrl = item.imageUrl,
+                        onAddToCartClick = { onProductClick(item) }
                     )
                 }
             }
@@ -163,7 +168,8 @@ private fun CatalogDetailContent(
 private fun ProductCard(
     productName: String,
     price: String,
-    productImageUrl: String?
+    productImageUrl: String?,
+    onAddToCartClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -206,7 +212,7 @@ private fun ProductCard(
             Text(price, color = Color.Gray, fontSize = 13.sp)
             Spacer(modifier = Modifier.height(8.dp))
             Button(
-                onClick = { /* TODO: Add to cart */ },
+                onClick = onAddToCartClick,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5C1F2E)),
                 shape = RoundedCornerShape(12.dp)
             ) {

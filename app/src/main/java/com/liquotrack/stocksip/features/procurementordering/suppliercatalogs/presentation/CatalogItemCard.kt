@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun CatalogItemCard(
     catalogName: String,
+    catalogDescription: String,
     productCount: Int,
     onClick: () -> Unit
 ) {
@@ -49,7 +50,7 @@ fun CatalogItemCard(
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    "Description for a\ncatalog",
+                    catalogDescription,
                     color = Color(0xFFE8B4BE),
                     fontSize = 12.sp
                 )
