@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Stocksip</string>
+    <string name="placeholder_search">Buscar</string>
+    <string name="web_client">473654732601-hdk907hv5s61igsm20nen7pkvirc4rl9.apps.googleusercontent.com</string>
+    <string name="label_password">Contraseña</string>
+    <string name="label_forgot_password">¿Te olvidaste tu contraseña?</string>
+    <string name="label_sign_in">Iniciar Sesión</string>
+    <string name="label_sign_up">Registrarse</string>
+    <string name="label_sign_in_google">Inicia sesión con Google</string>
+    <string name="label_dont_have_an_account">¿No tienes una cuenta?</string>
+    <string name="label_warehouses">Almacenes</string>
+    <string name="label_current_warehouses">Actual</string>
+    <string name="label_max_warehouses">Max. Permitidos:</string>
+    <string name="label_new_warehouse">Nuevo Almacén</string>
+    <string name="label_edit_warehouse">Editar Almacén</string>
+    <string name="label_select_image">Selecciona una imagen</string>
+    <string name="label_warehouse_name">Nombre</string>
+    <string name="label_warehouse_street">Calle</string>
+    <string name="label_warehouse_city">Ciudad</string>
+    <string name="label_warehouse_district">Distrito</string>
+    <string name="label_warehouse_postal_code">Codigo Postal</string>
+    <string name="label_warehouse_country">País</string>
+    <string name="label_warehouse_capacity">Capacidad</string>
+    <string name="label_warehouse_min_temperature">Min. Temperatura</string>
+    <string name="label_warehouse_max_temperature">Max. Temperatura</string>
+    <string name="label_add_warehouse">Agregar Almacén</string>
+    <string name="label_update_warehouse">Actualizar Almacén</string>
+    <string name="label_empty_warehouses">No tienes ningún almacén</string>
+    <string name="label_empty_warehouses_description">Pulsa el botón para crear uno</string>
+    <string name="label_email">Correo</string>
+</resources>

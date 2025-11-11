@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components
 
+import com.liquotrack.stocksip.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun WarehouseList(
@@ -44,13 +46,13 @@ fun WarehouseList(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "You don't have any warehouses yet.",
+                    text = "${stringResource(R.string.label_empty_warehouses)}.",
                     color = Color.Gray,
                     fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Tap the button above to create one.",
+                    text = "${stringResource(R.string.label_empty_warehouses_description)}.",
                     color = Color.Gray,
                     fontSize = 14.sp
                 )

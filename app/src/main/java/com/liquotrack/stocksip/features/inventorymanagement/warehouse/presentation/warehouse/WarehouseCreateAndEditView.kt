@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,7 @@ import java.io.File
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomTextField
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomDoubleTextField
 import androidx.core.net.toUri
+import com.liquotrack.stocksip.R
 
 @Composable
 fun WarehouseCreateAndEditView(
@@ -96,7 +98,7 @@ fun WarehouseCreateAndEditView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = if (isEditMode) "Edit Warehouse" else "New Warehouse",
+                title = if (isEditMode) stringResource(R.string.label_edit_warehouse) else stringResource(R.string.label_new_warehouse),
                 onBackClick = onNavigateBack,
                 isEditMode = isEditMode,
                 onDeleteClick = {
@@ -149,7 +151,7 @@ fun WarehouseCreateAndEditView(
                     CustomTextField(
                         value = name,
                         onValueChange = viewModel::updateWarehouseName,
-                        label = "Name",
+                        label = stringResource(R.string.label_warehouse_name),
                         placeholder = "e.g., Main Warehouse"
                     )
 
@@ -157,7 +159,7 @@ fun WarehouseCreateAndEditView(
                     CustomTextField(
                         value = street,
                         onValueChange = viewModel::updateStreet,
-                        label = "Street",
+                        label = stringResource(R.string.label_warehouse_street),
                         placeholder = "e.g. 123 Main St"
                     )
 
@@ -168,7 +170,7 @@ fun WarehouseCreateAndEditView(
                         CustomTextField(
                             value = city,
                             onValueChange = viewModel::updateCity,
-                            label = "City",
+                            label = stringResource(R.string.label_warehouse_city),
                             placeholder = "eg. Lima",
                             modifier = Modifier.weight(1f)
                         )
@@ -176,7 +178,7 @@ fun WarehouseCreateAndEditView(
                         CustomTextField(
                             value = district,
                             onValueChange = viewModel::updateDistrict,
-                            label = "District",
+                            label = stringResource(R.string.label_warehouse_district),
                             placeholder = "e.g. Chorrillos",
                             modifier = Modifier.weight(1f)
                         )
@@ -189,7 +191,7 @@ fun WarehouseCreateAndEditView(
                         CustomTextField(
                             value = postalCode,
                             onValueChange = viewModel::updatePostalCode,
-                            label = "Postal Code",
+                            label = stringResource(R.string.label_warehouse_postal_code),
                             placeholder = "e.g. 15063",
                             modifier = Modifier.weight(1f)
                         )
@@ -197,7 +199,7 @@ fun WarehouseCreateAndEditView(
                         CustomTextField(
                             value = country,
                             onValueChange = viewModel::updateCountry,
-                            label = "Country",
+                            label = stringResource(R.string.label_warehouse_country),
                             placeholder = "e.g. Peru",
                             modifier = Modifier.weight(1f)
                         )
@@ -207,7 +209,7 @@ fun WarehouseCreateAndEditView(
                     CustomDoubleTextField(
                         value = capacity,
                         onValueChange = viewModel::updateCapacity,
-                        label = "Capacity",
+                        label = stringResource(R.string.label_warehouse_capacity),
                         placeholder = "e.g. 5000.0",
                         keyboardType = KeyboardType.Decimal
                     )
@@ -219,7 +221,7 @@ fun WarehouseCreateAndEditView(
                         CustomDoubleTextField(
                             value = minTemp,
                             onValueChange = viewModel::updateMinTemp,
-                            label = "Min Temperature (°C)",
+                            label = "${stringResource(R.string.label_warehouse_min_temperature)} (°C)",
                             placeholder = "e.g. -5.0",
                             modifier = Modifier.weight(1f),
                             keyboardType = KeyboardType.Number,
@@ -229,7 +231,7 @@ fun WarehouseCreateAndEditView(
                         CustomDoubleTextField(
                             value = maxTemp,
                             onValueChange = viewModel::updateMaxTemp,
-                            label = "Max Temperature (°C)",
+                            label = "${stringResource(R.string.label_warehouse_max_temperature)} (°C)",
                             placeholder = "e.g. 25.0",
                             modifier = Modifier.weight(1f),
                             keyboardType = KeyboardType.Number,
@@ -268,7 +270,7 @@ fun WarehouseCreateAndEditView(
                         )
                     } else {
                         Text(
-                            text = if (isEditMode) "Update Warehouse" else "Add Warehouse",
+                            text = if (isEditMode) stringResource(R.string.label_update_warehouse) else stringResource(R.string.label_add_warehouse),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -370,7 +372,7 @@ fun ImageSelectionSection(
             } else {
                 Icon(
                     imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Select Image",
+                    contentDescription = null,
                     modifier = Modifier.size(48.dp),
                     tint = Color.DarkGray
                 )
@@ -378,7 +380,7 @@ fun ImageSelectionSection(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Select an image",
+            text = stringResource(R.string.label_select_image),
             color = Color.Gray,
             fontSize = 14.sp
         )
