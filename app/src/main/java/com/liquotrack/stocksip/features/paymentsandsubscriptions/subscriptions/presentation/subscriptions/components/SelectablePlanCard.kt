@@ -11,8 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.domain.models.Plan
 
 @Composable
@@ -53,7 +55,7 @@ fun SelectablePlanCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Price: ${plan.planPrice} / ${plan.paymentFrequency}",
+                text = "${stringResource(R.string.label_price)}: ${plan.planPrice} / ${plan.paymentFrequency}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -62,4 +62,15 @@
     <string name="label_subscriptions">Subscriptions</string>
     <string name="label_admin_panel">Admin Panel</string>
     <string name="label_log_out">Log out</string>
+    <string name="label_your_current_plan">Your Current Plan</string>
+    <string name="label_status">Status</string>
+    <string name="label_expiration_date">Expiration Date</string>
+    <string name="label_plan_benefits">Plan Benefits</string>
+    <string name="label_max_users_allowed">Maximum number of users allowed</string>
+    <string name="label_max_warehouses_allowed">Maximum number of warehouses allowed</string>
+    <string name="label_max_products_allowed">Maximum number of products allowed</string>
+    <string name="label_update_plan">Update you Plan</string>
+    <string name="label_price">Price</string>
+    <string name="label_highest_plan">You already have the highest plan!</string>
+    <string name="label_highest_plan_thanks">Thank you for being a premium member</string>
 </resources>
