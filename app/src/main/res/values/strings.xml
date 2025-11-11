@@ -95,4 +95,14 @@
     <string name="label_up_to_users">users</string>
     <string name="label_up_to_warehouses">warehouses</string>
     <string name="label_up_to_products">products</string>
+    <string name="label_new_product">New Product</string>
+    <string name="label_new_order">New Order</string>
+    <string name="label_new_user">New User</string>
+    <string name="label_upgrade_to_premium">Upgrade your experience!</string>
+    <string name="label_upgrade_to_premium_message">Access premium plans to unlock exclusive features</string>
+    <string name="label_view_plans">Viee Plans</string>
+    <string name="label_create_new_product_message">Shall we start by creating a product?</string>
+    <string name="label_start_new_order_message">Start recording your purchase orders</string>
+    <string name="label_new_sub_user_message">Should we complete your employees\' data?</string>
+    <string name="label_new_care_guide_message">Discover how to care for your stock properly</string>
 </resources>

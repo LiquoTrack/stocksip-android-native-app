@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,27 +67,27 @@ fun HomeView(
 
     val shortcuts = listOf(
         ShortcutItem(
-            title = "Shall we start by creating a product?",
+            title = stringResource(R.string.label_create_new_product_message),
             description = "",
-            buttonLabel = "+ New Product",
+            buttonLabel = "+ ${stringResource(R.string.label_new_product)}",
             iconRes = R.drawable.vino1
         ),
         ShortcutItem(
-            title = "Start recording your purchase orders",
+            title = stringResource(R.string.label_start_new_order_message),
             description = "",
-            buttonLabel = "+ New Order",
+            buttonLabel = "+ ${stringResource(R.string.label_new_order)}",
             iconRes = R.drawable.nota1
         ),
         ShortcutItem(
-            title = "Should we complete your employees' data?",
+            title = stringResource(R.string.label_new_sub_user_message),
             description = "",
-            buttonLabel = "+ New User",
+            buttonLabel = "+ ${stringResource(R.string.label_new_user)}",
             iconRes = R.drawable.perfil1
         ),
         ShortcutItem(
-            title = "Discover how to care for your stock properly",
+            title = stringResource(R.string.label_new_care_guide_message),
             description = "",
-            buttonLabel = "Care Guides",
+            buttonLabel = stringResource(R.string.label_care_guides),
             iconRes = R.drawable.guide1
         )
     )
@@ -107,7 +108,7 @@ fun HomeView(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Home",
+                    title = stringResource(R.string.label_home),
                     onNavigationClick = { scope.launch { drawerState.open() } }
                 )
             },
@@ -140,14 +141,14 @@ fun HomeView(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "Upgrade your experience!",
+                                text = stringResource(R.string.label_upgrade_to_premium),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
                                 color = Color(0xFF4A1B2A)
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "Access premium plans to unlock exclusive features.",
+                                text = "${stringResource(R.string.label_upgrade_to_premium_message)}.",
                                 fontSize = 14.sp,
                                 color = Color(0xFF4A1B2A)
                             )
@@ -160,7 +161,7 @@ fun HomeView(
                                 ),
                                 shape = RoundedCornerShape(20.dp)
                             ) {
-                                Text("View Plans", fontSize = 14.sp)
+                                Text( stringResource(R.string.label_view_plans), fontSize = 14.sp)
                             }
                         }
 

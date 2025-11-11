@@ -122,7 +122,7 @@ fun WarehouseView(
                             Column {
                                 Row {
                                     Text(
-                                        stringResource(R.string.label_current_warehouses),
+                                        text= "${stringResource(R.string.label_current_warehouses)}:",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast,
@@ -138,11 +138,14 @@ fun WarehouseView(
 
                                 Row {
                                     Text(
-                                        stringResource(R.string.label_max_warehouses),
+                                        text = "${stringResource(R.string.label_max_warehouses)}:",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
                                     )
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
                                     Text(
                                         "${warehouses?.maxWarehousesAllowed}",
                                         fontWeight = FontWeight.Bold,
