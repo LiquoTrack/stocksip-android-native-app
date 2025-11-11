@@ -1,6 +1,7 @@
 package com.liquotrack.stocksip.core.navigation
 
 import android.net.Uri
+import java.net.URLEncoder
 
 /**
  * Sealed class defining all navigation routes in the app.
@@ -32,6 +33,11 @@ sealed class Route(val route: String) {
     // Confirmation Code (email required)
     object ConfirmationCode : Route(route = "confirmation_code") {
         const val routeWithArguments = "confirmation_code/{email}"
+        const val emailArg = "email"
+    }
+
+    object UpdatePassword : Route(route = "update_password") {
+        const val routeWithArguments = "update_password/{email}"
         const val emailArg = "email"
     }
 
