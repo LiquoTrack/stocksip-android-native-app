@@ -1,7 +1,9 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.repositories
 
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.helpers.toMultipart
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.models.toDomain
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseProduct
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehousesWithCount
@@ -185,4 +187,20 @@ class WarehouseRepositoryImpl @Inject constructor(private val service: Warehouse
         }
 
     }
+
+    override suspend fun getProductsByWarehouseId(warehouseId: String): List<WarehouseProduct> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = service.getProductsByWarehouseId(warehouseId)
+                if (response.isSuccessful) {
+                    return@withContext response.body()?.map { it.toDomain() } ?: emptyList()
+                } else {
+                    throw Exception("Error fetching products: ${response.code()} ${response.message()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emptyList()
+            }
+        }
+
 }
