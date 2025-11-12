@@ -13,11 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.OrderItemUi
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
@@ -34,12 +36,10 @@ fun PurchaseOrdersView(
     val ordersUi by viewModel.ordersUi.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadOrders()
-    }
+    LaunchedEffect(Unit) { viewModel.loadOrders() }
 
     DrawerScaffold(
-        title = "Purchase Orders",
+        title = stringResource(R.string.purchase_orders_title),
         currentRoute = Route.MakingOrders.route,
         onNavigate = onNavigate,
         onLogout = onLogout,
@@ -81,7 +81,7 @@ private fun HeaderSection(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Your Recent Orders",
+            text = stringResource(R.string.your_recent_orders_label),
             color = Color(0xFF3C0F1E),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
@@ -94,7 +94,7 @@ private fun HeaderSection(
                     .background(Color(0xFFD8B4B4), shape = MaterialTheme.shapes.small)
                     .size(42.dp)
             ) {
-                Icon(Icons.Filled.Refresh, contentDescription = "Reload Orders", tint = Color.White)
+                Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.reload_orders), tint = Color.White)
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -105,7 +105,7 @@ private fun HeaderSection(
                     .background(Color(0xFF3C0F1E), shape = MaterialTheme.shapes.small)
                     .size(42.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "New Order", tint = Color.White)
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.new_order_btn), tint = Color.White)
             }
         }
     }
@@ -129,7 +129,7 @@ private fun EmptySection(onNewClick: () -> Unit) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                "No orders yet — create your first one!",
+                stringResource(R.string.no_orders_yet_message),
                 color = Color(0xFF9A6E6E),
                 fontSize = 16.sp
             )
@@ -138,7 +138,7 @@ private fun EmptySection(onNewClick: () -> Unit) {
                 onClick = onNewClick,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3C0F1E))
             ) {
-                Text("Create Order", color = Color.White)
+                Text(stringResource(R.string.create_order_button), color = Color.White)
             }
         }
     }
@@ -147,9 +147,7 @@ private fun EmptySection(onNewClick: () -> Unit) {
 @Composable
 private fun OrdersList(ordersUi: List<OrderItemUi>) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(ordersUi) { item ->
-            PurchaseOrderCard(item)
-        }
+        items(ordersUi) { item -> PurchaseOrderCard(item) }
     }
 }
 
@@ -186,13 +184,13 @@ fun PurchaseOrderCard(item: OrderItemUi) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Total: ${item.priceLabel}",
+                    text = stringResource(R.string.total_label, item.priceLabel),
                     color = Color(0xFFD88492),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "Qty: ${item.quantity}",
+                    text = stringResource(R.string.quantity_label_c, item.quantity),
                     color = Color(0xFF9A6E6E),
                     fontSize = 15.sp
                 )
@@ -206,7 +204,7 @@ fun PurchaseOrderCard(item: OrderItemUi) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Generated: ${item.generatedAt}",
+                    text = stringResource(R.string.generated_label, item.generatedAt),
                     color = Color(0xFFB9A5A5),
                     fontSize = 13.sp
                 )

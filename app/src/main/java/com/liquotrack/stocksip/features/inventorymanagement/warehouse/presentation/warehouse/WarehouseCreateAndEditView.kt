@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +25,9 @@ import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
 import com.liquotrack.stocksip.shared.presentation.components.CustomDoubleTextField
 import androidx.core.net.toUri
 import com.liquotrack.stocksip.shared.presentation.components.ImageSelectionSection
+import com.liquotrack.stocksip.shared.ui.components.NavDrawer
+import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
+import kotlinx.coroutines.launch
 
 @Composable
 fun WarehouseCreateAndEditView(
@@ -51,6 +56,9 @@ fun WarehouseCreateAndEditView(
     val temperatureError by viewModel.temperatureError.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val bg = Color(0xFFF4ECEC)
 
     val isValidFormat = name.isNotBlank() &&
             street.isNotBlank() &&
@@ -86,44 +94,44 @@ fun WarehouseCreateAndEditView(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = if (isEditMode) "Edit Warehouse" else "New Warehouse",
-                onBackClick = onNavigateBack,
-                isEditMode = isEditMode,
-                onDeleteClick = {
-                    if (isEditMode) {
-                        viewModel.showDeleteConfirmationDialog(true)
-                    }
-                }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            NavDrawer(
+                currentRoute = "warehouse",
+                onNavigate = {},
+                onClose = { scope.launch { drawerState.close() } }
             )
-        },
-        containerColor = Color(0xFFF4ECEC),
-        snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = Color(0xFFB00020),
-                    contentColor = Color.White,
-                    modifier = Modifier.padding(16.dp)
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopBarWithBack(
+                    title = if (isEditMode) "Edit Warehouse" else "New Warehouse",
+                    onBackClick = onNavigateBack,
+                    actions = {
+                        if (isEditMode) {
+                            IconButton(onClick = { viewModel.showDeleteConfirmationDialog(true) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete Warehouse",
+                                    tint = Color(0xFFE8B4BE)
+                                )
+                            }
+                        }
+                    }
                 )
-            }
-        },
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+            },
+            containerColor = bg,
+            snackbarHost = { SnackbarHost(snackBarHostState) }
+        ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .padding(padding)
                     .padding(16.dp)
-                    .background(Color(0xFFF4ECEC))
             ) {
-
                 ImageSelectionSection(
                     selectedImage = selectedImageUri,
                     onImageSelected = { file, uri ->

@@ -152,7 +152,6 @@ fun NavDrawer(
                     )
                 }
                 else -> {
-                    // Default fallback - mostrar Catalogs
                     NavDrawerItem(
                         icon = Icons.Default.LocalOffer,
                         title = "Catalog",

@@ -1,48 +1,16 @@
 package com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,10 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -66,6 +31,7 @@ import com.liquotrack.stocksip.features.authentication.login.presentation.login.
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuideViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
+import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,49 +57,23 @@ fun CareGuides(
         }
     }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.loadCareGuides()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             NavDrawer(
                 currentRoute = "care_guide",
                 onNavigate = onNavigate,
-                onClose = { scope.launch { drawerState.close() } }
+                onClose = { scope.launch { drawerState.close() } },
+                onLogout = { loginViewModel.logout() }
             )
         }
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.care_guides_title),
-                            color = Color(0xFF4A1B2A),
-                            fontWeight = FontWeight.Medium
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = stringResource(R.string.menu_content_description),
-                                tint = Color(0xFF4A1B2A)
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFFF4ECEC)
-                    )
+                TopBar(
+                    title = stringResource(R.string.care_guides_title),
+                    showBackButton = false,
+                    onNavigationClick = { scope.launch { drawerState.open() } }
                 )
             },
             containerColor = Color(0xFFF4ECEC)
@@ -154,36 +94,48 @@ fun CareGuides(
                         value = search.value,
                         onValueChange = { search.value = it },
                         leadingIcon = {
-                            Icon(Icons.Default.Search, contentDescription = null)
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = null,
+                                tint = Color.Gray
+                            )
                         },
                         placeholder = {
-                            Text(stringResource(R.string.placeholder_search))
+                            Text(stringResource(R.string.placeholder_search), color = Color.Gray)
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.White,
+                            focusedContainerColor = Color.White,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedBorderColor = Color.Transparent
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     )
+
                     Spacer(modifier = Modifier.width(12.dp))
+
                     Button(
                         onClick = { onNavigate(Route.CareGuideCreate.route) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFE53E3E),
                             contentColor = Color.White
-                        )
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(stringResource(R.string.new_button))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                val guides = careGuides.value
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(
-                        items = guides,
-                        key = { guide -> guide.careGuideId.ifBlank { guide.productName } }
-                    ) { guide ->
+                LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(careGuides.value.size) { index ->
+                        val careGuide = careGuides.value[index]
                         CareGuideCard(
-                            careGuide = guide,
+                            careGuide = careGuide,
                             onClick = {},
                             onSeeGuide = { selectedGuide = it },
                             onEdit = { onNavigate(Route.CareGuideEdit.buildRoute(it.careGuideId)) }
@@ -215,8 +167,7 @@ private fun CareGuideDetailDialog(
             color = Color.White
         ) {
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 32.dp, vertical = 28.dp),
+                modifier = Modifier.padding(horizontal = 32.dp, vertical = 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
@@ -251,10 +202,19 @@ private fun CareGuideDetailDialog(
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     DetailRow(title = stringResource(R.string.product_name_label), value = careGuide.productName)
-                    DetailRow(title = stringResource(R.string.type), value = careGuide.title.ifBlank { stringResource(R.string.not_available) })
+                    DetailRow(
+                        title = stringResource(R.string.type),
+                        value = careGuide.title.ifBlank { stringResource(R.string.not_available) }
+                    )
                     DetailRow(title = stringResource(R.string.comments), value = careGuide.summary)
-                    DetailRow(title = stringResource(R.string.min_temp), value = "${careGuide.recommendedMinTemperature}° C")
-                    DetailRow(title = stringResource(R.string.max_temp), value = "${careGuide.recommendedMaxTemperature}° C")
+                    DetailRow(
+                        title = stringResource(R.string.min_temp),
+                        value = "${careGuide.recommendedMinTemperature}° C"
+                    )
+                    DetailRow(
+                        title = stringResource(R.string.max_temp),
+                        value = "${careGuide.recommendedMaxTemperature}° C"
+                    )
                 }
 
                 TextButton(onClick = onDismiss) {

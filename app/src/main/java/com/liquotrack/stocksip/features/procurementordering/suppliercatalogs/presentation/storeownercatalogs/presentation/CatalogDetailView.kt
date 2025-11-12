@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.Catalog
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.CatalogItem
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.domain.models.SupplierInfo
@@ -45,7 +47,7 @@ fun CatalogDetailViewScreen(
     Scaffold(
         topBar = {
             TopBar(
-                title = catalog?.name ?: "Catalog Detail",
+                title = catalog?.name ?: stringResource(R.string.catalog_detail_title),
                 showBackButton = true,
                 onNavigationClick = onBackClick
             )
@@ -69,7 +71,7 @@ fun CatalogDetailViewScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = error ?: "Unknown error",
+                    text = error ?: stringResource(R.string.error_unknown),
                     color = Color.Red,
                     fontWeight = FontWeight.Bold
                 )
@@ -92,11 +94,15 @@ private fun CatalogDetailContent(
     modifier: Modifier = Modifier,
     onProductClick: (CatalogItem) -> Unit
 ) {
+    val currencySymbol = stringResource(R.string.currency_symbol)
+    val priceNA = stringResource(R.string.price_not_available)
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        // Supplier info card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = Color(0xFFF7E7E8))
@@ -106,14 +112,13 @@ private fun CatalogDetailContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val business = supplierInfo?.account?.business
-
                 Text(
                     text = business?.businessName
-                        ?: catalog.ownerAccount.ifEmpty { "Unknown Supplier" },
+                        ?: catalog.ownerAccount.ifEmpty { stringResource(R.string.unknown_supplier) },
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
-                Text("Supplier", color = Color.Gray)
+                Text(stringResource(R.string.supplier_label), color = Color.Gray)
                 Text(
                     text = catalog.contactEmail,
                     color = Color.Gray,
@@ -125,7 +130,7 @@ private fun CatalogDetailContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            "Available Products",
+            stringResource(R.string.available_products_label),
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             color = Color(0xFF5C1F2E)
@@ -138,18 +143,16 @@ private fun CatalogDetailContent(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No products found", color = Color.Gray)
+                Text(stringResource(R.string.no_products_found), color = Color.Gray)
             }
         } else {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(catalog.catalogItems) { item ->
-                    val formattedPrice = try {
+                    val formattedPrice = run {
                         val numericPrice =
                             item.unitPrice?.replace("[^0-9.]".toRegex(), "")?.toDoubleOrNull()
-                        if (numericPrice != null) "$" + String.format("%.2f", numericPrice)
-                        else "N/A"
-                    } catch (e: Exception) {
-                        "N/A"
+                        if (numericPrice != null) "$currencySymbol${"%.2f".format(numericPrice)}"
+                        else priceNA
                     }
 
                     ProductCard(
@@ -216,7 +219,7 @@ private fun ProductCard(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5C1F2E)),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("ADD TO CART", color = Color.White, fontSize = 12.sp)
+                Text(stringResource(R.string.add_to_cart_button), color = Color.White, fontSize = 12.sp)
             }
         }
     }

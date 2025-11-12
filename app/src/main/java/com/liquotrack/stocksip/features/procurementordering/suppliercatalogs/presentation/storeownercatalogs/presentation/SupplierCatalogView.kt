@@ -8,10 +8,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,6 +28,7 @@ fun SupplierCatalogListScreen(
     val supplierInfo by viewModel.supplierInfo.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(supplierId) {
         viewModel.loadSupplierCatalogs(supplierId)
@@ -33,7 +37,7 @@ fun SupplierCatalogListScreen(
     Scaffold(
         topBar = {
             TopBar(
-                title = "Supplier Catalogs",
+                title = stringResource(id = R.string.supplier_catalogs_title),
                 showBackButton = true,
                 onNavigationClick = onBackClick
             )
@@ -60,12 +64,15 @@ fun SupplierCatalogListScreen(
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Error loading catalogs", color = Color.Red)
+                        Text(
+                            stringResource(id = R.string.error_loading_catalogs),
+                            color = Color.Red
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(error ?: "", color = Color.Gray, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { viewModel.loadSupplierCatalogs(supplierId) }) {
-                            Text("Retry")
+                            Text(stringResource(id = R.string.retry_button))
                         }
                     }
                 }
@@ -91,8 +98,12 @@ fun SupplierCatalogListScreen(
                                     fontSize = 18.sp
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
+                                val catalogCount = supplierInfo!!.catalogs.size
                                 Text(
-                                    "${supplierInfo!!.catalogs.size} catalog${if (supplierInfo!!.catalogs.size != 1) "s" else ""} available",
+                                    context.getString(
+                                        R.string.catalogs_available_label,
+                                        catalogCount
+                                    ),
                                     color = Color.Gray
                                 )
                             }
@@ -107,7 +118,7 @@ fun SupplierCatalogListScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    "No catalogs available",
+                                    stringResource(id = R.string.no_catalogs_available),
                                     color = Color.Gray,
                                     fontSize = 16.sp
                                 )
@@ -153,7 +164,7 @@ fun SupplierCatalogListScreen(
                                                     fontSize = 18.sp
                                                 )
                                                 Text(
-                                                    "products",
+                                                    stringResource(id = R.string.products_label),
                                                     color = Color(0xFF8B4C5C),
                                                     fontSize = 12.sp
                                                 )

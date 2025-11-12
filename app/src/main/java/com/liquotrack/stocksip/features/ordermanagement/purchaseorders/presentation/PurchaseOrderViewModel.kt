@@ -99,7 +99,6 @@ class PurchaseOrdersViewModel @Inject constructor(
                 val orderId = createdOrder.id ?: throw IllegalStateException("Order ID not returned")
                 Log.d("PURCHASE_ORDER_VM", "Order created with ID: $orderId")
 
-                // Añadir items al pedido
                 cartItems.forEach { item ->
                     val itemRequest = PurchaseOrderItemRequestDto(productId = item.productId, quantity = item.quantity)
                     Log.d("PURCHASE_ORDER_VM", "Adding item to order: $itemRequest")
