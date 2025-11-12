@@ -40,7 +40,10 @@ fun UsersList(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(users) { user ->
+            items(
+                items = users,
+                key = { user -> user.id.ifBlank { user.email.lowercase() } }
+            ) { user ->
                 UserCard(
                     user = user,
                     onEdit = { onEditUser(user) },
