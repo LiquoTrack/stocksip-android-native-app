@@ -27,10 +27,10 @@ data class InventoryResponse (
     val brand: String,
     val unitPrice: Double,
     val moneyCode: String,
-    val minimumStock: Double,
+    val minimumStock: Int,
     val imageUrl: String,
     val currentState: String,
     val quantity: Int,
     val warehouseId: String,
-    val expirationDate: LocalDate
+    val expirationDate: LocalDate?
 )

@@ -31,7 +31,7 @@ data class InventoryDtoItem(
     @SerializedName("type")
     val type: String,
     @SerializedName("unitPrice")
-    val unitPrice: Int,
+    val unitPrice: Double,
     @SerializedName("warehouseId")
     val warehouseId: String
 )
