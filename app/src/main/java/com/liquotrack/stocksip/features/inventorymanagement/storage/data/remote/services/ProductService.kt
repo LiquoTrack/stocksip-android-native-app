@@ -7,6 +7,7 @@ import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -46,6 +47,7 @@ interface ProductService {
      * @param image An optional image file to be uploaded with the product data.
      * @return The registered [ProductDto] object.
      */
+    @Multipart
     @POST("accounts/{accountId}/products")
     suspend fun registerProduct(
         @Path("accountId") accountId: String,
@@ -61,6 +63,7 @@ interface ProductService {
      * @param image An optional new image file to be uploaded with the product data.
      * @return The updated [ProductDto] object.
      */
+    @Multipart
     @PUT("products/{productId}")
     suspend fun updateProduct(
         @Path("productId") productId: String,
