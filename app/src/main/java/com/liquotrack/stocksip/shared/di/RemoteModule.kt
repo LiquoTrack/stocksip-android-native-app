@@ -148,6 +148,8 @@ object RemoteModule {
         return retrofit.create(BrandService::class.java)
     }
 
+    @Provides
+    @Singleton
     fun provideProductTypeService(retrofit: Retrofit): ProductTypeService {
         return retrofit.create(ProductTypeService::class.java)
     }
