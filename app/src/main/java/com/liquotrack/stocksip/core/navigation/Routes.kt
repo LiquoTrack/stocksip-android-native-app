@@ -54,6 +54,7 @@ sealed class Route(val route: String) {
     object Products : Route(route = "products_storage")
     object ProductDetail : Route(route = "product_detail")
     object Alerts : Route(route = "alerts")
+    object Addresses : Route(route = "addresses")
     object Inventory : Route(route = "inventory")
     object CareGuides : Route(route = "care_guide")
     object CareGuideCreate : Route(route = "care_guide_create")
