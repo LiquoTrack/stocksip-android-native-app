@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderResponse
 import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
+import com.liquotrack.stocksip.R
 
 data class OrderItemUi(
     val id: String,
@@ -56,7 +58,7 @@ fun SalesOrdersView(
     val ordersUi = viewModel.ownerOrdersUi.collectAsState()
 
     DrawerScaffold(
-        title = "Orders",
+        title = stringResource(id = R.string.orders_title),
         currentRoute = "orders",
         onNavigate = onNavigate,
         onLogout = onLogout,
@@ -83,7 +85,7 @@ fun SalesOrdersView(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Recent Orders",
+                text = stringResource(id = R.string.orders_recent),
                 color = Color(0xFFD88492),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
@@ -117,7 +119,7 @@ fun NewPillButton(onClick: () -> Unit) {
         modifier = Modifier
             .height(44.dp)
     ) {
-        Text(text = "+ New", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        Text(text = stringResource(id = R.string.new_order), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -149,7 +151,7 @@ fun OwnerOrderCard(item: OrderItemUi) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Price: ${item.priceLabel}",
+                text = stringResource(id = R.string.price_label, item.priceLabel),
                 color = Color(0xFFD88492),
                 fontSize = 16.sp
             )
@@ -157,14 +159,14 @@ fun OwnerOrderCard(item: OrderItemUi) {
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Quantity: ${item.quantity}",
+                text = stringResource(id = R.string.quantity_label, item.quantity),
                 color = Color(0xFFD88492),
                 fontSize = 16.sp
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Generated at: ${item.generatedAt}",
+                    text = stringResource(id = R.string.generated_at_label, item.generatedAt),
                     color = Color(0xFF9A6E6E),
                     fontSize = 14.sp
                 )
@@ -182,7 +184,7 @@ fun OwnerOrderCard(item: OrderItemUi) {
                     ) {
                         Text(
                             text = when (item.status.uppercase()) {
-                                "PROCESSING" -> "Sent"
+                                "PROCESSING" -> stringResource(id = R.string.sent_status)
                                 else -> item.status
                             },
                             color = Color(0xFF6A4E00),

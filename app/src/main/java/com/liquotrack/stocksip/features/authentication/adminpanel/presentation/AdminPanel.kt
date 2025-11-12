@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
+import com.liquotrack.stocksip.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +101,7 @@ fun AdminPanel(
                 TopAppBar(
                     title = {
                         Text(
-                            "Administrative Panel",
+                            stringResource(id = R.string.admin_panel_title),
                             color = Color(0xFF4A1B2A),
                             fontWeight = FontWeight.Medium
                         )
@@ -108,7 +110,7 @@ fun AdminPanel(
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu",
+                                contentDescription = stringResource(id = R.string.menu_content_description),
                                 tint = Color(0xFF4A1B2A)
                             )
                         }
@@ -132,21 +134,21 @@ fun AdminPanel(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     AdminTabButton(
-                        text = "All",
+                        text = stringResource(id = R.string.admin_tab_all),
                         isSelected = selectedTab == AdminTab.ALL,
                         onClick = { viewModel.selectTab(AdminTab.ALL) },
                         modifier = Modifier.weight(1f)
                     )
 
                     AdminTabButton(
-                        text = "Admin",
+                        text = stringResource(id = R.string.admin_tab_admin),
                         isSelected = selectedTab == AdminTab.ADMIN,
                         onClick = { viewModel.selectTab(AdminTab.ADMIN) },
                         modifier = Modifier.weight(1f)
                     )
 
                     AdminTabButton(
-                        text = "Employee",
+                        text = stringResource(id = R.string.admin_tab_employee),
                         isSelected = selectedTab == AdminTab.EMPLOYEE,
                         onClick = { viewModel.selectTab(AdminTab.EMPLOYEE) },
                         modifier = Modifier.weight(1f)
@@ -162,7 +164,7 @@ fun AdminPanel(
                         enabled = !isMaxUsersReached,
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        Text("+ New", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(id = R.string.admin_new_user), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
 
@@ -183,13 +185,13 @@ fun AdminPanel(
                                 verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Text(
-                                    text = "Users Capacity",
+                                    text = stringResource(id = R.string.users_capacity),
                                     color = Color(0xFF4A1B2A),
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 16.sp
                                 )
                                 Text(
-                                    text = "${currentUsersCount}/${maxUsersAllowed ?: "--"}",
+                                    text = stringResource(id = R.string.users_capacity_value, currentUsersCount, maxUsersAllowed?.toString() ?: "--"),
                                     color = Color(0xFF4A1B2A),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -197,7 +199,7 @@ fun AdminPanel(
                             }
 
                             Text(
-                                text = if (isMaxUsersReached) "Max reached" else "Available",
+                                text = if (isMaxUsersReached) stringResource(id = R.string.status_max_reached) else stringResource(id = R.string.status_available),
                                 color = if (isMaxUsersReached) Color(0xFFD32F2F) else Color(0xFF2E7D32),
                                 fontWeight = FontWeight.Medium
                             )
@@ -313,7 +315,7 @@ private fun DeleteUserDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    "Are you sure you\nwant to delete this\nuser?",
+                    stringResource(id = R.string.delete_user_confirmation),
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp,
                     color = Color(0xFF4A1B2A)
@@ -327,7 +329,7 @@ private fun DeleteUserDialog(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
             ) {
-                Text("Delete", color = Color.White)
+                Text(stringResource(id = R.string.delete), color = Color.White)
             }
         },
         dismissButton = {
@@ -338,7 +340,7 @@ private fun DeleteUserDialog(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
             ) {
-                Text("Cancel", color = Color(0xFF4A1B2A))
+                Text(stringResource(id = R.string.cancel), color = Color(0xFF4A1B2A))
             }
         },
         shape = RoundedCornerShape(16.dp),
