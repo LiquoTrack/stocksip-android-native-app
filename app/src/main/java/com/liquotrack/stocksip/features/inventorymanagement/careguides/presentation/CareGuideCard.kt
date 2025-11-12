@@ -24,12 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material3.Icon
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 
 @Composable
@@ -100,7 +102,7 @@ fun CareGuideCard(
 
             TextButton(onClick = { onSeeGuide(careGuide) }) {
                 Text(
-                    text = "See Guide",
+                    text = stringResource(R.string.see_guide),
                     color = Color(0xFF8A3040),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold

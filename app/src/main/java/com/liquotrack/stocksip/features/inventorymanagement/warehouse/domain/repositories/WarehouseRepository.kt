@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories
 
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseProduct
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehousesWithCount
@@ -49,4 +50,12 @@ interface WarehouseRepository {
      * @param warehouseId The unique identifier of the warehouse to be deleted.
      */
     suspend fun deleteWarehouse(warehouseId: String)
+
+    /**
+     * Retrieves all products stored in a specific warehouse.
+     * @param warehouseId The unique identifier of the warehouse.
+     *
+     * @return A list of WarehouseProduct entities stored in the specified warehouse.
+     */
+    suspend fun getProductsByWarehouseId(warehouseId: String): List<WarehouseProduct>
 }

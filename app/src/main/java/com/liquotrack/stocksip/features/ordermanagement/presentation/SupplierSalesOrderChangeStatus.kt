@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.liquotrack.stocksip.R
 
 @Composable
 fun SupplierSalesOrderChangeStatus(
@@ -34,7 +36,7 @@ fun SupplierSalesOrderChangeStatus(
         confirmButton = {},
         title = {
             Text(
-                text = "Change Order Status",
+                text = stringResource(id = R.string.order_status_title),
                 color = Color(0xFF6B3B44),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -72,7 +74,13 @@ fun SupplierSalesOrderChangeStatus(
                             )
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = option, fontSize = 16.sp, color = Color(0xFF4A1B2A))
+                        val label = when (option.uppercase()) {
+                            "PENDING" -> stringResource(id = R.string.status_pending)
+                            "CONFIRM" -> stringResource(id = R.string.status_confirm)
+                            "CANCEL" -> stringResource(id = R.string.status_cancel)
+                            else -> option
+                        }
+                        Text(text = label, fontSize = 16.sp, color = Color(0xFF4A1B2A))
                     }
                 }
             }

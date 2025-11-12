@@ -1,11 +1,15 @@
 package com.liquotrack.stocksip.features.ordermanagement.presentation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderRepository
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderResponse
+import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.OrderItemUi
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OwnerSalesOrdersViewModel @Inject constructor(
     private val repository: SalesOrderRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     private val _ownerOrders = MutableStateFlow<List<SalesOrderResponse>>(emptyList())
@@ -37,7 +42,7 @@ class OwnerSalesOrdersViewModel @Inject constructor(
             try {
                 val ownerId = tokenManager.getUserIdFromToken() ?: tokenManager.getAccountId()
                 if (ownerId.isNullOrBlank()) {
-                    _error.value = "There is no active session (empty accountId). Please log in."
+                    _error.value = appContext.getString(R.string.no_active_session_error)
                     _isLoading.value = false
                     return@launch
                 }

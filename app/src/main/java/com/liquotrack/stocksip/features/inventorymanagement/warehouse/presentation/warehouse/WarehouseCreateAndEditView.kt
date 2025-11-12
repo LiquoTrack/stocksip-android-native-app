@@ -1,35 +1,28 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse
 
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
 import java.io.File
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomTextField
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomDoubleTextField
+import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
+import com.liquotrack.stocksip.shared.presentation.components.CustomDoubleTextField
 import androidx.core.net.toUri
+import com.liquotrack.stocksip.shared.presentation.components.ImageSelectionSection
 
 @Composable
 fun WarehouseCreateAndEditView(
@@ -318,70 +311,3 @@ fun WarehouseCreateAndEditView(
         }
     }
 }
-
-@Composable
-fun ImageSelectionSection(
-    selectedImage: Uri?,
-    onImageSelected: (File?, Uri?) -> Unit
-) {
-    val context = LocalContext.current
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            try {
-                val inputStream = context.contentResolver.openInputStream(it)
-                val tempFile = File.createTempFile("warehouse_image", ".jpg", context.cacheDir)
-                inputStream?.use { input ->
-                    tempFile.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                onImageSelected(tempFile, uri)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                onImageSelected(null, null)
-            }
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .height(200.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.LightGray)
-                .clickable { imagePicker.launch("image/*") },
-            contentAlignment = Alignment.Center
-        ) {
-            if (selectedImage != null) {
-                AsyncImage(
-                    model = selectedImage,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Select Image",
-                    modifier = Modifier.size(48.dp),
-                    tint = Color.DarkGray
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Select an image",
-            color = Color.Gray,
-            fontSize = 14.sp
-        )
-    }
-}
-

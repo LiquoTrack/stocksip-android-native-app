@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +57,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.core.navigation.Route
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuideViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
@@ -65,7 +67,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun CareGuides(
     onNavigate: (String) -> Unit = {},
-    viewModel: CareGuideViewModel = hiltViewModel()
+    onLogout: () -> Unit = {},
+    viewModel: CareGuideViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val search = remember { mutableStateOf("") }
     val careGuides = viewModel.careGuides.collectAsState()
@@ -73,6 +77,14 @@ fun CareGuides(
     val scope = rememberCoroutineScope()
     var selectedGuide by remember { mutableStateOf<CareGuide?>(null) }
     val showDialog = selectedGuide != null
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
+    LaunchedEffect(isLoggedOut) {
+        if (isLoggedOut) {
+            onLogout()
+            loginViewModel.resetLogoutState()
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -89,7 +101,7 @@ fun CareGuides(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Care Guides",
+                            text = stringResource(R.string.care_guides_title),
                             color = Color(0xFF4A1B2A),
                             fontWeight = FontWeight.Medium
                         )
@@ -98,7 +110,7 @@ fun CareGuides(
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu",
+                                contentDescription = stringResource(R.string.menu_content_description),
                                 tint = Color(0xFF4A1B2A)
                             )
                         }
@@ -142,7 +154,7 @@ fun CareGuides(
                         )
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
-                        Text("New")
+                        Text(stringResource(R.string.new_button))
                     }
                 }
 
@@ -219,16 +231,16 @@ private fun CareGuideDetailDialog(
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    DetailRow(title = "Product Name", value = careGuide.productName)
-                    DetailRow(title = "Type", value = careGuide.title.ifBlank { "N/A" })
-                    DetailRow(title = "Comments", value = careGuide.summary)
-                    DetailRow(title = "Min. Temperature", value = "${careGuide.recommendedMinTemperature}° C")
-                    DetailRow(title = "Max. Temperature", value = "${careGuide.recommendedMaxTemperature}° C")
+                    DetailRow(title = stringResource(R.string.product_name_label), value = careGuide.productName)
+                    DetailRow(title = stringResource(R.string.type), value = careGuide.title.ifBlank { stringResource(R.string.not_available) })
+                    DetailRow(title = stringResource(R.string.comments), value = careGuide.summary)
+                    DetailRow(title = stringResource(R.string.min_temp), value = "${careGuide.recommendedMinTemperature}° C")
+                    DetailRow(title = stringResource(R.string.max_temp), value = "${careGuide.recommendedMaxTemperature}° C")
                 }
 
                 TextButton(onClick = onDismiss) {
                     Text(
-                        text = "Close",
+                        text = stringResource(R.string.close),
                         color = Color(0xFF8A3040),
                         fontWeight = FontWeight.Medium
                     )
