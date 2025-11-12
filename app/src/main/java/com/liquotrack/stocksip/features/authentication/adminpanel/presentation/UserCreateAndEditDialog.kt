@@ -15,8 +15,10 @@ import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +40,7 @@ import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 import com.liquotrack.stocksip.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewUserDialog(
     onDismiss: () -> Unit,
@@ -45,17 +48,24 @@ fun NewUserDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf("Admin") }
     var phone by remember { mutableStateOf("") }
-    var showRoleDropdown by remember { mutableStateOf(false) }
+    var selectedUserRole by remember { mutableStateOf("Employee") }
+    var selectedProfileRole by remember { mutableStateOf("Seller") }
+    var showUserRoleDropdown by remember { mutableStateOf(false) }
+    var showProfileRoleDropdown by remember { mutableStateOf(false) }
 
-    val roles = listOf(
+    val userRoles = listOf(
         "Admin" to stringResource(id = R.string.admin_role_admin),
-        "Manager" to stringResource(id = R.string.admin_role_manager),
-        "Cashier" to stringResource(id = R.string.admin_role_cashier),
-        "Worker" to stringResource(id = R.string.admin_role_worker)
+        "Employee" to stringResource(id = R.string.admin_role_employee)
     )
-    val selectedRoleLabel = roles.firstOrNull { it.first.equals(selectedRole, ignoreCase = true) }?.second ?: selectedRole
+    val profileRoles = listOf(
+        "Seller" to "Seller",
+        "Buyer" to "Buyer",
+        "WarehouseWorker" to "WarehouseWorker",
+        "Admin" to "Admin"
+    )
+    val selectedUserRoleLabel = userRoles.firstOrNull { it.first.equals(selectedUserRole, ignoreCase = true) }?.second ?: selectedUserRole
+    val selectedProfileRoleLabel = profileRoles.firstOrNull { it.first.equals(selectedProfileRole, ignoreCase = true) }?.second ?: selectedProfileRole
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -113,16 +123,19 @@ fun NewUserDialog(
                     shape = RoundedCornerShape(8.dp)
                 )
 
-                Text(stringResource(id = R.string.role_assigned), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE53E3E))
+                Text("Rol (sistema)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE53E3E))
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = showUserRoleDropdown,
+                    onExpandedChange = { showUserRoleDropdown = !showUserRoleDropdown }
+                ) {
                     OutlinedTextField(
-                        value = selectedRoleLabel,
+                        value = selectedUserRoleLabel,
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showRoleDropdown = true },
+                            .menuAnchor()
+                            .fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
@@ -131,24 +144,61 @@ fun NewUserDialog(
                         ),
                         shape = RoundedCornerShape(8.dp),
                         trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = stringResource(id = R.string.dropdown_content_description),
-                                tint = Color(0xFF4A1B2A)
-                            )
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = showUserRoleDropdown)
                         }
                     )
 
-                    DropdownMenu(
-                        expanded = showRoleDropdown,
-                        onDismissRequest = { showRoleDropdown = false }
+                    ExposedDropdownMenu(
+                        expanded = showUserRoleDropdown,
+                        onDismissRequest = { showUserRoleDropdown = false }
                     ) {
-                        roles.forEach { (value, label) ->
+                        userRoles.forEach { (value, label) ->
                             DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
-                                    selectedRole = value
-                                    showRoleDropdown = false
+                                    selectedUserRole = value
+                                    showUserRoleDropdown = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Text(stringResource(id = R.string.role_assigned), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE53E3E))
+
+                ExposedDropdownMenuBox(
+                    expanded = showProfileRoleDropdown,
+                    onExpandedChange = { showProfileRoleDropdown = !showProfileRoleDropdown }
+                ) {
+                    OutlinedTextField(
+                        value = selectedProfileRoleLabel,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedBorderColor = Color(0xFFD1C4C4),
+                            unfocusedBorderColor = Color(0xFFD1C4C4)
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = showProfileRoleDropdown)
+                        }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = showProfileRoleDropdown,
+                        onDismissRequest = { showProfileRoleDropdown = false }
+                    ) {
+                        profileRoles.forEach { (value, label) ->
+                            DropdownMenuItem(
+                                text = { Text(label) },
+                                onClick = {
+                                    selectedProfileRole = value
+                                    showProfileRoleDropdown = false
                                 }
                             )
                         }
@@ -162,12 +212,12 @@ fun NewUserDialog(
                     val newUser = SubUser(
                         id = "",
                         email = email.trim(),
-                        userRole = selectedRole,
+                        userRole = selectedUserRole,
                         profileId = "",
                         fullName = name.trim(),
                         phoneNumber = phone.trim(),
                         profilePictureUrl = "",
-                        profileRole = selectedRole
+                        profileRole = selectedProfileRole
                     )
                     onSave(newUser)
                 },
@@ -192,6 +242,7 @@ fun NewUserDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserDialog(
     user: SubUser,
@@ -200,14 +251,35 @@ fun EditUserDialog(
 ) {
     var name by remember { mutableStateOf(user.fullName) }
     var email by remember { mutableStateOf(user.email) }
-    var showRoleDropdown by remember { mutableStateOf(false) }
+    var showUserRoleDropdown by remember { mutableStateOf(false) }
+    var showProfileRoleDropdown by remember { mutableStateOf(false) }
 
-    val roles = listOf(
+    val userRoles = listOf(
         "Admin" to stringResource(id = R.string.admin_role_admin),
         "Employee" to stringResource(id = R.string.admin_role_employee)
     )
-    var selectedRole by remember { mutableStateOf(user.profileRole.ifBlank { user.userRole }.ifBlank { roles.first().first }) }
-    val selectedRoleLabel = roles.firstOrNull { it.first.equals(selectedRole, ignoreCase = true) }?.second ?: selectedRole
+    val profileRoles = listOf(
+        "Seller" to "Seller",
+        "Buyer" to "Buyer",
+        "WarehouseWorker" to "WarehouseWorker",
+        "Admin" to "Admin"
+    )
+
+    var selectedUserRole by remember {
+        mutableStateOf(
+            user.userRole.takeIf { it.isNotBlank() }
+                ?: userRoles.first().first
+        )
+    }
+    var selectedProfileRole by remember {
+        mutableStateOf(
+            user.profileRole.takeIf { it.isNotBlank() }
+                ?: profileRoles.first().first
+        )
+    }
+
+    val selectedUserRoleLabel = userRoles.firstOrNull { it.first.equals(selectedUserRole, ignoreCase = true) }?.second ?: selectedUserRole
+    val selectedProfileRoleLabel = profileRoles.firstOrNull { it.first.equals(selectedProfileRole, ignoreCase = true) }?.second ?: selectedProfileRole
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -264,16 +336,19 @@ fun EditUserDialog(
                     shape = RoundedCornerShape(8.dp)
                 )
 
-                Text(stringResource(id = com.liquotrack.stocksip.R.string.role_assigned), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE53E3E))
+                Text("Rol (sistema)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE53E3E))
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = showUserRoleDropdown,
+                    onExpandedChange = { showUserRoleDropdown = !showUserRoleDropdown }
+                ) {
                     OutlinedTextField(
-                        value = selectedRoleLabel,
+                        value = selectedUserRoleLabel,
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showRoleDropdown = true },
+                            .menuAnchor()
+                            .fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
@@ -282,24 +357,61 @@ fun EditUserDialog(
                         ),
                         shape = RoundedCornerShape(8.dp),
                         trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = stringResource(id = com.liquotrack.stocksip.R.string.dropdown_content_description),
-                                tint = Color(0xFF4A1B2A)
-                            )
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = showUserRoleDropdown)
                         }
                     )
 
-                    DropdownMenu(
-                        expanded = showRoleDropdown,
-                        onDismissRequest = { showRoleDropdown = false }
+                    ExposedDropdownMenu(
+                        expanded = showUserRoleDropdown,
+                        onDismissRequest = { showUserRoleDropdown = false }
                     ) {
-                        roles.forEach { (value, label) ->
+                        userRoles.forEach { (value, label) ->
                             DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
-                                    selectedRole = value
-                                    showRoleDropdown = false
+                                    selectedUserRole = value
+                                    showUserRoleDropdown = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Text(stringResource(id = com.liquotrack.stocksip.R.string.role_assigned), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE53E3E))
+
+                ExposedDropdownMenuBox(
+                    expanded = showProfileRoleDropdown,
+                    onExpandedChange = { showProfileRoleDropdown = !showProfileRoleDropdown }
+                ) {
+                    OutlinedTextField(
+                        value = selectedProfileRoleLabel,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedBorderColor = Color(0xFFD1C4C4),
+                            unfocusedBorderColor = Color(0xFFD1C4C4)
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = showProfileRoleDropdown)
+                        }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = showProfileRoleDropdown,
+                        onDismissRequest = { showProfileRoleDropdown = false }
+                    ) {
+                        profileRoles.forEach { (value, label) ->
+                            DropdownMenuItem(
+                                text = { Text(label) },
+                                onClick = {
+                                    selectedProfileRole = value
+                                    showProfileRoleDropdown = false
                                 }
                             )
                         }
@@ -315,8 +427,8 @@ fun EditUserDialog(
                     val updatedUser = user.copy(
                         fullName = name.trim(),
                         email = email.trim(),
-                        profileRole = selectedRole,
-                        userRole = selectedRole
+                        profileRole = selectedProfileRole,
+                        userRole = selectedUserRole
                     )
                     onSave(updatedUser)
                 },
