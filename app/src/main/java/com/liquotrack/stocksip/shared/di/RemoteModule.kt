@@ -146,7 +146,7 @@ object RemoteModule {
     @Singleton
     fun providePurchaseOrderService(retrofit: Retrofit): PurchaseOrderService {
         return retrofit.create(PurchaseOrderService::class.java)
-
+    }
         
     @Provides
     @Singleton

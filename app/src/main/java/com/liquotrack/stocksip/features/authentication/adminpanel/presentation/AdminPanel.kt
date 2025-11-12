@@ -67,8 +67,21 @@ fun AdminPanel(
     val userToDelete by viewModel.userToDelete.collectAsState()
     val userToEdit by viewModel.userToEdit.collectAsState()
     val accountStats = users.firstOrNull()
-    val displayedUsers = accountStats?.users ?: emptyList()
-    val currentUsersCount = accountStats?.totalUsers ?: displayedUsers.size
+    val allUsers = accountStats?.users ?: emptyList()
+    val filteredUsers = when (selectedTab) {
+        AdminTab.ALL -> allUsers
+        AdminTab.ADMIN -> allUsers.filter {
+            it.userRole.equals("Admin", ignoreCase = true) ||
+            it.profileRole.equals("Admin", ignoreCase = true)
+        }
+        AdminTab.EMPLOYEE -> allUsers.filter {
+            it.userRole.equals("Employee", ignoreCase = true) ||
+            it.profileRole.equals("Seller", ignoreCase = true) ||
+            it.profileRole.equals("Buyer", ignoreCase = true) ||
+            it.profileRole.equals("WarehouseWorker", ignoreCase = true)
+        }
+    }
+    val currentUsersCount = accountStats?.totalUsers ?: allUsers.size
     val maxUsersAllowed = accountStats?.maxUsersAllowed
     val isMaxUsersReached = maxUsersAllowed != null && maxUsersAllowed != 0 &&
         currentUsersCount >= maxUsersAllowed
@@ -215,7 +228,7 @@ fun AdminPanel(
                     when (selectedTab) {
                         AdminTab.ALL -> {
                             UsersList(
-                                users = displayedUsers,
+                                users = filteredUsers,
                                 isLoading = isLoading,
                                 onEditUser = { user -> viewModel.selectUserForEdit(user) },
                                 onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
@@ -223,7 +236,7 @@ fun AdminPanel(
                         }
                         AdminTab.ADMIN -> {
                             UsersList(
-                                users = displayedUsers,
+                                users = filteredUsers,
                                 isLoading = isLoading,
                                 onEditUser = { user -> viewModel.selectUserForEdit(user) },
                                 onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
@@ -232,7 +245,7 @@ fun AdminPanel(
                         AdminTab.EMPLOYEE -> {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 UsersList(
-                                    users = displayedUsers,
+                                    users = filteredUsers,
                                     isLoading = isLoading,
                                     onEditUser = { user -> viewModel.selectUserForEdit(user) },
                                     onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
@@ -250,6 +263,10 @@ fun AdminPanel(
             onDismiss = { showNewUserDialog = false },
             onSave = { newUser ->
                 viewModel.createUser(newUser)
+                // Asegurar visibilidad inmediata del nuevo usuario
+                if (selectedTab != AdminTab.ALL) {
+                    viewModel.selectTab(AdminTab.ALL)
+                }
                 showNewUserDialog = false
             }
         )

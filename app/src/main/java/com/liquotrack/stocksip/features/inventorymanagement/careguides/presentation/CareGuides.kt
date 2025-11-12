@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -34,6 +35,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,6 +54,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -84,6 +89,17 @@ fun CareGuides(
             onLogout()
             loginViewModel.resetLogoutState()
         }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.loadCareGuides()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     ModalNavigationDrawer(
@@ -160,11 +176,14 @@ fun CareGuides(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                val guides = careGuides.value
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(careGuides.value.size) { index ->
-                        val careGuide = careGuides.value[index]
+                    items(
+                        items = guides,
+                        key = { guide -> guide.careGuideId.ifBlank { guide.productName } }
+                    ) { guide ->
                         CareGuideCard(
-                            careGuide = careGuide,
+                            careGuide = guide,
                             onClick = {},
                             onSeeGuide = { selectedGuide = it },
                             onEdit = { onNavigate(Route.CareGuideEdit.buildRoute(it.careGuideId)) }
