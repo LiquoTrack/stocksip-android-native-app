@@ -24,7 +24,7 @@ class BrandRepositoryImpl @Inject constructor(private val service: BrandService)
             val response = service.getAllBrands()
             if (response.isSuccessful) {
                 val brands = response.body() ?: emptyList()
-                return@withContext brands
+                return@withContext brands.map { it.name }.distinct()
             }
             return@withContext emptyList()
         } catch (e: Exception) {

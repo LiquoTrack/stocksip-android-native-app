@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductRequest
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductsWithCount
+import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.BrandRepository
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.ProductRepository
+import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.ProductTypeRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +18,26 @@ import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
+/**
+ * ViewModel for creating or editing a product in storage.
+ *
+ * @param repository The [ProductRepository] for managing product data.
+ * @param brandRepository The [BrandRepository] for fetching brand data.
+ * @param tokenManager The [TokenManager] for managing authentication tokens.
+ */
 @HiltViewModel
 class StorageCreateOrEditViewModel @Inject constructor(
     private val repository: ProductRepository,
+    private val brandRepository: BrandRepository,
+    private val typeRepository: ProductTypeRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
+
+    private val _brands = MutableStateFlow<List<String>>(emptyList())
+    val brands: StateFlow<List<String>> = _brands.asStateFlow()
+
+    private val _productTypes = MutableStateFlow<List<String>>(emptyList())
+    val productTypes: StateFlow<List<String>> = _productTypes.asStateFlow()
 
     private val _productName = MutableStateFlow("")
     val productName: StateFlow<String> = _productName
@@ -166,5 +183,25 @@ class StorageCreateOrEditViewModel @Inject constructor(
             _minimumStockError.value = null
             true
         }
+    }
+
+    // Fetches all available brands from the repository.
+    fun getAllBrands() {
+        viewModelScope.launch {
+            _brands.value = brandRepository.getAllBrands()
+        }
+    }
+
+    // Fetches all available product types from the repository
+    fun getAllProductTypes() {
+        viewModelScope.launch {
+            _productTypes.value = typeRepository.getAllProductTypes()
+        }
+    }
+
+    // Initialize the ViewModel by fetching brands.
+    init {
+        getAllBrands()
+        getAllProductTypes()
     }
 }

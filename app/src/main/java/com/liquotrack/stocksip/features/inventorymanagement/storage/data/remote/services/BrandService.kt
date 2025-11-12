@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services
 
+import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.models.BrandDto
 import retrofit2.Response
 import retrofit2.http.GET
 
@@ -12,8 +13,8 @@ interface BrandService {
     /**
      * Fetches a list of all available brand names.
      *
-     * @return A list of brand names as strings.
+     * @return A [Response] containing a [BrandDto] with the list of brand names.
      */
     @GET("brands")
-    suspend fun getAllBrands(): Response<List<String>>
+    suspend fun getAllBrands(): Response<BrandDto>
 }
