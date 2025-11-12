@@ -11,6 +11,7 @@ import com.liquotrack.stocksip.shared.data.local.TokenManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -70,6 +71,12 @@ class UserRepositoryImpl @Inject constructor(
             }
         }
 
+    /**
+     * Creates a new sub-user.
+     *
+     * @param user The user object containing details of the sub-user to be created.
+     * @return A Response containing the created SubUser.
+     */
     override suspend fun createSubUser(user: SubUser) : Response<SubUser> = withContext(Dispatchers.IO) {
         try {
             val accountId = tokenManager.getAccountId()
@@ -122,6 +129,12 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Deletes an existing sub-user.
+     *
+     * @param userId The ID of the user to be deleted.
+     * @param profileId The ID of the profile.
+     */
     override suspend fun deleteUser(userId: String, profileId: String) = withContext(Dispatchers.IO) {
         try {
             val response = apiService.deleteUser(

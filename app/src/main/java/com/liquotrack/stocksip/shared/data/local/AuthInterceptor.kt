@@ -9,6 +9,14 @@ class AuthInterceptor @Inject constructor(private val tokenManager: TokenManager
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
+        val url = originalRequest.url.toString()
+
+        // Skip Authorization for auth endpoints
+        if (url.contains("/auth/google") || url.contains("/sign-in") || url.contains("/sign-up")) {
+            Log.d("AuthInterceptor", "Skipping Authorization for auth endpoint. url=$url")
+            return chain.proceed(originalRequest)
+        }
+
         val token = tokenManager.getToken()
 
         if (token.isNullOrEmpty()) {

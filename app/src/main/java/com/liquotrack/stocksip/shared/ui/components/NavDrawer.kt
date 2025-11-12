@@ -40,8 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Navigation Drawer Component - Simplified for routes without arguments
+ * Navigation Drawer Component
  * @param currentRoute Currently selected route
+ * @param userRole User role for conditional navigation items
  * @param onNavigate Callback for navigation with route destination
  * @param onClose Callback to close the drawer
  * @param onLogout Callback for logout action
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun NavDrawer(
     currentRoute: String,
+    userRole: String? = null,
     onNavigate: (String) -> Unit = {},
     onClose: () -> Unit = {},
     onLogout: () -> Unit = {}
@@ -123,16 +125,46 @@ fun NavDrawer(
                 }
             )
 
-            NavDrawerItem(
-                icon = Icons.Default.LocalOffer,
-                title = "Catalog",
-                route = "catalogs",
-                currentRoute = currentRoute,
-                onClick = {
-                    onNavigate("catalogs")
-                    onClose()
+            // Catalog item - conditional based on role
+            when (userRole?.trim()?.lowercase()) {
+                "supplier" -> {
+                    NavDrawerItem(
+                        icon = Icons.Default.LocalOffer,
+                        title = "My Catalogs",
+                        route = "catalogs",
+                        currentRoute = currentRoute,
+                        onClick = {
+                            onNavigate("catalogs")
+                            onClose()
+                        }
+                    )
                 }
-            )
+                "liquorstoreowner" -> {
+                    NavDrawerItem(
+                        icon = Icons.Default.LocalOffer,
+                        title = "Browse Suppliers",
+                        route = "supplier_search",
+                        currentRoute = currentRoute,
+                        onClick = {
+                            onNavigate("supplier_search")
+                            onClose()
+                        }
+                    )
+                }
+                else -> {
+                    // Default fallback - mostrar Catalogs
+                    NavDrawerItem(
+                        icon = Icons.Default.LocalOffer,
+                        title = "Catalog",
+                        route = "catalogs",
+                        currentRoute = currentRoute,
+                        onClick = {
+                            onNavigate("catalogs")
+                            onClose()
+                        }
+                    )
+                }
+            }
 
             NavDrawerItem(
                 icon = Icons.Default.CardMembership,

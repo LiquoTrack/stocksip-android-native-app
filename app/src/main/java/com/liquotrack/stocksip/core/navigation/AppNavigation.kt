@@ -30,8 +30,20 @@ import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSal
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
+import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.AccountSubscriptionPlanView
+import com.liquotrack.stocksip.features.procurementordering.purchaseorders.presentation.cart.CartScreen
+import com.liquotrack.stocksip.features.procurementordering.purchaseorders.presentation.cart.CartViewModel
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.CatalogCreateAndEditScreen
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.CatalogDetailScreen
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.CatalogListScreen
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogDetailViewScreen
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailScreen
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
+import java.net.URLEncoder
 
 /**
  * Main navigation graph of the app.
@@ -68,18 +80,9 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
                 },
-                onGoogleSignInSuccess = { email, fullName, accountExists ->
-                    if (accountExists) {
-                        navController.navigate(Route.Main.route) {
-                            popUpTo(Route.Login.route) { inclusive = true }
-                        }
-                    } else {
-                        val route = Route.RegisterAccount.buildRoute(
-                            email = email,
-                            fullName = fullName,
-                            password = "GOOGLE_AUTH"
-                        )
-                        navController.navigate(route)
+                onGoogleSignInSuccess = { _, _, _ ->
+                    navController.navigate(Route.Plans.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
                     }
                 }
             )
@@ -124,8 +127,8 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
-                    val route = "confirmation_code/$email"
-                    navController.navigate(route)
+                    val encodedEmail = URLEncoder.encode(email, "UTF-8")
+                    navController.navigate("confirmation_code/$encodedEmail")
                 },
                 onNavigateBack = { navController.popBackStack() }
             )
@@ -137,9 +140,35 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 navArgument(Route.ConfirmationCode.emailArg) { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString(Route.ConfirmationCode.emailArg) ?: ""
+            val email = backStackEntry.arguments?.getString("email")
+                ?.let { java.net.URLDecoder.decode(it, "UTF-8") } ?: ""
+
             ConfirmationCode(
+                email = email,
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToUpdatePassword = {
+                    val encodedEmail = URLEncoder.encode(email, "UTF-8")
+                    navController.navigate("update_password/$encodedEmail")
+                },
+                onConfirmClick = { code ->
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Route.UpdatePassword.routeWithArguments,
+            arguments = listOf(
+                navArgument(Route.UpdatePassword.emailArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString(Route.UpdatePassword.emailArg)
+                ?.let { java.net.URLDecoder.decode(it, "UTF-8") } ?: ""
+
+            UpdatePasswordView(
+                email = email,
                 onNavigateToLogin = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
@@ -291,8 +320,183 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // Catalogs
         composable(route = Route.Catalogs.route) {
+            val accountViewModel: AccountViewModel = hiltViewModel()
+            val role by accountViewModel.accountRole.collectAsState()
+
+            LaunchedEffect(role) {
+                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            }
+
+            val roleNormalized = role?.trim()?.lowercase()
+
+            if (roleNormalized == "supplier") {
+                CatalogListScreen(
+                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onMenuClick = { },
+                    onCreateCatalog = { navController.navigate(Route.CatalogCreateEdit.buildRoute("new")) },
+                    onCatalogClick = { catalogId ->
+                        navController.navigate(Route.CatalogDetail.buildRoute(catalogId))
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
+            else if (roleNormalized == "liquorstoreowner") {
+                SupplierSearchScreen(
+                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onMenuClick = {  },
+                    onSupplierSelected = { supplierId ->
+                        navController.navigate(Route.SupplierCatalogList.buildRoute(supplierId))
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
+            else {
+                CatalogListScreen(
+                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onMenuClick = {  },
+                    onCreateCatalog = { navController.navigate(Route.CatalogCreateEdit.buildRoute("new")) },
+                    onCatalogClick = { catalogId ->
+                        navController.navigate(Route.CatalogDetail.buildRoute(catalogId))
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
+
+        composable(
+            route = "supplier_catalog_list/{supplierId}",
+            arguments = listOf(navArgument("supplierId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val supplierId = backStackEntry.arguments?.getString("supplierId") ?: ""
+
+            SupplierCatalogListScreen(
+                supplierId = supplierId,
+                onBackClick = { navController.popBackStack() },
+                onCatalogSelected = { catalogId ->
+                    navController.navigate("catalog_detail/$catalogId")
+                }
+            )
+        }
+
+        composable(
+            route = "catalog_detail/{catalogId}",
+            arguments = listOf(navArgument("catalogId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val catalogId = backStackEntry.arguments?.getString("catalogId") ?: ""
+            val accountViewModel: AccountViewModel = hiltViewModel()
+            val role by accountViewModel.accountRole.collectAsState()
+
+            LaunchedEffect(role) {
+                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            }
+
+            val roleNormalized = role?.trim()?.lowercase()
+
+            when (roleNormalized) {
+                "supplier" -> {
+                    CatalogDetailScreen(
+                        catalogId = catalogId,
+                        onBack = { navController.popBackStack() },
+                        onEdit = {
+                            navController.navigate("catalog_edit/$catalogId")
+                        }
+                    )
+                }
+
+                "liquorstoreowner" -> {
+                    CatalogDetailViewScreen(
+                        catalogId = catalogId,
+                        onBackClick = { navController.popBackStack() },
+                        onProductClick = { item ->
+                            navController.navigate("catalogItemDetail/$catalogId/${item.productId}")
+                        }
+                    )
+                }
+
+
+                else -> {
+                    CatalogDetailViewScreen(
+                        catalogId = catalogId,
+                        onBackClick = { navController.popBackStack() },
+                        onProductClick = { item ->
+                            navController.navigate("catalogItemDetail/$catalogId/${item.productId}")
+                        }
+                    )
+                }
+            }
+        }
+
+        composable(
+            route = Route.CatalogCreateEdit.routeWithArguments,
+            arguments = listOf(navArgument(Route.CatalogCreateEdit.catalogIdArg) { type = NavType.StringType })
+        ) { backStackEntry ->
+            val catalogId = backStackEntry.arguments?.getString(Route.CatalogCreateEdit.catalogIdArg)
+            val isEditMode = catalogId != null && catalogId != "new"
+
+            CatalogCreateAndEditScreen(
+                isEditMode = isEditMode,
+                catalogId = catalogId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = "catalog_edit/{catalogId}",
+            arguments = listOf(navArgument("catalogId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val catalogId = backStackEntry.arguments?.getString("catalogId")
+            val isEditMode = catalogId != null
+
+            CatalogCreateAndEditScreen(
+                isEditMode = isEditMode,
+                catalogId = catalogId,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(
+            "catalogItemDetail/{catalogId}/{productId}",
+            arguments = listOf(
+                navArgument("catalogId") { type = NavType.StringType },
+                navArgument("productId") { type = NavType.StringType }
+            )
+        ) {
+            val viewModel: CatalogItemDetailViewModel = hiltViewModel()
+
+            CatalogItemDetailScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() },
+                onNavigateToCart = { navController.navigate("cart") }
+            )
+        }
+
+
+        composable(route = "cart") {
+            val viewModel: CartViewModel = hiltViewModel()
+            CartScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() },
+                onNextClick = {
+                    navController.navigate(Route.MakingOrders.route)
+                }
+            )
+        }
+
+
 
         // Making Orders
         composable(route = Route.MakingOrders.route) {

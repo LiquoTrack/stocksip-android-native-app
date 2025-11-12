@@ -3,12 +3,14 @@ package com.liquotrack.stocksip.shared.di
 import com.liquotrack.stocksip.BuildConfig
 import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
+import com.liquotrack.stocksip.features.authentication.passwordrecover.data.remote.services.RecoverPasswordService
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.data.remote.services.CareGuideService
 import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.ProductService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.data.remote.services.AccountService
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.data.remote.services.PlanService
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.services.SubscriptionService
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.services.CatalogService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
 import com.liquotrack.stocksip.features.ordermanagement.data.remote.services.SalesOrderService
 import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
@@ -112,5 +114,17 @@ object RemoteModule {
     @Singleton
     fun provideSalesOrderService(retrofit: Retrofit): SalesOrderService {
         return retrofit.create(SalesOrderService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecoverPasswordService(retrofit: Retrofit): RecoverPasswordService {
+        return retrofit.create(RecoverPasswordService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCatalogService(retrofit: Retrofit): CatalogService {
+        return retrofit.create(CatalogService::class.java)
     }
 }

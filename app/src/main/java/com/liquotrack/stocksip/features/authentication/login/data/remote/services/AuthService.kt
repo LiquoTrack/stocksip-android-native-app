@@ -4,6 +4,8 @@ import com.liquotrack.stocksip.features.authentication.login.data.remote.model.S
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInResponseDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpResponseDto
+import com.liquotrack.stocksip.features.authentication.login.data.remote.model.GoogleAuthRequestDto
+import com.liquotrack.stocksip.features.authentication.login.data.remote.model.GoogleAuthResponseDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -31,4 +33,10 @@ interface AuthService {
      */
     @POST("sign-up")
     suspend fun register(@Body request: SignUpRequestDto): Response<SignUpResponseDto>
+
+    /**
+     * Authenticates a user with Google OAuth 2.0 ID token
+     */
+    @POST("authentication/google")
+    suspend fun authenticateWithGoogle(@Body request: GoogleAuthRequestDto): Response<GoogleAuthResponseDto>
 }
