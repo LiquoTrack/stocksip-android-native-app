@@ -29,6 +29,8 @@ import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.p
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
@@ -84,18 +86,9 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
                 },
-                onGoogleSignInSuccess = { email, fullName, accountExists ->
-                    if (accountExists) {
-                        navController.navigate(Route.Main.route) {
-                            popUpTo(Route.Login.route) { inclusive = true }
-                        }
-                    } else {
-                        val route = Route.RegisterAccount.buildRoute(
-                            email = email,
-                            fullName = fullName,
-                            password = "GOOGLE_AUTH"
-                        )
-                        navController.navigate(route)
+                onGoogleSignInSuccess = { _, _, _ ->
+                    navController.navigate(Route.Plans.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
                     }
                 }
             )
@@ -136,6 +129,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // PASSWORD RECOVERY FLOW
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
@@ -251,6 +245,36 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // Products Storage
+        composable(route = Route.Products.route) {
+            StorageView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // Product Create And Edit
+        composable(
+            route = Route.ProductCreateEdit.routeWithArgs,
+            arguments = listOf(navArgument(Route.ProductCreateEdit.productIdArg) {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString(Route.ProductCreateEdit.productIdArg)
+            StorageCreateOrEditView(
+                productId = productId ?: "new",
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
         // User Management
         composable(route = Route.UserManagement.route) {
             AdminPanel(
@@ -260,10 +284,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     }
                 }
             )
-        }
-
-        // Products Storage
-        composable(route = Route.Products.route) {
         }
 
         // Care Guides

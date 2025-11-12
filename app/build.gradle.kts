@@ -103,7 +103,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.foundation)
     implementation(libs.googleid)
-    implementation("com.google.android.gms:play-services-auth")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
     ksp(libs.androidx.room.compiler)

@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.stringResource
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
 
 data class SupplierOrderItemUi(
@@ -66,7 +68,7 @@ fun SupplierSalesOrdersView(
     val orders by viewModel.supplierOrders.collectAsState()
 
     DrawerScaffold(
-        title = "Orders",
+        title = stringResource(id = R.string.orders_title),
         currentRoute = "orders_supplier",
         onNavigate = onNavigate,
         onLogout = onLogout,
@@ -144,7 +146,7 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Price: ${'$'}{order.priceLabel}",
+                text = stringResource(id = R.string.price_label, order.priceLabel),
                 color = Color(0xFF9A6E6E),
                 fontSize = 14.sp
             )
@@ -152,7 +154,7 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Quantity: ${order.quantity}",
+                text = stringResource(id = R.string.quantity_label, order.quantity),
                 color = Color(0xFFDE9AA7),
                 fontSize = 14.sp
             )
@@ -169,7 +171,7 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                 ) {
-                    Text(text = "Change Status", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = stringResource(id = R.string.change_status), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -184,7 +186,12 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = order.status,
+                            text = when (order.status.uppercase()) {
+                                "PENDING" -> stringResource(id = R.string.status_pending)
+                                "CONFIRM", "CONFIRMED" -> stringResource(id = R.string.status_confirm)
+                                "CANCEL", "CANCELED" -> stringResource(id = R.string.status_cancel)
+                                else -> order.status
+                            },
                             color = Color(0xFF0B6F45),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
@@ -196,19 +203,19 @@ fun SupplierOrderCard(order: SupplierOrderItemUi, onChangeStatus: (SupplierOrder
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Owner email: ${order.ownerEmail}",
+                text = stringResource(id = R.string.owner_email_label, order.ownerEmail),
                 color = Color(0xFF9A9A9A),
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Owner phone: ${order.ownerPhone}",
+                text = stringResource(id = R.string.owner_phone_label, order.ownerPhone),
                 color = Color(0xFF9A9A9A),
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Generated at: ${order.generatedAt}",
+                text = stringResource(id = R.string.generated_at_label, order.generatedAt),
                 color = Color(0xFF9A6E6E),
                 fontSize = 14.sp
             )

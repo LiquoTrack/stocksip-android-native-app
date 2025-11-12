@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.features.authentication.login.data.repositories
 import com.liquotrack.stocksip.common.utils.Resource
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignInRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.model.SignUpRequestDto
+import com.liquotrack.stocksip.features.authentication.login.data.remote.model.GoogleAuthRequestDto
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
 import com.liquotrack.stocksip.shared.domain.model.User
 import com.liquotrack.stocksip.features.authentication.login.domain.repositories.AuthRepository
@@ -77,4 +78,50 @@ class AuthRepositoryImpl @Inject constructor(
                 return@withContext Resource.Error(e.localizedMessage ?: "Error logging out")
             }
         }
+
+    override suspend fun authenticateWithGoogle(
+        idToken: String,
+        clientId: String,
+        accessToken: String?
+    ): Resource<User> = withContext(Dispatchers.IO) {
+        try {
+            val request = GoogleAuthRequestDto(
+                idToken = idToken,
+                accessToken = accessToken,
+                clientId = clientId
+            )
+            val response = service.authenticateWithGoogle(request)
+
+            if (response.isSuccessful) {
+                response.body()?.let { dto ->
+                    val user = User(
+                        userId = dto.userId,
+                        email = dto.email,
+                        username = dto.username,
+                        token = dto.token,
+                        accountId = dto.accountId
+                    )
+                    return@withContext Resource.Success(user)
+                }
+            }
+            val errorMsg = try { response.errorBody()?.string()?.ifBlank { null } } catch (_: Exception) { null }
+            val composed = buildString {
+                append("Google authentication failed")
+                append(" (HTTP ")
+                append(response.code())
+                append(")")
+                response.message().takeIf { it.isNotBlank() }?.let {
+                    append(": ")
+                    append(it)
+                }
+                errorMsg?.let {
+                    append("\n")
+                    append(it.take(300))
+                }
+            }
+            return@withContext Resource.Error(composed)
+        } catch (e: Exception) {
+            return@withContext Resource.Error(e.localizedMessage ?: "Connection error")
+        }
+    }
 }
