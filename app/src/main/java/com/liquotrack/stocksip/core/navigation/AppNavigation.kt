@@ -43,6 +43,7 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryexitform.InventoryExitFormView
 import java.net.URLEncoder
 
 /**
@@ -212,6 +213,26 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         // Warehouses
         composable(route = Route.Warehouses.route) {
             WarehouseView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Route.InventoryExitForm.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryExitForm.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) {
+            InventoryExitFormView(
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true

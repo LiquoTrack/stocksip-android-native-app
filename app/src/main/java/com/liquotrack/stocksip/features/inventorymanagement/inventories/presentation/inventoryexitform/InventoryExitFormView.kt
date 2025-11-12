@@ -21,14 +21,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,30 +53,71 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
+import com.liquotrack.stocksip.core.navigation.Route
+import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun InventoryExitFormView(
-    viewModel: InventoryExitViewModel = hiltViewModel(),
-    onMenuClick: () -> Unit = {}
+    //viewModel: InventoryExitViewModel = hiltViewModel(),
+    onNavigate: (String) -> Unit = {},
+    onLogout: () -> Unit = {},
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
-    val products by viewModel.products.collectAsState()
+    //val products by viewModel.products.collectAsState()
+    val backgroundColor = Color(0xFFF4ECEC)
 
-    InventoryExitFormContent(
-        products = products,
-        onDecrease = viewModel::decreaseQuantity,
-        onIncrease = viewModel::increaseQuantity,
-        onMenuClick = onMenuClick
-    )
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
+    LaunchedEffect(isLoggedOut) {
+        if (isLoggedOut) {
+            onLogout()
+            loginViewModel.resetLogoutState()
+        }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            NavDrawer(
+                currentRoute = Route.InventoryExitForm.route,
+                onNavigate = onNavigate,
+                onClose = { scope.launch { drawerState.close() } },
+                onLogout = { loginViewModel.logout() }
+            )
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopBar(
+                    title = "Warehouse",
+                    showBackButton = false,
+                    onNavigationClick = { scope.launch { drawerState.open() } }
+                )
+            },
+            containerColor = backgroundColor
+        ) { padding ->
+            //InventoryExitFormContent(
+                //products = products,
+                //onDecrease = viewModel::decreaseQuantity,
+                //onIncrease = viewModel::increaseQuantity,
+                //modifier = Modifier.padding(padding)
+            //)
+        }
+    }
 }
 
 @Composable
 private fun InventoryExitFormContent(
-    products: List<InventoryExitProductUi>,
+    //products: List<InventoryExitProductUi>,
     onDecrease: (String) -> Unit,
     onIncrease: (String) -> Unit,
-    onMenuClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = Color(0xFFF4ECEC)
@@ -73,6 +126,17 @@ private fun InventoryExitFormContent(
     val headerGradient = Brush.verticalGradient(
         listOf(Color(0xFFFDF2E8), Color(0xFFF7E6EA))
     )
+
+    var searchQuery by remember { mutableStateOf("") }
+    /**(val filteredProducts = remember(searchQuery, products) {
+        if (searchQuery.isBlank()) {
+            products
+        } else {
+            products.filter { product ->
+                product.name.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }*/
 
     Column(
         modifier = modifier
@@ -84,34 +148,48 @@ private fun InventoryExitFormContent(
                 .fillMaxWidth()
                 .background(headerGradient)
         ) {
-            Column {
-                TopBar(
-                    title = "Warehouse",
-                    onNavigationClick = onMenuClick,
-                    backgroundColor = Color.Transparent,
-                    contentColor = accentColor
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 24.dp)
+            ) {
+                Text(
+                    text = "Assign products to",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = accentColor
                 )
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 24.dp)
-                ) {
-                    Text(
-                        text = "Assign products to",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = accentColor
-                    )
-                    Text(
-                        text = "inventory",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = accentColor
-                    )
-                }
+                Text(
+                    text = "inventory",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = accentColor
+                )
             }
         }
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            placeholder = { Text("Search product", color = Color.Gray) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search product",
+                    tint = Color.Gray
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color.White,
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = accentColor
+            ),
+            shape = RoundedCornerShape(12.dp)
+        )
 
         LazyColumn(
             modifier = Modifier
@@ -120,22 +198,32 @@ private fun InventoryExitFormContent(
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            items(products) { product ->
-                InventoryExitProductCard(
-                    product = product,
-                    accentColor = accentColor,
-                    controlBackground = controlBackground,
-                    onDecrease = onDecrease,
-                    onIncrease = onIncrease
-                )
-            }
+            /**if (filteredProducts.isEmpty()) {
+                item {
+                    Text(
+                        text = "No products found",
+                        color = Color(0xFF6F6F6F),
+                        modifier = Modifier.padding(top = 32.dp)
+                    )
+                }
+            } else {
+                items(filteredProducts) { product ->
+                    InventoryExitProductCard(
+                        product = product,
+                        accentColor = accentColor,
+                        controlBackground = controlBackground,
+                        onDecrease = onDecrease,
+                        onIncrease = onIncrease
+                    )
+                }
+            }*/
         }
     }
 }
 
 @Composable
 private fun InventoryExitProductCard(
-    product: InventoryExitProductUi,
+    //product: InventoryExitProductUi,
     accentColor: Color,
     controlBackground: Color,
     onDecrease: (String) -> Unit,
@@ -154,12 +242,12 @@ private fun InventoryExitProductCard(
                 .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
+            /**Text(
                 text = product.name,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF505050)
-            )
+            )**/
 
             Divider(color = Color(0xFFE7E1E5))
 
@@ -169,14 +257,14 @@ private fun InventoryExitProductCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(
+                    /**AsyncImage(
                         model = product.imageUrl,
                         contentDescription = product.name,
                         modifier = Modifier
                             .size(58.dp)
                             .clip(RoundedCornerShape(12.dp)),
                         contentScale = ContentScale.Crop
-                    )
+                    )*/
 
                     Spacer(modifier = Modifier.width(14.dp))
 
@@ -192,7 +280,7 @@ private fun InventoryExitProductCard(
                     horizontalArrangement = Arrangement.spacedBy(18.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    QuantityControlButton(
+                    /**QuantityControlButton(
                         icon = Icons.Default.Remove,
                         tint = accentColor,
                         background = controlBackground,
@@ -211,7 +299,7 @@ private fun InventoryExitProductCard(
                         tint = Color.White,
                         background = accentColor,
                         onClick = { onIncrease(product.id) }
-                    )
+                    )*/
                 }
             }
         }

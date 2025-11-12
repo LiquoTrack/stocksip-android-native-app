@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.WarehouseList
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
@@ -37,7 +38,6 @@ import com.liquotrack.stocksip.shared.ui.components.TopBar
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLightMediumContrast
 import com.liquotrack.stocksip.shared.ui.theme.onTertiaryContainerLightMediumContrast
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun WarehouseView(
@@ -170,7 +170,7 @@ fun WarehouseView(
                 WarehouseList(
                     warehouse = warehouses?.warehouses ?: emptyList(),
                     onClick = { warehouse ->
-                        onNavigate("warehouse_details/${warehouse.id}")
+                        onNavigate(Route.InventoryExitForm.buildRoute(warehouse.id))
                     },
                     onEditClick = { warehouse ->
                         onNavigate("warehouse_create_edit/${warehouse.id}")
