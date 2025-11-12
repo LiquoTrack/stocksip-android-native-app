@@ -202,7 +202,7 @@ fun StorageCreateOrEditView(
 
                        // Currency Code
                         CustomSpinnerField(
-                            items = emptyList(),
+                            items = listOf("USD", "EUR", "INR", "GBP", "JPY"),
                             onItemSelected = viewModel::updateCurrencyCode,
                             label = "Currency",
                             modifier = Modifier.weight(1f)
@@ -231,7 +231,6 @@ fun StorageCreateOrEditView(
                                 productId = productId,
                                 onSuccess = { onNavigateBack() }
                             )
-
                         },
                         modifier = Modifier
                             .fillMaxWidth()
