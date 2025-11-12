@@ -1,13 +1,16 @@
 package com.liquotrack.stocksip.features.authentication.adminpanel.presentation
 
 import androidx.compose.runtime.mutableStateOf
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.repositories.UserRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AdminPanelViewModel @Inject constructor(
     private val repository: UserRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     private val _users = MutableStateFlow<List<AccountUsers>>(emptyList())
@@ -55,10 +59,10 @@ class AdminPanelViewModel @Inject constructor(
                         _users.value = listOf(accountUsers)
                     }
                 } else {
-                    _errorMessage.value = "Failed to load users: ${response.code()}"
+                    _errorMessage.value = appContext.getString(R.string.error_failed_load_users, response.code())
                 }
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "An unexpected error occurred"
+                _errorMessage.value = e.message ?: appContext.getString(R.string.error_unexpected)
             } finally {
                 _isLoading.value = false
             }
@@ -105,10 +109,10 @@ class AdminPanelViewModel @Inject constructor(
                         }
                     )
                 } else {
-                    _errorMessage.value = "Failed to create user: ${'$'}{response.code()}"
+                    _errorMessage.value = appContext.getString(R.string.error_failed_create_user, response.code())
                 }
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "An unexpected error occurred"
+                _errorMessage.value = e.message ?: appContext.getString(R.string.error_unexpected)
             } finally {
                 _isLoading.value = false
             }
@@ -135,7 +139,7 @@ class AdminPanelViewModel @Inject constructor(
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to delete user"
+                _errorMessage.value = e.message ?: appContext.getString(R.string.error_failed_delete_user)
             } finally {
                 _isLoading.value = false
             }

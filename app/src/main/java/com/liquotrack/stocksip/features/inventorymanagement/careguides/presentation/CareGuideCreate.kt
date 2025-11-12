@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,11 +74,20 @@ fun CareGuideCreate(
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val guideCreatedMessage = stringResource(R.string.guide_create)
+    val newGuideTitle = stringResource(R.string.new_guide)
+    val backContentDescription = stringResource(R.string.back)
+    val selectProductPlaceholder = stringResource(R.string.select_product)
+    val typePlaceholder = stringResource(R.string.type)
+    val commentsPlaceholder = stringResource(R.string.comments)
+    val minTempPlaceholder = stringResource(R.string.min_temp)
+    val maxTempPlaceholder = stringResource(R.string.max_temp)
+    val addLabel = stringResource(R.string.add)
 
     LaunchedEffect(uiState) {
         when (uiState) {
             CareGuideCreateUiState.Success -> {
-                Toast.makeText(context, "Guide created correctly", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, guideCreatedMessage, Toast.LENGTH_SHORT).show()
                 product = ""
                 type = ""
                 comments = ""
@@ -105,7 +115,7 @@ fun CareGuideCreate(
             TopAppBar(
                 title = {
                     Text(
-                        text = "New Guide",
+                        text = newGuideTitle,
                         color = AccentColor,
                         fontWeight = FontWeight.Medium
                     )
@@ -114,7 +124,7 @@ fun CareGuideCreate(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = backContentDescription,
                             tint = AccentColor
                         )
                     }
@@ -143,7 +153,7 @@ fun CareGuideCreate(
             CareGuideInputField(
                 value = product,
                 onValueChange = { product = it },
-                placeholder = "Select Product",
+                placeholder = selectProductPlaceholder,
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
@@ -158,7 +168,7 @@ fun CareGuideCreate(
             CareGuideInputField(
                 value = type,
                 onValueChange = { type = it },
-                placeholder = "Type"
+                placeholder = typePlaceholder
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -166,7 +176,7 @@ fun CareGuideCreate(
             CareGuideInputField(
                 value = comments,
                 onValueChange = { comments = it },
-                placeholder = "Comments",
+                placeholder = commentsPlaceholder,
                 singleLine = false
             )
 
@@ -175,7 +185,7 @@ fun CareGuideCreate(
             CareGuideInputField(
                 value = minTemp,
                 onValueChange = { minTemp = it },
-                placeholder = "Min. Temperature"
+                placeholder = minTempPlaceholder
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -183,7 +193,7 @@ fun CareGuideCreate(
             CareGuideInputField(
                 value = maxTemp,
                 onValueChange = { maxTemp = it },
-                placeholder = "Max. Temperature"
+                placeholder = maxTempPlaceholder
             )
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -219,7 +229,7 @@ fun CareGuideCreate(
                     )
                 } else {
                     Text(
-                        text = "Add",
+                        text = addLabel,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -284,7 +294,7 @@ private fun CareGuideIllustration() {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "Guide illustration",
+                contentDescription = stringResource(R.string.ilustration_guide),
                 modifier = Modifier.fillMaxWidth(0.45f)
             )
         }
