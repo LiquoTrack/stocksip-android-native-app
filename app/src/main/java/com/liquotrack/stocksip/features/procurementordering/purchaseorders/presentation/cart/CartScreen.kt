@@ -18,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +43,6 @@ fun CartScreen(
     val subTotal by viewModel.subTotal.collectAsState()
     val total by viewModel.total.collectAsState()
     val isCartLoading by viewModel.isLoading.collectAsState()
-
     val isLoading = isCartLoading
 
     Column(
@@ -50,7 +51,7 @@ fun CartScreen(
             .background(Color(0xFFF4ECEC))
     ) {
         TopBarWithBack(
-            title = "New Order",
+            title = stringResource(R.string.new_order_title),
             onBackClick = onBackClick
         )
 
@@ -60,7 +61,7 @@ fun CartScreen(
                 .padding(16.dp)
         ) {
             Text(
-                "Products in your cart",
+                stringResource(R.string.products_in_cart_label),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF8B4C5C),
@@ -79,12 +80,16 @@ fun CartScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            "Your cart is empty",
+                            stringResource(R.string.cart_empty),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2D1B2E)
                         )
-                        Text("Add products to get started", fontSize = 14.sp, color = Color.Gray)
+                        Text(
+                            stringResource(R.string.cart_add_products),
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
                     }
                 }
             } else {
@@ -117,7 +122,6 @@ fun CartScreen(
     }
 }
 
-
 @Composable
 fun CartItemCard(
     item: CartItem,
@@ -148,11 +152,13 @@ fun CartItemCard(
                         AsyncImage(
                             model = imageUrl,
                             contentDescription = item.productName,
-                            modifier = Modifier.fillMaxSize().padding(8.dp),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp),
                             contentScale = ContentScale.Fit
                         )
                     } else {
-                        Text("No Image", fontSize = 12.sp, color = Color.Gray)
+                        Text(stringResource(R.string.no_image), fontSize = 12.sp, color = Color.Gray)
                     }
                 }
             }
@@ -162,8 +168,17 @@ fun CartItemCard(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(item.productName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D1B2E))
-                    Text("Price: $${"%.2f".format(item.unitPrice)}", fontSize = 14.sp, color = Color(0xFF666666))
+                    Text(
+                        item.productName,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2D1B2E)
+                    )
+                    Text(
+                        stringResource(R.string.price_label, "%.2f".format(item.unitPrice)),
+                        fontSize = 14.sp,
+                        color = Color(0xFF666666)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -173,28 +188,68 @@ fun CartItemCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         IconButton(
                             onClick = onDecrease,
-                            modifier = Modifier.size(36.dp).background(Color(0xFFF0E6E8), CircleShape)
-                        ) { Icon(Icons.Default.Remove, contentDescription = "Decrease", tint = Color(0xFF8B4C5C), modifier = Modifier.size(18.dp)) }
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color(0xFFF0E6E8), CircleShape)
+                        ) {
+                            Icon(
+                                Icons.Default.Remove,
+                                contentDescription = stringResource(R.string.decrease),
+                                tint = Color(0xFF8B4C5C),
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
 
-                        Text(item.quantity.toString(), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D1B2E))
+                        Text(
+                            item.quantity.toString(),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2D1B2E)
+                        )
 
                         IconButton(
                             onClick = onIncrease,
-                            modifier = Modifier.size(36.dp).background(Color(0xFF8B4C5C), CircleShape)
-                        ) { Icon(Icons.Default.Add, contentDescription = "Increase", tint = Color.White, modifier = Modifier.size(18.dp)) }
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color(0xFF8B4C5C), CircleShape)
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = stringResource(R.string.increase),
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
 
-                    Text("Subtotal: $${"%.2f".format(item.unitPrice * item.quantity)}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF8B4C5C))
+                    Text(
+                        stringResource(R.string.subtotal_label, "%.2f".format(item.unitPrice * item.quantity)),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF8B4C5C)
+                    )
                 }
             }
 
             IconButton(
                 onClick = onRemove,
-                modifier = Modifier.size(36.dp).background(Color(0xFFFFEBEE), CircleShape)
-            ) { Icon(Icons.Default.Delete, contentDescription = "Remove", tint = Color(0xFFD32F2F), modifier = Modifier.size(20.dp)) }
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(Color(0xFFFFEBEE), CircleShape)
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.remove),
+                    tint = Color(0xFFD32F2F),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
@@ -218,7 +273,7 @@ fun TotalsSection(subTotal: String, total: String) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Sub Total:", fontSize = 16.sp, color = Color(0xFF666666))
+                Text(stringResource(R.string.subtotal), fontSize = 16.sp, color = Color(0xFF666666))
                 Text(subTotal, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D1B2E))
             }
 
@@ -229,7 +284,7 @@ fun TotalsSection(subTotal: String, total: String) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Total:", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D1B2E))
+                Text(stringResource(R.string.total), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D1B2E))
                 Text(total, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF8B4C5C))
             }
         }
@@ -251,7 +306,7 @@ fun NextButton(isLoading: Boolean, onNextClick: () -> Unit) {
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
         } else {
-            Text("Next", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.next), fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
