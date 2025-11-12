@@ -71,7 +71,6 @@ fun CatalogCreateAndEditScreen(
         }
     }
 
-    // Limpiar pending items cuando se sale en modo creación
     DisposableEffect(Unit) {
         onDispose {
             if (!isEditMode) {
@@ -122,7 +121,6 @@ fun CatalogCreateAndEditScreen(
 
     // Product selection dialog
     if (showProductDialog && selectedWarehouseId != null) {
-        // Mapa para almacenar el stock ingresado por producto
         val productStockInputs = remember { mutableStateMapOf<String, String>() }
 
         AlertDialog(
@@ -213,7 +211,6 @@ fun CatalogCreateAndEditScreen(
                                     }
                                 }
 
-                                // Campo de entrada para el stock, visible solo si el producto está seleccionado
                                 if (isSelected && !isAlreadyInCatalog) {
                                     Spacer(Modifier.height(8.dp))
                                     OutlinedTextField(
@@ -254,7 +251,7 @@ fun CatalogCreateAndEditScreen(
                                         )
                                     }
                                 } else {
-                                    Log.w("CATALOG", "⚠️ Producto $productId sin stock válido")
+                                    Log.w("CATALOG", "⚠️ Product $productId without valid stock" )
                                 }
                             }
                         } else if (selectedWarehouseId != null) {
@@ -267,7 +264,7 @@ fun CatalogCreateAndEditScreen(
                                         enteredStock
                                     )
                                 } else {
-                                    Log.w("CATALOG", "⚠️ Producto $productId sin stock válido")
+                                    Log.w("CATALOG", "⚠️ Product $productId without valid stock" )
                                 }
                             }
                         }
@@ -393,7 +390,6 @@ fun CatalogCreateAndEditScreen(
             ) {
                 LazyColumn(modifier = Modifier.padding(16.dp)) {
                     if (isEditMode) {
-                        // Modo edición: mostrar items del catálogo
                         val items = selectedCatalog?.catalogItems ?: emptyList()
 
                         if (items.isEmpty()) {
@@ -448,7 +444,6 @@ fun CatalogCreateAndEditScreen(
                             }
                         }
                     } else {
-                        // Modo creación: mostrar pending items
                         if (pendingItems.isEmpty()) {
                             item {
                                 Text(

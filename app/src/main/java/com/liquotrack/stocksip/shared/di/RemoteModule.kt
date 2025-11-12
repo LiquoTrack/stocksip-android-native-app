@@ -14,6 +14,8 @@ import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.d
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.services.CatalogService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
 import com.liquotrack.stocksip.features.ordermanagement.data.remote.services.SalesOrderService
+import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.data.remote.services.PurchaseOrderService
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.addresses.data.remote.services.AddressService
 import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
 import dagger.Module
 import dagger.Provides
@@ -136,7 +138,20 @@ object RemoteModule {
 
     @Provides
     @Singleton
+    fun provideAddressService(retrofit: Retrofit): AddressService {
+        return retrofit.create(AddressService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePurchaseOrderService(retrofit: Retrofit): PurchaseOrderService {
+        return retrofit.create(PurchaseOrderService::class.java)
+
+        
+    @Provides
+    @Singleton
     fun provideInventoryService(retrofit: Retrofit): InventoryService {
         return retrofit.create(InventoryService::class.java)
+
     }
 }

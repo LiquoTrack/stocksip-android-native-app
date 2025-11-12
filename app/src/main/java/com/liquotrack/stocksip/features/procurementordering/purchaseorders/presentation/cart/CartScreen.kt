@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,21 +21,28 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
     viewModel: CartViewModel = hiltViewModel(),
+    catalogId: String,
     onBackClick: () -> Unit,
     onNextClick: () -> Unit
 ) {
+    LaunchedEffect(catalogId) {
+        viewModel.setCatalogId(catalogId)
+    }
+
     val cartItems by viewModel.cartItems.collectAsState()
     val subTotal by viewModel.subTotal.collectAsState()
     val total by viewModel.total.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val isCartLoading by viewModel.isLoading.collectAsState()
+
+    val isLoading = isCartLoading
 
     Column(
         modifier = Modifier
@@ -99,11 +107,16 @@ fun CartScreen(
 
                 TotalsSection(subTotal, total)
                 Spacer(modifier = Modifier.height(16.dp))
-                NextButton(isLoading = isLoading, onNextClick = onNextClick)
+
+                NextButton(
+                    isLoading = isLoading,
+                    onNextClick = onNextClick
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun CartItemCard(
@@ -209,7 +222,7 @@ fun TotalsSection(subTotal: String, total: String) {
                 Text(subTotal, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D1B2E))
             }
 
-            Divider(color = Color(0xFFE0E0E0))
+            HorizontalDivider(Modifier, DividerDefaults.Thickness, color = Color(0xFFE0E0E0))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

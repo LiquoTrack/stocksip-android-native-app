@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.procurementordering.purchaseorders.presentation.cart
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.procurementordering.purchaseorders.data.local.CartItemEntity
@@ -37,6 +38,10 @@ class CartViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _catalogIdBuyFrom = MutableStateFlow<String?>(null)
+    val catalogIdBuyFrom: String?
+        get() = _catalogIdBuyFrom.value
+
     init {
         loadCart()
     }
@@ -56,6 +61,11 @@ class CartViewModel @Inject constructor(
         val subtotal = items.sumOf { it.unitPrice * it.quantity }
         _subTotal.value = subtotal
         _total.value = subtotal
+    }
+
+    fun setCatalogId(catalogId: String) {
+        _catalogIdBuyFrom.value = catalogId
+        Log.d("CART_VM", "CatalogId set to $catalogId")
     }
 
     fun increaseQuantity(item: CartItem) {
@@ -80,6 +90,23 @@ class CartViewModel @Inject constructor(
             val entity = _cartItems.value.find { it.id == item.id }?.toEntity() ?: return@launch
             cartRepository.removeFromCart(entity)
             loadCart()
+        }
+    }
+
+    fun clearCart() {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                cartRepository.clearCart()
+                _cartItems.value = emptyList()
+                _subTotal.value = 0.0
+                _total.value = 0.0
+                _catalogIdBuyFrom.value = null
+            } catch (e: Exception) {
+                println("Error: ${e.message}")
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 }
