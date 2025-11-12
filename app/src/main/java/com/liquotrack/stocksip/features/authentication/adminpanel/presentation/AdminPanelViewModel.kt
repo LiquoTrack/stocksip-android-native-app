@@ -42,6 +42,8 @@ class AdminPanelViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val pendingCreatedUsers = mutableListOf<SubUser>()
+
     init {
         loadUsers()
     }
@@ -56,7 +58,8 @@ class AdminPanelViewModel @Inject constructor(
 
                 if (response.isSuccessful) {
                     response.body()?.let { accountUsers ->
-                        _users.value = listOf(accountUsers)
+                        val mergedAccount = mergeWithPending(accountUsers)
+                        _users.value = listOf(mergedAccount)
                     }
                 } else {
                     _errorMessage.value = appContext.getString(R.string.error_failed_load_users, response.code())
@@ -74,7 +77,7 @@ class AdminPanelViewModel @Inject constructor(
 
         when (tab) {
             AdminTab.ALL -> loadUsers("All")
-            AdminTab.ADMIN -> loadUsers("SuperAdmin")
+            AdminTab.ADMIN -> loadUsers("Admin")
             AdminTab.EMPLOYEE -> loadUsers("Employee")
         }
     }
@@ -101,13 +104,31 @@ class AdminPanelViewModel @Inject constructor(
             try {
                 val response = repository.createSubUser(user)
                 if (response.isSuccessful) {
-                    loadUsers(
-                        when (selectedTab.value) {
-                            AdminTab.ALL -> "All"
-                            AdminTab.ADMIN -> "SuperAdmin"
-                            AdminTab.EMPLOYEE -> "Employee"
-                        }
+                    val createdUser = response.body()
+                    val optimisticUser = createdUser ?: user.copy(
+                        id = if (user.id.isNotBlank()) user.id else "${user.email}_${System.currentTimeMillis()}",
+                        profileId = if (user.profileId.isNotBlank()) user.profileId else "${user.email}_${System.currentTimeMillis()}"
                     )
+                    val currentAccountUsers = _users.value.firstOrNull()
+                    if (currentAccountUsers != null) {
+                        val updatedAccount = currentAccountUsers.copy(
+                            totalUsers = maxOf(
+                                currentAccountUsers.totalUsers + 1,
+                                (currentAccountUsers.users + optimisticUser).distinctBy { keyForUser(it) }.size
+                            ),
+                            users = (currentAccountUsers.users + optimisticUser).distinctBy { keyForUser(it) }
+                        )
+                        _users.value = listOf(updatedAccount)
+                    }
+
+                    synchronized(pendingCreatedUsers) {
+                        pendingCreatedUsers.removeAll { it.email.equals(optimisticUser.email, ignoreCase = true) }
+                        if (createdUser == null) {
+                            pendingCreatedUsers.add(optimisticUser)
+                        }
+                    }
+
+                    loadUsers("All")
                 } else {
                     _errorMessage.value = appContext.getString(R.string.error_failed_create_user, response.code())
                 }
@@ -131,13 +152,7 @@ class AdminPanelViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 repository.deleteUser(userId = user.id, profileId = user.profileId)
-                loadUsers(
-                    when (selectedTab.value) {
-                        AdminTab.ALL -> "All"
-                        AdminTab.ADMIN -> "SuperAdmin"
-                        AdminTab.EMPLOYEE -> "Employee"
-                    }
-                )
+                loadUsers("All")
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: appContext.getString(R.string.error_failed_delete_user)
             } finally {
@@ -148,5 +163,42 @@ class AdminPanelViewModel @Inject constructor(
 
     fun clearError() {
         _errorMessage.value = null
+    }
+
+    private fun keyForUser(user: SubUser): String = user.id.ifBlank { user.email.lowercase() }
+
+    private fun mergeWithPending(accountUsers: AccountUsers): AccountUsers {
+        synchronized(pendingCreatedUsers) {
+            if (pendingCreatedUsers.isEmpty()) {
+                return accountUsers
+            }
+
+            val (alreadySynced, stillPending) = pendingCreatedUsers.partition { pending ->
+                accountUsers.users.any { existing -> existing.email.equals(pending.email, ignoreCase = true) }
+            }
+
+            pendingCreatedUsers.clear()
+            pendingCreatedUsers.addAll(stillPending)
+
+            if (stillPending.isEmpty()) {
+                return accountUsers
+            }
+
+            val extraUsers = stillPending.filter { pending ->
+                accountUsers.users.none { existing -> existing.email.equals(pending.email, ignoreCase = true) }
+            }
+
+            if (extraUsers.isEmpty()) {
+                return accountUsers
+            }
+
+            val mergedUsers = (accountUsers.users + extraUsers).distinctBy { keyForUser(it) }
+            val updatedTotal = accountUsers.totalUsers + extraUsers.size
+
+            return accountUsers.copy(
+                totalUsers = updatedTotal,
+                users = mergedUsers
+            )
+        }
     }
 }
