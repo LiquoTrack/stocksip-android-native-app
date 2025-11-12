@@ -1,12 +1,17 @@
 package com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services
 
 import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.models.ProductDto
+import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.models.ProductWrapperDto
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
+import retrofit2.http.PartMap
 import retrofit2.http.Path
 
 /**
@@ -22,7 +27,7 @@ interface ProductService {
      * @return A list of [ProductDto] objects.
      */
     @GET("accounts/{accountId}/products")
-    suspend fun getAllProductsByAccountId(@Path("accountId") accountId: String): Response<List<ProductDto>>
+    suspend fun getAllProductsByAccountId(@Path("accountId") accountId: String): Response<ProductWrapperDto>
 
     /**
      * Fetches a specific product by its ID.
@@ -37,21 +42,31 @@ interface ProductService {
      * Registers a new product under a specific account.
      *
      * @param accountId The ID of the account under which to register the product.
-     * @param product The [ProductDto] object containing product details to be registered.
+     * @param fields A map of form fields required to register the product.
+     * @param image An optional image file to be uploaded with the product data.
      * @return The registered [ProductDto] object.
      */
     @POST("accounts/{accountId}/products")
-    suspend fun registerProduct(@Path("accountId") accountId: String, product: ProductDto): Response<ProductDto>
+    suspend fun registerProduct(
+        @Path("accountId") accountId: String,
+        @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part image: MultipartBody.Part?
+    ): Response<ProductDto>
 
     /**
      * Updates an existing product's details.
      *
      * @param productId The ID of the product to update.
-     * @param product The [ProductDto] object containing updated product details.
+     * @param fields A map of form fields to be updated for the product.
+     * @param image An optional new image file to be uploaded with the product data.
      * @return The updated [ProductDto] object.
      */
     @PUT("products/{productId}")
-    suspend fun updateProduct(@Path("productId") productId: String, product: ProductDto): Response<ProductDto>
+    suspend fun updateProduct(
+        @Path("productId") productId: String,
+        @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part image: MultipartBody.Part?
+    ): Response<ProductDto>
 
     /**
      * Updates the minimum stock level for a specific product.
@@ -61,7 +76,10 @@ interface ProductService {
      * @return The updated [ProductDto] object with the new minimum stock level.
      */
     @PATCH("products/{productId}/minimum-stock")
-    suspend fun updateProductMinimumStock(@Path("productId") productId: String, minimumStock: Int): Response<ProductDto>
+    suspend fun updateProductMinimumStock(
+        @Path("productId") productId: String,
+        minimumStock: Int
+    ): Response<ProductDto>
 
     /**
      * Deletes a specific product by its ID.

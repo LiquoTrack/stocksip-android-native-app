@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components
+package com.liquotrack.stocksip.shared.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +16,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * A custom text field for inputting double values with label, placeholder, and error handling.
+ *
+ * @param value The current double value of the text field.
+ * @param onValueChange A lambda function to handle value changes.
+ * @param label The label text displayed above the text field.
+ * @param placeholder The placeholder text displayed inside the text field when it's empty.
+ * @param modifier The modifier to be applied to the text field.
+ * @param keyboardType The type of keyboard to be used for input. Default is Decimal.
+ * @param isRequired Boolean indicating if the field is required. Default is false.
+ * @param showError Boolean indicating if an error message should be shown. Default is false.
+ */
 @Composable
 fun CustomDoubleTextField(
     value: Double,
