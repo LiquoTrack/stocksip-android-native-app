@@ -22,9 +22,9 @@ data class SalesOrderResponse(
     val purchaseOrderId: String,
     val items: List<SalesOrderItemResource>,
     val status: String,
-    val catalogToBuyFrom: String,
-    val receiptDate: String,
-    val completitionDate: String,
-    val buyer: String,
+    val catalogToBuyFrom: String?,
+    val receiptDate: String?,
+    val completitionDate: String?,
+    val buyer: String?,
     val deliveryProposal: DeliveryProposalResource?
 )

@@ -553,7 +553,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             if (roleNormalized == "supplier") {
                 SupplierSalesOrdersView(
                     onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
-                    onChangeStatus = { },
                     onLogout = {
                         navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } }
                     }
@@ -575,7 +574,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                         launchSingleTop = true
                     }
                 },
-                onChangeStatus = { },
                 onLogout = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
