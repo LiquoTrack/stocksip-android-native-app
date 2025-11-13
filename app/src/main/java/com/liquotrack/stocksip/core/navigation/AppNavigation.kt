@@ -53,14 +53,14 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryexitform.InventoryExitFormView
 import java.net.URLEncoder
 
-// --- IMPORTS AÑADIDOS PARA LA VENTANA FLOTANTE ---
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle // ¡Ahora funcionará!
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.liquotrack.stocksip.features.alerts.presentation.alerts.AlertsViewModel
 import com.liquotrack.stocksip.features.alerts.presentation.alerts.components.AlertsOverlay
-// --- FIN DE IMPORTS AÑADIDOS ---
+
 
 /**
  * Main navigation graph of the app.
@@ -74,8 +74,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
 
     NavHost(navController, startDestination = startDestination) {
 
-        // ... (Tu flujo de AUTHENTICATION, REGISTER, PASSWORD RECOVERY, etc. va aquí... sin cambios) ...
-        // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
             Login(
                 onNavigateToRegister = {
@@ -107,7 +105,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // REGISTER USER FLOW
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -117,7 +114,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // REGISTER ACCOUNT AND BUSINESS FLOW
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(
@@ -142,7 +138,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // PASSWORD RECOVERY FLOW
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
@@ -191,15 +186,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-
-        // MAIN FLOW CON OVERLAY
         composable(route = Route.Main.route) {
 
-            // 1. Inyectamos el ViewModel de Alertas aquí
             val alertsViewModel: AlertsViewModel = hiltViewModel()
             val alertsToShow by alertsViewModel.alertsToShowInOverlay.collectAsStateWithLifecycle()
 
-            // 2. Usamos un Box para poder superponer elementos
             Box(modifier = Modifier.fillMaxSize()) {
 
                 // 3. Tu HomeView (Capa inferior)
@@ -216,7 +207,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     }
                 )
 
-                // 4. Mostramos el Overlay "encima" si hay alertas (Capa superior)
                 if (alertsToShow.isNotEmpty()) {
                     AlertsOverlay(
                         alerts = alertsToShow,
@@ -227,8 +217,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 }
             }
         }
-        // --- FIN DEL BLOQUE ---
-
 
         // Profile
         composable(route = Route.Profile.route) {
