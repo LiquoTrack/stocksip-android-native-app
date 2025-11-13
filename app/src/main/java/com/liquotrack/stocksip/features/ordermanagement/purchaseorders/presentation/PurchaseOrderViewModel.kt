@@ -17,6 +17,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class OrderProductUi(
+    val name: String,
+    val quantity: Int,
+    val unitPrice: Double,
+    val imageUrl: String?
+)
+
 data class OrderItemUi(
     val id: String,
     val code: String,
@@ -24,8 +31,10 @@ data class OrderItemUi(
     val priceLabel: String,
     val quantity: Int,
     val status: String,
-    val generatedAt: String
+    val generatedAt: String,
+    val products: List<OrderProductUi> = emptyList()
 )
+
 
 @HiltViewModel
 class PurchaseOrdersViewModel @Inject constructor(
@@ -145,6 +154,14 @@ class PurchaseOrdersViewModel @Inject constructor(
         priceLabel = total?.let { "$" + "%.2f".format(it) } ?: "—",
         quantity = items?.sumOf { it.quantity ?: 0 } ?: 0,
         status = status ?: "PENDING",
-        generatedAt = generationDate ?: ""
+        generatedAt = generationDate ?: "",
+        products = items?.map {
+            OrderProductUi(
+                name = it.productName ?: "Unnamed",
+                quantity = it.quantity ?: 0,
+                unitPrice = it.unitPrice ?: 0.0,
+                imageUrl = it.imageUrl
+            )
+        } ?: emptyList()
     )
 }
