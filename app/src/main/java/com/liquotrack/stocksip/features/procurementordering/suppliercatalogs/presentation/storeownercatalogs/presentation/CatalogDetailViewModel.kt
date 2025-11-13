@@ -34,11 +34,9 @@ class CatalogDetailViewModel @Inject constructor(
             _isLoading.value = true
             _error.value = null
             try {
-                // 1️⃣ Obtener catálogo
                 val catalogResult = repository.getCatalogById(catalogId)
                 _catalog.value = catalogResult
 
-                // 2️⃣ Obtener el proveedor (con toda la info del negocio)
                 val supplierResult = repository.getSupplierById(catalogResult.ownerAccount)
                 _supplierInfo.value = supplierResult
 

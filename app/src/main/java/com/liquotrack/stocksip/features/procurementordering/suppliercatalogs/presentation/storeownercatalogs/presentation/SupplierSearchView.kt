@@ -11,10 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
@@ -66,7 +68,7 @@ fun SupplierSearchScreen(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Suppliers",
+                    title = stringResource(id = R.string.suppliers_title),
                     showBackButton = false,
                     onNavigationClick = { scope.launch { drawerState.open() } }
                 )
@@ -83,9 +85,13 @@ fun SupplierSearchScreen(
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
-                    placeholder = { Text("Search supplier", color = Color.Gray) },
+                    placeholder = { Text(stringResource(id = R.string.search_supplier_hint), color = Color.Gray) },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray)
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = stringResource(id = R.string.search_icon_desc),
+                            tint = Color.Gray
+                        )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
@@ -109,12 +115,12 @@ fun SupplierSearchScreen(
                     error != null -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Error loading suppliers", color = Color.Red)
+                                Text(stringResource(id = R.string.error_loading_suppliers), color = Color.Red)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(error ?: "", color = Color.Gray, fontSize = 14.sp)
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Button(onClick = { viewModel.loadSuppliers() }) {
-                                    Text("Retry")
+                                    Text(stringResource(id = R.string.retry_button))
                                 }
                             }
                         }
@@ -123,7 +129,7 @@ fun SupplierSearchScreen(
                     query.isEmpty() -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(
-                                "Start shopping by searching for one of our registered suppliers.",
+                                stringResource(id = R.string.start_shopping_message),
                                 fontSize = 16.sp,
                                 color = Color(0xFF8B4C5C),
                                 fontWeight = FontWeight.Medium
@@ -139,7 +145,7 @@ fun SupplierSearchScreen(
 
                         if (filteredSuppliers.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("No suppliers found", color = Color.Gray)
+                                Text(stringResource(id = R.string.no_suppliers_found), color = Color.Gray)
                             }
                         } else {
                             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -162,7 +168,10 @@ fun SupplierSearchScreen(
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
-                                                "${supplier.catalogs.size} catalog${if (supplier.catalogs.size != 1) "s" else ""} available",
+                                                stringResource(
+                                                    id = R.string.catalogs_available_label,
+                                                    supplier.catalogs.size
+                                                ),
                                                 color = Color.Gray,
                                                 fontSize = 14.sp
                                             )

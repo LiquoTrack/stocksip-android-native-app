@@ -28,7 +28,7 @@ class CatalogItemDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val productId: String = savedStateHandle["productId"] ?: ""
-    private val catalogId: String = savedStateHandle["catalogId"] ?: ""
+    val catalogId: String = savedStateHandle["catalogId"] ?: ""
 
     private val _catalogItem = MutableStateFlow<CatalogItem?>(null)
     val catalogItem: StateFlow<CatalogItem?> = _catalogItem.asStateFlow()

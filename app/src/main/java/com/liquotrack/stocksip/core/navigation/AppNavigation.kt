@@ -1,8 +1,10 @@
 package com.liquotrack.stocksip.core.navigation
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,7 +13,7 @@ import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.authentication.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
 import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
-import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuideCreate
@@ -25,14 +27,17 @@ import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.p
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Failure
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.Pending
 import com.liquotrack.stocksip.features.profilemanagement.profile.presentation.Profile
-import com.liquotrack.stocksip.features.ordermanagement.presentation.SalesOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.SupplierSalesOrdersView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
+import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
+import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.addresses.presentation.AddressListScreen
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.addresses.presentation.AddressViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.AccountSubscriptionPlanView
 import com.liquotrack.stocksip.features.procurementordering.purchaseorders.presentation.cart.CartScreen
 import com.liquotrack.stocksip.features.procurementordering.purchaseorders.presentation.cart.CartViewModel
@@ -50,6 +55,7 @@ import java.net.URLEncoder
  * Main navigation graph of the app.
  * Includes authentication, home, warehouse, products, care guides, etc.
  */
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun AppNavigation(startDestination: String = Route.Login.route) {
 
@@ -150,11 +156,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigateToUpdatePassword = {
                     val encodedEmail = URLEncoder.encode(email, "UTF-8")
                     navController.navigate("update_password/$encodedEmail")
-                },
-                onConfirmClick = { code ->
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(Route.Login.route) { inclusive = true }
-                    }
                 }
             )
         }
@@ -497,70 +498,98 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 navArgument("catalogId") { type = NavType.StringType },
                 navArgument("productId") { type = NavType.StringType }
             )
-        ) {
+        ) { backStackEntry ->
             val viewModel: CatalogItemDetailViewModel = hiltViewModel()
-
             CatalogItemDetailScreen(
                 viewModel = viewModel,
                 onBackClick = { navController.popBackStack() },
-                onNavigateToCart = { navController.navigate("cart") }
-            )
-        }
-
-
-        composable(route = "cart") {
-            val viewModel: CartViewModel = hiltViewModel()
-            CartScreen(
-                viewModel = viewModel,
-                onBackClick = { navController.popBackStack() },
-                onNextClick = {
-                    navController.navigate(Route.MakingOrders.route)
+                onNavigateToCart = {
+                    val catalogId = viewModel.catalogId
+                    navController.navigate("cart/$catalogId")
                 }
             )
         }
 
+        composable(
+            route = "cart/{catalogId}",
+            arguments = listOf(navArgument("catalogId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val catalogId = backStackEntry.arguments?.getString("catalogId") ?: ""
+
+            val cartBackStackEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("cart/{catalogId}")
+            }
+
+            val cartViewModel: CartViewModel = hiltViewModel(cartBackStackEntry)
+
+            LaunchedEffect(catalogId) {
+                cartViewModel.setCatalogId(catalogId)
+            }
+
+            CartScreen(
+                viewModel = cartViewModel,
+                catalogId = catalogId,
+                onBackClick = { navController.popBackStack() },
+                onNextClick = {
+                    navController.navigate(Route.Addresses.route) {
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
+            )
+        }
+
+        composable(Route.Addresses.route) {
+            val cartBackStackEntry = remember {
+                navController.getBackStackEntry("cart/{catalogId}")
+            }
+            val cartViewModel: CartViewModel = hiltViewModel(cartBackStackEntry)
+
+            val addressViewModel: AddressViewModel = hiltViewModel()
+            val purchaseOrdersViewModel: PurchaseOrdersViewModel = hiltViewModel()
+
+            AddressListScreen(
+                addressViewModel = addressViewModel,
+                purchaseOrdersViewModel = purchaseOrdersViewModel,
+                cartViewModel = cartViewModel,
+                onBackClick = { navController.popBackStack() },
+                onOrderCreated = {
+                    navController.navigate(Route.MakingOrders.route) {
+                        popUpTo("cart/{catalogId}") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
 
 
         // Making Orders
-        composable(route = Route.MakingOrders.route) {
+        composable(Route.MakingOrders.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
+
             LaunchedEffect(role) {
-                if (role == null) {
-                    accountViewModel.loadAccountRoleFromStorage()
-                }
+                if (role == null) accountViewModel.loadAccountRoleFromStorage()
             }
+
             val roleNormalized = role?.trim()?.lowercase()
             if (roleNormalized == "supplier") {
                 SupplierSalesOrdersView(
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            launchSingleTop = true
-                        }
-                    },
+                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
                     onChangeStatus = { },
                     onLogout = {
-                        navController.navigate(Route.Login.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                        navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } }
                     }
                 )
             } else {
-                SalesOrdersView(
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onNewClick = { },
-                    onLogout = {
-                        navController.navigate(Route.Login.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
+                PurchaseOrdersView(
+                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                    onLogout = { navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } } },
+                    navToCreate = { navController.navigate(Route.Catalogs.route) }
                 )
             }
         }
+
 
         composable(route = Route.MakingOrdersSupplier.route) {
             SupplierSalesOrdersView(

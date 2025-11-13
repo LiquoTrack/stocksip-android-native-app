@@ -11,16 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -34,15 +35,17 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 /**
@@ -54,7 +57,6 @@ fun ConfirmationCode(
     email: String,
     onNavigateBack: () -> Unit = {},
     onNavigateToUpdatePassword: () -> Unit = {},
-    onConfirmClick: (String) -> Unit = {},
     viewModel: RecoverPasswordViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -83,25 +85,27 @@ fun ConfirmationCode(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Confirmation",
+                text = stringResource(R.string.label_confirmation),
                 fontSize = 40.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis
             )
 
             Text(
-                text = "message",
+                text = stringResource(R.string.label_confirmation_message),
                 fontSize = 40.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
-                text = "Enter the verification code sent to your email.",
+                text = stringResource(R.string.label_enter_verification_code),
                 color = Color.White.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
@@ -169,7 +173,7 @@ fun ConfirmationCode(
                             Toast.makeText(context, error.localizedMessage, Toast.LENGTH_LONG).show()
                         }
                     }
-                    onConfirmClick(fullCode) },
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -179,12 +183,20 @@ fun ConfirmationCode(
                 shape = RoundedCornerShape(28.dp),
                 enabled = fullCode.length == 6
             ) {
-                Text(
-                    text = "Verify",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.label_verify),
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

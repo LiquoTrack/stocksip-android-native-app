@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.liquotrack.stocksip.R
 
 @Composable
 fun Pending(
@@ -78,7 +80,7 @@ fun Pending(
 
             // Pending Text
             Text(
-                text = "Payment Pending",
+                text = stringResource(R.string.label_payment_pending),
                 fontSize = 40.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White,
@@ -107,7 +109,7 @@ fun Pending(
 
             // Pending Message
             Text(
-                text = "Your payment is being processed.",
+                text = stringResource(R.string.label_subscription_pending),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.9f),
@@ -118,7 +120,7 @@ fun Pending(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "This may take a few moments. We'll notify you once it's complete.",
+                text = "${stringResource(R.string.label_susbcription_pending_message)}.",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.White.copy(alpha = 0.7f),
@@ -144,7 +146,7 @@ fun Pending(
                 )
             ) {
                 Text(
-                    text = "Return to Home",
+                    text = stringResource(R.string.label_return_home),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
