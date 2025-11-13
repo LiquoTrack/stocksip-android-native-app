@@ -5,7 +5,6 @@ import com.liquotrack.stocksip.features.alerts.data.remote.services.AlertsApiSer
 
 class AlertsRepository(private val apiService: AlertsApiService) {
 
-    // Método para obtener alertas por accountId desde el servicio de red
     suspend fun fetchAlerts(accountId: String): List<Alert> {
         return apiService.getAlerts(accountId)
     }

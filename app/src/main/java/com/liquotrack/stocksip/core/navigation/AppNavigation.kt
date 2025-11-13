@@ -32,6 +32,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.InventoryView
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
@@ -48,7 +50,17 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryexitform.InventoryExitFormView
 import java.net.URLEncoder
+
+// --- IMPORTS AÑADIDOS PARA LA VENTANA FLOTANTE ---
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle // ¡Ahora funcionará!
+import com.liquotrack.stocksip.features.alerts.presentation.alerts.AlertsViewModel
+import com.liquotrack.stocksip.features.alerts.presentation.alerts.components.AlertsOverlay
+// --- FIN DE IMPORTS AÑADIDOS ---
 
 /**
  * Main navigation graph of the app.
@@ -62,6 +74,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
 
     NavHost(navController, startDestination = startDestination) {
 
+        // ... (Tu flujo de AUTHENTICATION, REGISTER, PASSWORD RECOVERY, etc. va aquí... sin cambios) ...
         // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
             Login(
@@ -178,21 +191,44 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // MAIN FLOW
+
+        // MAIN FLOW CON OVERLAY
         composable(route = Route.Main.route) {
-            HomeView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
+
+            // 1. Inyectamos el ViewModel de Alertas aquí
+            val alertsViewModel: AlertsViewModel = hiltViewModel()
+            val alertsToShow by alertsViewModel.alertsToShowInOverlay.collectAsStateWithLifecycle()
+
+            // 2. Usamos un Box para poder superponer elementos
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                // 3. Tu HomeView (Capa inferior)
+                HomeView(
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+                )
+
+                // 4. Mostramos el Overlay "encima" si hay alertas (Capa superior)
+                if (alertsToShow.isNotEmpty()) {
+                    AlertsOverlay(
+                        alerts = alertsToShow,
+                        onDismiss = {
+                            alertsViewModel.dismissOverlay()
+                        }
+                    )
                 }
-            )
+            }
         }
+        // --- FIN DEL BLOQUE ---
+
 
         // Profile
         composable(route = Route.Profile.route) {
@@ -213,6 +249,54 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         // Warehouses
         composable(route = Route.Warehouses.route) {
             WarehouseView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // Inventories
+        composable(
+            route = Route.Inventory.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.Inventory.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.Inventory.warehouseIdArg)
+            if (warehouseId != null) {
+                InventoryView(
+                    warehouseId = warehouseId,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            } else {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            }
+        }
+
+        composable(
+            route = Route.InventoryExitForm.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryExitForm.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) {
+            InventoryExitFormView(
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
@@ -254,6 +338,28 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     }
                 }
             )
+        }
+
+        // Product Detail
+        composable(
+            route = Route.ProductDetail.routeWithArgs,
+            arguments = listOf(navArgument(Route.ProductDetail.productIdArg) {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString(Route.ProductDetail.productIdArg)
+            if (productId == null) {
+                // Handle null productId case and navigates back
+                navController.popBackStack()
+            } else {
+                ProductDetailView(
+                    productId = productId,
+                    onNavigate = { route ->
+                        navController.navigate(route) { launchSingleTop = true }
+                    },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
 
         // Product Create And Edit
