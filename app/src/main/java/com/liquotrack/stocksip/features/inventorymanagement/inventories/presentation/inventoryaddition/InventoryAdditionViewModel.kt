@@ -18,6 +18,14 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 
+/**
+ * ViewModel for managing the state and logic of the inventory addition feature.
+ * It handles loading products, validating inputs, and saving inventory additions.
+ *
+ * @param repository The repository for inventory operations.
+ * @param productRepository The repository for product operations.
+ * @param tokenManager The token manager for retrieving account information.
+ */
 @HiltViewModel
 class InventoryAdditionViewModel @Inject constructor(
     private val repository: InventoryRepository,
@@ -95,7 +103,6 @@ class InventoryAdditionViewModel @Inject constructor(
      */
     fun saveInventoryAddition(
         warehouseId: String,
-        productId: String? = null,
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
@@ -108,7 +115,7 @@ class InventoryAdditionViewModel @Inject constructor(
 
                     repository.addProductsToWarehouseInventory(
                         warehouseId = warehouseId,
-                        productId = productId.toString(),
+                        productId = _selectedProductId.value.toString(),
                         inventory = request
                     )
                     onSuccess()

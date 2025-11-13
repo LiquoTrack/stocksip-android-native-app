@@ -172,7 +172,6 @@ fun InventoryAdditionView(
                     onClick = {
                         viewModel.saveInventoryAddition(
                             warehouseId = warehouseId?:"",
-                            productId = selectedProductId,
                             onSuccess = onNavigateBack
                         )
                     },
