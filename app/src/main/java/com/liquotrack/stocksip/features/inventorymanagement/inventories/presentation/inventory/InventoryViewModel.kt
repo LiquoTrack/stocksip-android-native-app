@@ -3,9 +3,9 @@ package com.liquotrack.stocksip.features.inventorymanagement.inventories.present
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryResponse
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.repositories.InventoryRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +20,7 @@ import javax.inject.Inject
  *
  * @property repository The repository used to fetch inventory data.
  */
+@HiltViewModel
 class InventoryViewModel @Inject constructor(
     private val repository: InventoryRepository
 ) : ViewModel() {
