@@ -18,4 +18,9 @@ interface AuthRepository {
      * Logs out the current user
      */
     suspend fun logout(): Resource<Unit>
+
+    /**
+     * Authenticates a user using Google ID token against backend
+     */
+    suspend fun authenticateWithGoogle(idToken: String, clientId: String, accessToken: String? = null): Resource<User>
 }

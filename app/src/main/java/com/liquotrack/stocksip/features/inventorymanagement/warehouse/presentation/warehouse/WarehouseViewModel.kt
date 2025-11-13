@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseProduct
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehousesWithCount
@@ -71,6 +72,9 @@ class WarehouseViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+
+    private val _products = MutableStateFlow<List<WarehouseProduct>>(emptyList())
+    val products: StateFlow<List<WarehouseProduct>> = _products
 
     private val _temperatureError = MutableStateFlow<String?>(null)
     val temperatureError: StateFlow<String?> = _temperatureError.asStateFlow()
@@ -284,6 +288,14 @@ class WarehouseViewModel @Inject constructor(
         val maxAllowed = data.maxWarehousesAllowed
 
         _isMaxReached.value = currentCount >= maxAllowed
+    }
+
+    fun loadProductsByWarehouse(warehouseId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _products.value = repository.getProductsByWarehouseId(warehouseId)
+            _isLoading.value = false
+        }
     }
 
     /**

@@ -43,7 +43,7 @@ fun TopBar(
                 text = title,
                 color = contentColor,
                 fontWeight = FontWeight.Medium,
-                fontSize = 20.sp
+                fontSize = 22.sp
             )
         },
         navigationIcon = {
