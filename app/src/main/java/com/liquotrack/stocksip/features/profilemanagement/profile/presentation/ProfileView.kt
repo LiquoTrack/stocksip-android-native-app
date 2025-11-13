@@ -39,11 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
@@ -74,7 +76,6 @@ fun Profile(
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Handle logout
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
             onLogout()
@@ -82,7 +83,6 @@ fun Profile(
         }
     }
 
-    // Handle error messages
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -90,7 +90,6 @@ fun Profile(
         }
     }
 
-    // Handle success messages
     LaunchedEffect(successMessage) {
         successMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -100,9 +99,7 @@ fun Profile(
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.updateProfileImage(it) }
-    }
+    ) { uri -> uri?.let { viewModel.updateProfileImage(it) } }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -119,7 +116,7 @@ fun Profile(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Profile",
+                    title = stringResource(R.string.profile_title),
                     showBackButton = isEditMode,
                     onNavigationClick = {
                         if (isEditMode && !isSaving) {
@@ -153,12 +150,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Box(contentAlignment = Alignment.Center) {
-                        // Show selected image preview or current profile picture
-                        val imageToShow = if (isEditMode && selectedImageUri != null) {
-                            selectedImageUri
-                        } else {
-                            profilePictureUrl
-                        }
+                        val imageToShow = if (isEditMode && selectedImageUri != null) selectedImageUri else profilePictureUrl
 
                         if (imageToShow == null) {
                             Box(
@@ -170,7 +162,7 @@ fun Profile(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.AddReaction,
-                                    contentDescription = "Default Profile",
+                                    contentDescription = stringResource(R.string.default_profile_image_description),
                                     tint = Color(0xFF2196F3),
                                     modifier = Modifier.size(60.dp)
                                 )
@@ -178,7 +170,7 @@ fun Profile(
                         } else {
                             AsyncImage(
                                 model = imageToShow,
-                                contentDescription = "Profile Image",
+                                contentDescription = stringResource(R.string.profile_image_description),
                                 modifier = Modifier
                                     .size(120.dp)
                                     .clip(CircleShape)
@@ -197,7 +189,10 @@ fun Profile(
                             enabled = !isSaving
                         ) {
                             Text(
-                                text = if (selectedImageUri != null) "Change Image" else "Select Image",
+                                text = if (selectedImageUri != null)
+                                    stringResource(R.string.change_image)
+                                else
+                                    stringResource(R.string.select_image),
                                 color = Color.White,
                                 fontSize = 14.sp
                             )
@@ -207,7 +202,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(40.dp))
 
                     ProfileField(
-                        label = "First Name",
+                        label = stringResource(R.string.first_name_label),
                         value = firstName,
                         onValueChange = viewModel::updateFirstName,
                         isEditMode = isEditMode,
@@ -217,7 +212,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileField(
-                        label = "Last Name",
+                        label = stringResource(R.string.last_name_label),
                         value = lastName,
                         onValueChange = viewModel::updateLastName,
                         isEditMode = isEditMode,
@@ -227,7 +222,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileField(
-                        label = "Phone Number",
+                        label = stringResource(R.string.phone_number_label),
                         value = phoneNumber,
                         onValueChange = viewModel::updatePhoneNumber,
                         isEditMode = isEditMode,
@@ -237,7 +232,7 @@ fun Profile(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileField(
-                        label = "Assigned Role",
+                        label = stringResource(R.string.assigned_role_label),
                         value = assignedRole,
                         onValueChange = viewModel::updateAssignedRole,
                         isEditMode = isEditMode,
@@ -248,11 +243,7 @@ fun Profile(
 
                     Button(
                         onClick = {
-                            if (isEditMode) {
-                                viewModel.saveProfile()
-                            } else {
-                                viewModel.toggleEditMode()
-                            }
+                            if (isEditMode) viewModel.saveProfile() else viewModel.toggleEditMode()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -268,7 +259,10 @@ fun Profile(
                             )
                         } else {
                             Text(
-                                text = if (isEditMode) "Save" else "Edit Profile",
+                                text = if (isEditMode)
+                                    stringResource(R.string.save_button)
+                                else
+                                    stringResource(R.string.edit_profile_button),
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium
