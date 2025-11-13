@@ -27,6 +27,7 @@ class CatalogItemDetailViewModel @Inject constructor(
     private val cartRepository: CartRepository
 ) : ViewModel() {
 
+
     private val productId: String = savedStateHandle["productId"] ?: ""
     val catalogId: String = savedStateHandle["catalogId"] ?: ""
 
