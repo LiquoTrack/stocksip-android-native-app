@@ -52,6 +52,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
@@ -101,12 +103,11 @@ fun InventoryExitFormView(
             },
             containerColor = backgroundColor
         ) { padding ->
-            //InventoryExitFormContent(
-                //products = products,
-                //onDecrease = viewModel::decreaseQuantity,
-                //onIncrease = viewModel::increaseQuantity,
-                //modifier = Modifier.padding(padding)
-            //)
+            InventoryExitFormContent(
+                onDecrease = {},
+                onIncrease = {},
+                modifier = Modifier.padding(padding)
+            )
         }
     }
 }
@@ -127,13 +128,13 @@ private fun InventoryExitFormContent(
 
     var searchQuery by remember { mutableStateOf("") }
     /**(val filteredProducts = remember(searchQuery, products) {
-        if (searchQuery.isBlank()) {
-            products
-        } else {
-            products.filter { product ->
-                product.name.contains(searchQuery, ignoreCase = true)
-            }
-        }
+    if (searchQuery.isBlank()) {
+    products
+    } else {
+    products.filter { product ->
+    product.name.contains(searchQuery, ignoreCase = true)
+    }
+    }
     }*/
 
     Column(
@@ -197,23 +198,23 @@ private fun InventoryExitFormContent(
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             /**if (filteredProducts.isEmpty()) {
-                item {
-                    Text(
-                        text = "No products found",
-                        color = Color(0xFF6F6F6F),
-                        modifier = Modifier.padding(top = 32.dp)
-                    )
-                }
+            item {
+            Text(
+            text = "No products found",
+            color = Color(0xFF6F6F6F),
+            modifier = Modifier.padding(top = 32.dp)
+            )
+            }
             } else {
-                items(filteredProducts) { product ->
-                    InventoryExitProductCard(
-                        product = product,
-                        accentColor = accentColor,
-                        controlBackground = controlBackground,
-                        onDecrease = onDecrease,
-                        onIncrease = onIncrease
-                    )
-                }
+            items(filteredProducts) { product ->
+            InventoryExitProductCard(
+            product = product,
+            accentColor = accentColor,
+            controlBackground = controlBackground,
+            onDecrease = onDecrease,
+            onIncrease = onIncrease
+            )
+            }
             }*/
         }
     }
@@ -241,10 +242,10 @@ private fun InventoryExitProductCard(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             /**Text(
-                text = product.name,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF505050)
+            text = product.name,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF505050)
             )**/
 
             Divider(color = Color(0xFFE7E1E5))
@@ -256,12 +257,12 @@ private fun InventoryExitProductCard(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     /**AsyncImage(
-                        model = product.imageUrl,
-                        contentDescription = product.name,
-                        modifier = Modifier
-                            .size(58.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                        contentScale = ContentScale.Crop
+                    model = product.imageUrl,
+                    contentDescription = product.name,
+                    modifier = Modifier
+                    .size(58.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
                     )*/
 
                     Spacer(modifier = Modifier.width(14.dp))
@@ -279,24 +280,24 @@ private fun InventoryExitProductCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     /**QuantityControlButton(
-                        icon = Icons.Default.Remove,
-                        tint = accentColor,
-                        background = controlBackground,
-                        onClick = { onDecrease(product.id) }
+                    icon = Icons.Default.Remove,
+                    tint = accentColor,
+                    background = controlBackground,
+                    onClick = { onDecrease(product.id) }
                     )
 
                     Text(
-                        text = product.quantity.toString(),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF3A2A3A)
+                    text = product.quantity.toString(),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF3A2A3A)
                     )
 
                     QuantityControlButton(
-                        icon = Icons.Default.Add,
-                        tint = Color.White,
-                        background = accentColor,
-                        onClick = { onIncrease(product.id) }
+                    icon = Icons.Default.Add,
+                    tint = Color.White,
+                    background = accentColor,
+                    onClick = { onIncrease(product.id) }
                     )*/
                 }
             }
@@ -328,4 +329,3 @@ private fun QuantityControlButton(
         )
     }
 }
-
