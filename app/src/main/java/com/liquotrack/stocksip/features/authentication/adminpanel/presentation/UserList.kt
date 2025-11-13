@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 
@@ -33,13 +34,16 @@ fun UsersList(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text("No users found")
+            Text(stringResource(id = com.liquotrack.stocksip.R.string.no_users_found))
         }
     } else {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(users) { user ->
+            items(
+                items = users,
+                key = { user -> user.id.ifBlank { user.email.lowercase() } }
+            ) { user ->
                 UserCard(
                     user = user,
                     onEdit = { onEditUser(user) },

@@ -27,11 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.SubUser
 import coil3.compose.AsyncImage
+import com.liquotrack.stocksip.R
 
 @Composable
 fun UserCard(
@@ -42,7 +44,7 @@ fun UserCard(
     val displayRole = when {
         user.profileRole.isNotBlank() -> user.profileRole
         user.userRole.isNotBlank() -> user.userRole
-        else -> "Role"
+        else -> stringResource(id = R.string.role_default)
     }
 
     Card(
@@ -63,7 +65,7 @@ fun UserCard(
                 if (user.profilePictureUrl.isNotBlank()) {
                     AsyncImage(
                         model = user.profilePictureUrl,
-                        contentDescription = "${user.fullName} profile picture",
+                        contentDescription = stringResource(id = R.string.profile_picture_content_description, user.fullName.ifBlank { user.email }),
                         modifier = Modifier
                             .size(56.dp)
                             .clip(CircleShape),
@@ -121,7 +123,7 @@ fun UserCard(
                         IconButton(onClick = onDelete) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
+                                contentDescription = stringResource(id = R.string.delete_action_description),
                                 tint = Color.Red
                             )
                         }

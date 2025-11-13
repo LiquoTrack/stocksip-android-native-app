@@ -2,79 +2,53 @@ package com.liquotrack.stocksip.features.authentication.adminpanel.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
+import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPanel(
     onNavigate: (String) -> Unit = {},
-    viewModel: AdminPanelViewModel = hiltViewModel(),
     onLogout: () -> Unit = {},
+    viewModel: AdminPanelViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
+    val bg = Color(0xFFF4ECEC)
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
     val users by viewModel.users.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedTab by viewModel.selectedTab.collectAsState()
     val userToDelete by viewModel.userToDelete.collectAsState()
     val userToEdit by viewModel.userToEdit.collectAsState()
+    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
     val accountStats = users.firstOrNull()
     val displayedUsers = accountStats?.users ?: emptyList()
     val currentUsersCount = accountStats?.totalUsers ?: displayedUsers.size
     val maxUsersAllowed = accountStats?.maxUsersAllowed
     val isMaxUsersReached = maxUsersAllowed != null && maxUsersAllowed != 0 &&
-        currentUsersCount >= maxUsersAllowed
+            currentUsersCount >= maxUsersAllowed
     var showNewUserDialog by remember { mutableStateOf(false) }
-
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
 
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
@@ -96,62 +70,43 @@ fun AdminPanel(
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            "Administrative Panel",
-                            color = Color(0xFF4A1B2A),
-                            fontWeight = FontWeight.Medium
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu",
-                                tint = Color(0xFF4A1B2A)
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFFF4ECEC)
-                    )
+                TopBar(
+                    title = stringResource(id = R.string.admin_panel_title),
+                    showBackButton = false,
+                    onNavigationClick = { scope.launch { drawerState.open() } }
                 )
             },
-            containerColor = Color(0xFFF4ECEC)
+            containerColor = bg
         ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     AdminTabButton(
-                        text = "All",
+                        text = stringResource(id = R.string.admin_tab_all),
                         isSelected = selectedTab == AdminTab.ALL,
                         onClick = { viewModel.selectTab(AdminTab.ALL) },
                         modifier = Modifier.weight(1f)
                     )
-
                     AdminTabButton(
-                        text = "Admin",
+                        text = stringResource(id = R.string.admin_tab_admin),
                         isSelected = selectedTab == AdminTab.ADMIN,
                         onClick = { viewModel.selectTab(AdminTab.ADMIN) },
                         modifier = Modifier.weight(1f)
                     )
-
                     AdminTabButton(
-                        text = "Employee",
+                        text = stringResource(id = R.string.admin_tab_employee),
                         isSelected = selectedTab == AdminTab.EMPLOYEE,
                         onClick = { viewModel.selectTab(AdminTab.EMPLOYEE) },
                         modifier = Modifier.weight(1f)
                     )
-
                     Button(
                         onClick = { showNewUserDialog = true },
                         modifier = Modifier
@@ -159,45 +114,53 @@ fun AdminPanel(
                             .height(40.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                         shape = RoundedCornerShape(24.dp),
-                        enabled = !isMaxUsersReached,
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                        enabled = !isMaxUsersReached
                     ) {
-                        Text("+ New", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            stringResource(id = R.string.admin_new_user),
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 if (accountStats != null) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(Color(0xFFEADFE0), RoundedCornerShape(16.dp))
-                            .padding(horizontal = 20.dp, vertical = 16.dp)
-                            .padding(bottom = 16.dp)
+                            .padding(16.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
+                            Column {
                                 Text(
-                                    text = "Users Capacity",
-                                    color = Color(0xFF4A1B2A),
+                                    stringResource(id = R.string.users_capacity),
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 16.sp
+                                    fontSize = 16.sp,
+                                    color = Color(0xFF4A1B2A)
                                 )
                                 Text(
-                                    text = "${currentUsersCount}/${maxUsersAllowed ?: "--"}",
-                                    color = Color(0xFF4A1B2A),
+                                    stringResource(
+                                        id = R.string.users_capacity_value,
+                                        currentUsersCount,
+                                        maxUsersAllowed?.toString() ?: "--"
+                                    ),
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp
+                                    fontSize = 20.sp,
+                                    color = Color(0xFF4A1B2A)
                                 )
                             }
-
                             Text(
-                                text = if (isMaxUsersReached) "Max reached" else "Available",
+                                text = if (isMaxUsersReached)
+                                    stringResource(id = R.string.status_max_reached)
+                                else stringResource(id = R.string.status_available),
                                 color = if (isMaxUsersReached) Color(0xFFD32F2F) else Color(0xFF2E7D32),
                                 fontWeight = FontWeight.Medium
                             )
@@ -205,39 +168,15 @@ fun AdminPanel(
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = true)
-                ) {
-                    when (selectedTab) {
-                        AdminTab.ALL -> {
-                            UsersList(
-                                users = displayedUsers,
-                                isLoading = isLoading,
-                                onEditUser = { user -> viewModel.selectUserForEdit(user) },
-                                onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
-                            )
-                        }
-                        AdminTab.ADMIN -> {
-                            UsersList(
-                                users = displayedUsers,
-                                isLoading = isLoading,
-                                onEditUser = { user -> viewModel.selectUserForEdit(user) },
-                                onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
-                            )
-                        }
-                        AdminTab.EMPLOYEE -> {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                UsersList(
-                                    users = displayedUsers,
-                                    isLoading = isLoading,
-                                    onEditUser = { user -> viewModel.selectUserForEdit(user) },
-                                    onDeleteUser = { user -> viewModel.selectUserForDelete(user) }
-                                )
-                            }
-                        }
-                    }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    UsersList(
+                        users = displayedUsers,
+                        isLoading = isLoading,
+                        onEditUser = { viewModel.selectUserForEdit(it) },
+                        onDeleteUser = { viewModel.selectUserForDelete(it) }
+                    )
                 }
             }
         }
@@ -246,8 +185,8 @@ fun AdminPanel(
     if (showNewUserDialog) {
         NewUserDialog(
             onDismiss = { showNewUserDialog = false },
-            onSave = { newUser ->
-                viewModel.createUser(newUser)
+            onSave = {
+                viewModel.createUser(it)
                 showNewUserDialog = false
             }
         )
@@ -257,24 +196,19 @@ fun AdminPanel(
         EditUserDialog(
             user = user,
             onDismiss = { viewModel.clearUserToEdit() },
-            onSave = { updatedUser ->
-                viewModel.updateUser(user)
-                viewModel.clearUserToEdit()
-            }
+            onSave = { viewModel.updateUser(it); viewModel.clearUserToEdit() }
         )
     }
 
     userToDelete?.let { user ->
         DeleteUserDialog(
             userName = user.id,
-            onConfirm = {
-                viewModel.deleteUser(user)
-                viewModel.clearUserToDelete()
-            },
+            onConfirm = { viewModel.deleteUser(user); viewModel.clearUserToDelete() },
             onDismiss = { viewModel.clearUserToDelete() }
         )
     }
 }
+
 
 @Composable
 private fun AdminTabButton(
@@ -313,7 +247,7 @@ private fun DeleteUserDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    "Are you sure you\nwant to delete this\nuser?",
+                    stringResource(id = R.string.delete_user_confirmation),
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp,
                     color = Color(0xFF4A1B2A)
@@ -327,7 +261,7 @@ private fun DeleteUserDialog(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
             ) {
-                Text("Delete", color = Color.White)
+                Text(stringResource(id = R.string.delete), color = Color.White)
             }
         },
         dismissButton = {
@@ -338,7 +272,7 @@ private fun DeleteUserDialog(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
             ) {
-                Text("Cancel", color = Color(0xFF4A1B2A))
+                Text(stringResource(id = R.string.cancel), color = Color(0xFF4A1B2A))
             }
         },
         shape = RoundedCornerShape(16.dp),

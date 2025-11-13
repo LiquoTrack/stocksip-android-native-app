@@ -31,12 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 
@@ -76,14 +79,16 @@ fun RecoverPassword(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Recover",
+                text = stringResource(R.string.label_recover),
                 fontSize = 40.sp,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis
             )
+
             Text(
-                text = "password",
+                text = stringResource(R.string.label_password),
                 fontSize = 40.sp,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold,
@@ -93,7 +98,7 @@ fun RecoverPassword(
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
-                text = "Enter your email address. We'll send you a message to recover your account.",
+                text = stringResource(R.string.label_recover_messsage),
                 color = Color.White.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
@@ -105,7 +110,7 @@ fun RecoverPassword(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("Email", color = Color(0xFF8B7375)) },
+                placeholder = { Text(stringResource(R.string.label_email), color = Color(0xFF8B7375)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
@@ -159,7 +164,7 @@ fun RecoverPassword(
                     )
                 } else {
                     Text(
-                        text = "Send Code",
+                        text = stringResource(R.string.label_send_code),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
                     )

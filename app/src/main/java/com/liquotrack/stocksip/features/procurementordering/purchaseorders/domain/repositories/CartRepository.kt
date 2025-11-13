@@ -18,7 +18,6 @@ class CartRepository @Inject constructor(
     suspend fun addToCart(catalogItem: CatalogItem, quantity: Int) {
         val existingItem = cartDao.getCartItemByProductId(catalogItem.productId)
 
-        // Convertimos unitPrice a Double de forma segura
         val price: Double = when (val p = catalogItem.unitPrice) {
             is Number -> p.toDouble()
             is String -> p.replace("[^0-9.]".toRegex(), "").toDoubleOrNull() ?: 0.0

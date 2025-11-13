@@ -9,9 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.AccountSubscription
+import com.liquotrack.stocksip.R
 
 @Composable
 fun SubscriptionPlanCard(
@@ -37,7 +39,7 @@ fun SubscriptionPlanCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Your Current Plan:",
+                    text = "${stringResource(R.string.label_your_current_plan)}:",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = Color(0xFF4A1B2A)
                 )
@@ -54,7 +56,7 @@ fun SubscriptionPlanCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Status:",
+                    text = "${stringResource(R.string.label_status)}:",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                     color = Color(0xFF4A1B2A)
                 )
@@ -73,7 +75,7 @@ fun SubscriptionPlanCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Expiration Date:",
+                    text = "${stringResource(R.string.label_expiration_date)}:",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -86,7 +88,7 @@ fun SubscriptionPlanCard(
 
             Column {
                 Text(
-                    text = "Plan Benefits:",
+                    text = "${stringResource(R.string.label_plan_benefits)}:",
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = Color(0xFF4A1B2A)
                 )
@@ -94,9 +96,9 @@ fun SubscriptionPlanCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("• Maximum number of users allowed: ${accountSubscription.maxUsers}", style = MaterialTheme.typography.bodySmall)
-                    Text("• Maximum number of products allowed ${accountSubscription.maxProducts}:", style = MaterialTheme.typography.bodySmall)
-                    Text("• Maximum number of warehouses allowed ${accountSubscription.maxWarehouses}", style = MaterialTheme.typography.bodySmall)
+                    Text("• ${stringResource(R.string.label_max_users_allowed)}: ${accountSubscription.maxUsers}", style = MaterialTheme.typography.bodySmall)
+                    Text("• ${stringResource(R.string.label_max_products_allowed)}: ${accountSubscription.maxProducts}", style = MaterialTheme.typography.bodySmall)
+                    Text("• ${stringResource(R.string.label_max_warehouses_allowed)}: ${accountSubscription.maxWarehouses}", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
