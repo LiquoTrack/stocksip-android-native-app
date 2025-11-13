@@ -130,7 +130,7 @@ fun SupplierSearchScreen(
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(
                                 stringResource(id = R.string.start_shopping_message),
-                                fontSize = 16.sp,
+                                fontSize = 20.sp,
                                 color = Color(0xFF8B4C5C),
                                 fontWeight = FontWeight.Medium
                             )
