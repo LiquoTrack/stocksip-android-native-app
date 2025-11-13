@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition
+package com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,62 +26,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.components.ProductDoubleSelectorField
-import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.components.ProductSelectorField
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.components.InventorySelectorField
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
-import com.liquotrack.stocksip.shared.presentation.components.DateInputField
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
-import com.liquotrack.stocksip.shared.utils.stringToDate
 
 /**
- * Composable function for the Inventory Addition View.
+ * Composable function for the Inventory Subtrack View.
  *
- * @param viewModel The ViewModel for managing inventory addition state and logic.
- * @param warehouseId The ID of the warehouse to which products are being added.
+ * @param viewModel The ViewModel for managing inventory subtrack state and logic.
+ * @param warehouseId The ID of the warehouse from which products are being subtracted.
  * @param onNavigateBack Callback function to navigate back to the previous screen.
  */
 @Composable
-fun InventoryAdditionView(
-    viewModel: InventoryAdditionViewModel = hiltViewModel(),
+fun InventorySubtrackView(
+    viewModel: InventorySubtrackViewModel = hiltViewModel(),
     warehouseId: String? = null,
-    onNavigateBack: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
 
     // Navigate back if warehouseId is null or empty
-    // Also load product list when warehouseId is valid
+    // Also load inventory list when warehouseId is valid
     LaunchedEffect(warehouseId) {
         if (warehouseId.isNullOrEmpty()) {
             onNavigateBack()
         } else {
-            viewModel.loadProductList(warehouseId)
+            viewModel.loadInventoryList(warehouseId)
         }
     }
 
+    val inventoryList by viewModel.inventoryList.collectAsState()
+
     val selectedProductId by viewModel.selectedProductId.collectAsState()
-    val productsList by viewModel.productList.collectAsState()
-    val inventories by viewModel.inventoryList.collectAsState()
-    val quantityToAdd by viewModel.quantityToAdd.collectAsState()
+    val quantityToSubtrack by viewModel.quantityToSubtrack.collectAsState()
+    val currentQuantity by viewModel.currentQuantity.collectAsState()
     val expirationDate by viewModel.expirationDate.collectAsState()
+
     val quantityError by viewModel.quantityError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val isValidFormat = quantityToAdd > 0 &&
-            selectedProductId != null
-            && quantityError.isNullOrEmpty()
+    val isValidFormat =
+            quantityToSubtrack > 0 &&
+            quantityToSubtrack <= currentQuantity &&
+            selectedProductId != null &&
+            quantityError.isNullOrEmpty()
 
-    // Show 'quantity to add' error snack bar
+    // Show 'quantity to subtrack' error snack bar
     LaunchedEffect(quantityError) {
         quantityError?.let { error ->
             snackBarHostState.showSnackbar(
@@ -97,7 +94,7 @@ fun InventoryAdditionView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = "Add Products",
+                title = "Subtrack Products",
                 onBackClick = onNavigateBack,
             )
         },
@@ -125,12 +122,14 @@ fun InventoryAdditionView(
                     .padding(16.dp)
                     .background(Color(0xFFF4ECEC))
             ) {
-                // Product Selection Dropdown
-                ProductDoubleSelectorField(
-                    products = productsList,
-                    inventories = inventories,
+                // Inventory Selector Card
+                InventorySelectorField(
+                    inventories = inventoryList,
                     selectedProductId = selectedProductId,
-                    onProductSelected = { viewModel.updateSelectedProductId(it) }
+                    selectedExpirationDate = expirationDate,
+                    onInventorySelected = { productId, expirationDate ->
+                        viewModel.updateSelectedProductIdAndExpirationDate(productId, expirationDate)
+                    }
                 )
 
                 // Space between sections
@@ -140,37 +139,31 @@ fun InventoryAdditionView(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Quantity to Add Input Field
+                    // Quantity to Subtrack Input Field
                     CustomTextField(
-                        value = if (quantityToAdd == 0) "" else quantityToAdd.toString(),
+                        value = if (quantityToSubtrack == 0) "" else quantityToSubtrack.toString(),
                         onValueChange = { newValue ->
                             val intValue = newValue.toIntOrNull() ?: 0
-                            viewModel.updateQuantityToAdd(intValue)
+                            viewModel.validateAndUpdateQuantityToDecrease(intValue)
                         },
-                        label = "Quantity to Add",
+                        label = "Quantity to Subtrack",
                         placeholder = "Enter quantity",
                         keyboardType = KeyboardType.Number,
                         isRequired = true,
                         showError = quantityError != null,
-                    )
-
-                    // Expiration Date Input Field
-                    DateInputField(
-                        label = "Expiration Date (Optional)",
-                        isRequired = false,
-                        onDateChange = { dateString ->
-                            viewModel.updateExpirationDate(stringToDate(dateString))
-                        }
                     )
                 }
 
                 // Space at the bottom
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Save Button
+                // Inventory Summary Card
+                // Shows final details before submission
+
+                // Confirm Action Button
                 Button(
                     onClick = {
-                        viewModel.saveInventoryAddition(
+                        viewModel.saveInventorySubtrack(
                             warehouseId = warehouseId?:"",
                             onSuccess = onNavigateBack
                         )
@@ -192,7 +185,7 @@ fun InventoryAdditionView(
                         )
                     } else {
                         Text(
-                            text = "Add Products",
+                            text = "Subtrack Products",
                             fontSize = 16.sp,
                             color = Color.White
                         )

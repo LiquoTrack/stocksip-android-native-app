@@ -1,4 +1,5 @@
 package com.liquotrack.stocksip.core.navigation
+
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +52,7 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
-import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.InventoryExitFormView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.InventorySubtrackView
 import java.net.URLEncoder
 
 /**
@@ -277,24 +278,23 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             }
         }
 
+        // Inventory Subtrack Form
         composable(
-            route = Route.InventoryExitForm.routeWithArgs,
+            route = Route.InventorySubtrack.routeWithArgs,
             arguments = listOf(
-                navArgument(Route.InventoryExitForm.warehouseIdArg) { type = NavType.StringType }
+                navArgument(Route.InventorySubtrack.warehouseIdArg) { type = NavType.StringType }
             )
-        ) {
-            InventoryExitFormView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventorySubtrack.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventorySubtrackView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
 
         // Warehouse Create and Edit
