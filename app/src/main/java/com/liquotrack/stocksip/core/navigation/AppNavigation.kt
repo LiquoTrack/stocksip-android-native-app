@@ -53,6 +53,15 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryexitform.InventoryExitFormView
 import java.net.URLEncoder
 
+// --- IMPORTS AÑADIDOS PARA LA VENTANA FLOTANTE ---
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle // ¡Ahora funcionará!
+import com.liquotrack.stocksip.features.alerts.presentation.alerts.AlertsViewModel
+import com.liquotrack.stocksip.features.alerts.presentation.alerts.components.AlertsOverlay
+// --- FIN DE IMPORTS AÑADIDOS ---
+
 /**
  * Main navigation graph of the app.
  * Includes authentication, home, warehouse, products, care guides, etc.
@@ -65,6 +74,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
 
     NavHost(navController, startDestination = startDestination) {
 
+        // ... (Tu flujo de AUTHENTICATION, REGISTER, PASSWORD RECOVERY, etc. va aquí... sin cambios) ...
         // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
             Login(
@@ -181,21 +191,44 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // MAIN FLOW
+
+        // MAIN FLOW CON OVERLAY
         composable(route = Route.Main.route) {
-            HomeView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
+
+            // 1. Inyectamos el ViewModel de Alertas aquí
+            val alertsViewModel: AlertsViewModel = hiltViewModel()
+            val alertsToShow by alertsViewModel.alertsToShowInOverlay.collectAsStateWithLifecycle()
+
+            // 2. Usamos un Box para poder superponer elementos
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                // 3. Tu HomeView (Capa inferior)
+                HomeView(
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+                )
+
+                // 4. Mostramos el Overlay "encima" si hay alertas (Capa superior)
+                if (alertsToShow.isNotEmpty()) {
+                    AlertsOverlay(
+                        alerts = alertsToShow,
+                        onDismiss = {
+                            alertsViewModel.dismissOverlay()
+                        }
+                    )
                 }
-            )
+            }
         }
+        // --- FIN DEL BLOQUE ---
+
 
         // Profile
         composable(route = Route.Profile.route) {
