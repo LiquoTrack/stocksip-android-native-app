@@ -4,6 +4,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.inventories.data.rem
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryAdditionRequest
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryResponse
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventorySubtrackRequest
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryTransferRequest
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.repositories.InventoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.produce
@@ -181,6 +182,23 @@ class InventoryRepositoryImpl @Inject constructor(private val service: Inventory
             e.printStackTrace()
             return@withContext null
         }
+    }
+
+    /**
+     * Transfers products from one warehouse to another.
+     *
+     * @param originWarehouseId The unique identifier of the origin warehouse.
+     * @param productToTransferId The unique identifier of the product to be transferred.
+     * @param inventoryRequest The InventoryTransferRequest object containing details of the transfer.
+     *
+     * @return The updated InventoryResponse object after the transfer, or null if the operation fails.
+     */
+    override suspend fun transferProductsToAnotherWarehouse(
+        originWarehouseId: String,
+        productToTransferId: String,
+        inventoryRequest: InventoryTransferRequest
+    ): InventoryResponse? {
+        TODO("Not yet implemented")
     }
 
     /**
