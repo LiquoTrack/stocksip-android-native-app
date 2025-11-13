@@ -175,7 +175,7 @@ fun WarehouseView(
                 WarehouseList(
                     warehouse = warehouses?.warehouses ?: emptyList(),
                     onClick = { warehouse ->
-                        onNavigate("warehouse_details/${warehouse.id}")
+                        onNavigate("warehouse_inventory/${warehouse.id}")
                     },
                     onEditClick = { warehouse ->
                         onNavigate("warehouse_create_edit/${warehouse.id}")
