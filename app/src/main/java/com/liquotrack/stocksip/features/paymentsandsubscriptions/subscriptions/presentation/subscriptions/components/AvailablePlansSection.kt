@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Celebration
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.R
@@ -70,7 +71,17 @@ fun AvailablePlansSection(
     }
 
     if (isLoading) {
-        CircularProgressIndicator(color = Color(0xFF4A1B2A))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = Color(0xFFFF6B35),
+                strokeWidth = 3.dp
+            )
+        }
         return
     }
 
@@ -87,28 +98,28 @@ fun AvailablePlansSection(
                 Icon(
                     imageVector = Icons.Default.Celebration,
                     contentDescription = "Highest Plan",
-                    tint = Color(0xFFFFC107),
-                    modifier = Modifier.size(96.dp)
+                    tint = Color(0xFFFFA726),
+                    modifier = Modifier.size(80.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = stringResource(R.string.label_highest_plan),
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    textAlign = TextAlign.Center
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    letterSpacing = 0.5.sp
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "${stringResource(R.string.label_highest_plan_thanks)}.",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.White.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
                 )
             }
@@ -118,14 +129,18 @@ fun AvailablePlansSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 8.dp)
         ) {
 
             Text(
                 text = stringResource(R.string.label_update_plan),
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                color = Color(0xFF4A1B2A)
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                letterSpacing = 0.5.sp
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             availablePlans.forEach { plan ->
                 SelectablePlanCard(
@@ -133,10 +148,9 @@ fun AvailablePlansSection(
                     isSelected = plan.id == selectedPlanId,
                     onSelect = { setSelectedPlanId(plan.id) }
                 )
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
@@ -152,12 +166,20 @@ fun AvailablePlansSection(
                 enabled = selectedPlanId != null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4A1B2A),
+                    containerColor = Color(0xFFFF6B35),
+                    disabledContainerColor = Color(0xFF4A1520)
                 ),
+                shape = RoundedCornerShape(28.dp)
             ) {
-                Text(stringResource(R.string.label_update))
+                Text(
+                    text = stringResource(R.string.label_update),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    letterSpacing = 1.sp
+                )
             }
         }
     }

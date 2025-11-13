@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.OrderItemUi
@@ -166,18 +167,52 @@ fun PurchaseOrderCard(item: OrderItemUi) {
                 fontWeight = FontWeight.Medium
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = item.title,
-                color = Color(0xFF3C0F1E),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            item.products.forEach { product ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    product.imageUrl?.let { imageUrl ->
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = product.name,
+                            modifier = Modifier
+                                .size(42.dp)
+                                .background(Color(0xFFF2D1D1), shape = MaterialTheme.shapes.medium)
+                                .padding(4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = product.name,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 15.sp,
+                            color = Color(0xFF3C0F1E),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "x${product.quantity} • $${"%.2f".format(product.unitPrice)} c/u",
+                            color = Color(0xFF9A6E6E),
+                            fontSize = 13.sp
+                        )
+                    }
+                }
+            }
+
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                color = Color(0xFFE0C7C7)
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -196,7 +231,7 @@ fun PurchaseOrderCard(item: OrderItemUi) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -218,14 +253,15 @@ fun PurchaseOrderCard(item: OrderItemUi) {
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(
-                        text = item.status.replaceFirstChar { it.uppercase() },
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        fontSize = 12.sp,
+                        text = item.status,
+                        color = Color(0xFF3C0F1E),
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF3C0F1E)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
         }
     }
 }
+

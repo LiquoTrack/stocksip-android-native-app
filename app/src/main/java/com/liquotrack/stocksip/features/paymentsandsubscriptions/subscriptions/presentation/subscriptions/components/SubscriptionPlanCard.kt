@@ -1,17 +1,20 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.AccountSubscription
 import com.liquotrack.stocksip.R
 
@@ -22,85 +25,178 @@ fun SubscriptionPlanCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = Color(0xFF1A0008)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(16.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(20.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Plan Type
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+        Box {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color(0xFF2B0D15),
+                                Color(0xFF1A0008)
+                            )
+                        )
+                    )
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "${stringResource(R.string.label_your_current_plan)}:",
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = Color(0xFF4A1B2A)
-                )
-                Text(
-                    text = accountSubscription.planType,
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+                // Plan Type Header
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.label_your_current_plan),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White.copy(alpha = 0.7f),
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = accountSubscription.planType,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFFFF6B35),
+                        letterSpacing = 1.5.sp
+                    )
+                }
 
-            // Status
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "${stringResource(R.string.label_status)}:",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = Color(0xFF4A1B2A)
-                )
-                Text(
-                    text = accountSubscription.status,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (accountSubscription.status.lowercase() == "active")
-                        Color(0xFF2E7D32)
-                    else Color(0xFFC62828)
-                )
-            }
-
-            // Expiration
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "${stringResource(R.string.label_expiration_date)}:",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = accountSubscription.expirationDate,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            Column {
-                Text(
-                    text = "${stringResource(R.string.label_plan_benefits)}:",
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = Color(0xFF4A1B2A)
+                // Divider
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(Color.White.copy(alpha = 0.1f))
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                // Status
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    InfoRow(
+                        label = stringResource(R.string.label_status),
+                        value = accountSubscription.status,
+                        valueColor = if (accountSubscription.status.lowercase() == "active")
+                            Color(0xFF4CAF50)
+                        else Color(0xFFFF5252)
+                    )
 
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("• ${stringResource(R.string.label_max_users_allowed)}: ${accountSubscription.maxUsers}", style = MaterialTheme.typography.bodySmall)
-                    Text("• ${stringResource(R.string.label_max_products_allowed)}: ${accountSubscription.maxProducts}", style = MaterialTheme.typography.bodySmall)
-                    Text("• ${stringResource(R.string.label_max_warehouses_allowed)}: ${accountSubscription.maxWarehouses}", style = MaterialTheme.typography.bodySmall)
+                    InfoRow(
+                        label = stringResource(R.string.label_expiration_date),
+                        value = accountSubscription.expirationDate,
+                        valueColor = Color.White
+                    )
+                }
+
+                // Divider
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(Color.White.copy(alpha = 0.1f))
+                )
+
+                // Plan Benefits
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.label_plan_benefits),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFFF6B35),
+                        letterSpacing = 0.5.sp
+                    )
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        BenefitItem(
+                            label = stringResource(R.string.label_max_users_allowed),
+                            value = accountSubscription.maxUsers.toString()
+                        )
+                        BenefitItem(
+                            label = stringResource(R.string.label_max_products_allowed),
+                            value = accountSubscription.maxProducts.toString()
+                        )
+                        BenefitItem(
+                            label = stringResource(R.string.label_max_warehouses_allowed),
+                            value = accountSubscription.maxWarehouses.toString()
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun InfoRow(
+    label: String,
+    value: String,
+    valueColor: Color
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "$label:",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White.copy(alpha = 0.7f)
+        )
+        Text(
+            text = value,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = valueColor
+        )
+    }
+}
+
+@Composable
+private fun BenefitItem(
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .background(
+                        Color(0xFFFF6B35),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+            )
+            Text(
+                text = label,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+        }
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
     }
 }

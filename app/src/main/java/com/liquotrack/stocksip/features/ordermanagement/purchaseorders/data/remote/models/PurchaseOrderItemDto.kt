@@ -12,5 +12,7 @@ data class PurchaseOrderItemDto(
     @SerializedName("quantity")
     val quantity: Int?,
     @SerializedName("subTotal")
-    val subTotal: Double?
+    val subTotal: Double?,
+    @SerializedName("imageUrl")
+    val imageUrl: String?
 )
