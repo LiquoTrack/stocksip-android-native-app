@@ -13,7 +13,7 @@ import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.authentication.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
 import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
-import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuideCreate
@@ -155,11 +155,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigateToUpdatePassword = {
                     val encodedEmail = URLEncoder.encode(email, "UTF-8")
                     navController.navigate("update_password/$encodedEmail")
-                },
-                onConfirmClick = { code ->
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(Route.Login.route) { inclusive = true }
-                    }
                 }
             )
         }

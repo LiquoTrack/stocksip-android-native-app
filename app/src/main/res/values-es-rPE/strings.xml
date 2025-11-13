@@ -163,7 +163,8 @@
     <string name="admin_tab_all">Todos</string>
     <string name="admin_tab_admin">Administrador</string>
     <string name="admin_tab_employee">Empleado</string>
-    <string name="admin_new_user">+ Nuevo</string>
+    <string name="admin_role_superadmin">Super Admin</string>
+    <string name="admin_new_user">+ Nuevo Usuario</string>
     <string name="users_capacity">Capacidad de usuarios</string>
     <string name="users_capacity_value">%1$d/%2$s</string>
     <string name="status_max_reached">Límite alcanzado</string>

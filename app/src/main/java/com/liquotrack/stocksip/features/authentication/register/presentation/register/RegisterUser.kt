@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.authentication.login.presentation.register
+package com.liquotrack.stocksip.features.authentication.register.presentation.register
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -50,7 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUserViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
@@ -130,7 +131,7 @@ fun RegisterUser(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = Color.LightGray, fontWeight = FontWeight.Bold)) {
-                            append("User Info")
+                            append(stringResource(R.string.label_user_information))
                         }
                     },
                     fontSize = 20.sp,
@@ -146,7 +147,7 @@ fun RegisterUser(
                     onValueChange = viewModel::updateFullName,
                     placeholder = {
                         Text(
-                            text = "Full Name",
+                            text = stringResource(R.string.label_name),
                             color = Color(0xFF8B7375)
                         )
                     },
@@ -181,7 +182,7 @@ fun RegisterUser(
                     onValueChange = viewModel::updateEmail,
                     placeholder = {
                         Text(
-                            text = "Email",
+                            text = stringResource(R.string.label_email),
                             color = Color(0xFF8B7375)
                         )
                     },
@@ -217,7 +218,7 @@ fun RegisterUser(
                     onValueChange = viewModel::updatePassword,
                     placeholder = {
                         Text(
-                            text = "Password",
+                            text = stringResource(R.string.label_password),
                             color = Color(0xFF8B7375)
                         )
                     },
@@ -262,7 +263,7 @@ fun RegisterUser(
                     onValueChange = viewModel::updateConfirmPassword,
                     placeholder = {
                         Text(
-                            text = "Confirm Password",
+                            text = stringResource(R.string.label_confirm_password),
                             color = Color(0xFF8B7375)
                         )
                     },
@@ -328,7 +329,7 @@ fun RegisterUser(
                         )
                     } else {
                         Text(
-                            text = "Next",
+                            text = stringResource(R.string.next),
                             color = Color.White,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Medium

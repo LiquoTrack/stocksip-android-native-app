@@ -160,7 +160,7 @@
     <string name="admin_tab_all">All</string>
     <string name="admin_tab_admin">Admin</string>
     <string name="admin_tab_employee">Employee</string>
-    <string name="admin_new_user">+ New</string>
+    <string name="admin_new_user">+ New User</string>
     <string name="users_capacity">Users Capacity</string>
     <string name="users_capacity_value">%1$d/%2$s</string>
     <string name="status_max_reached">Max reached</string>

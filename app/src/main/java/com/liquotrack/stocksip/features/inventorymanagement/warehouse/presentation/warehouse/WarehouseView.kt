@@ -26,10 +26,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.WarehouseList
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
@@ -88,7 +90,7 @@ fun WarehouseView(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Warehouses",
+                    title = stringResource(R.string.label_warehouses),
                     showBackButton = false,
                     onNavigationClick = {
                         scope.launch {
@@ -120,7 +122,7 @@ fun WarehouseView(
                             Column {
                                 Row {
                                     Text(
-                                        "Current: ",
+                                        text= "${stringResource(R.string.label_current_warehouses)}:",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast,
@@ -136,11 +138,14 @@ fun WarehouseView(
 
                                 Row {
                                     Text(
-                                        "Max. Allowed: ",
+                                        text = "${stringResource(R.string.label_max_warehouses)}:",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
                                     )
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
                                     Text(
                                         "${warehouses?.maxWarehousesAllowed}",
                                         fontWeight = FontWeight.Bold,
@@ -162,7 +167,7 @@ fun WarehouseView(
                                 contentColor = onTertiaryContainerLightMediumContrast
                             )
                         ) {
-                            Text(" + New Warehouse")
+                            Text(" + ${stringResource(R.string.label_new_warehouse)}")
                         }
                     }
                 }
