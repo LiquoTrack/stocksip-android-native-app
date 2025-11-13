@@ -1,6 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models
 
-import java.time.LocalDate
+import java.util.Date
 
 /**
  * Data class representing a request to add inventory items.
@@ -10,5 +10,5 @@ import java.time.LocalDate
  */
 data class InventoryAdditionRequest(
     val quantityToAdd: Int,
-    val expirationDate: LocalDate?
+    val expirationDate: Date?
 )

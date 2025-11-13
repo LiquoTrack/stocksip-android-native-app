@@ -1,6 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models
 
-import java.time.LocalDate
+import java.util.Date
 
 /**
  * Data class representing the response for an inventory item with additional info of the related product.
@@ -32,5 +32,5 @@ data class InventoryResponse (
     val currentState: String,
     val quantity: Int,
     val warehouseId: String,
-    val expirationDate: LocalDate?
+    val expirationDate: Date?
 )
