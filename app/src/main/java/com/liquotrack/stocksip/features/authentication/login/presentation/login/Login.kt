@@ -410,17 +410,31 @@ private fun handleSignIn(
     ) {
         try {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            val firebaseCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+            val idToken = googleIdTokenCredential.idToken
+            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
             FirebaseAuth.getInstance()
                 .signInWithCredential(firebaseCredential)
                 .addOnSuccessListener { authResult ->
-                    val firebaseUser = authResult.user
-                    val email = firebaseUser?.email.orEmpty()
-                    val fullName = firebaseUser?.displayName.orEmpty()
-                    val accountExists = authResult.additionalUserInfo?.isNewUser == false
-                    firebaseUser?.uid?.let(viewModel::saveGoogleAccountSession)
-                    Toast.makeText(context, "Google Sign-In success", Toast.LENGTH_SHORT).show()
-                    onGoogleSignInSuccess(email, fullName, accountExists)
+                    // Opcional: log de claims para depuración
+                    viewModel.logGoogleIdTokenClaims(idToken)
+
+                    // Autenticar contra backend para obtener token y accountId válidos
+                    viewModel.authenticateWithGoogle(
+                        idToken = idToken,
+                        clientId = context.getString(R.string.web_client),
+                        accessToken = null
+                    ) { success, error ->
+                        if (success) {
+                            val firebaseUser = authResult.user
+                            val email = firebaseUser?.email.orEmpty()
+                            val fullName = firebaseUser?.displayName.orEmpty()
+                            val accountExists = authResult.additionalUserInfo?.isNewUser == false
+                            Toast.makeText(context, "Google Sign-In success", Toast.LENGTH_SHORT).show()
+                            onGoogleSignInSuccess(email, fullName, accountExists)
+                        } else {
+                            Toast.makeText(context, error ?: "Backend auth failed", Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
                 .addOnFailureListener { error ->
                     Toast.makeText(context, "Firebase sign-in failed: ${error.message}", Toast.LENGTH_LONG).show()

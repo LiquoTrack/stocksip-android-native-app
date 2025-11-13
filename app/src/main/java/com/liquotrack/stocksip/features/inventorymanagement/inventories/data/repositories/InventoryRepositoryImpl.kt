@@ -184,15 +184,6 @@ class InventoryRepositoryImpl @Inject constructor(private val service: Inventory
         }
     }
 
-    /**
-     * Transfers products from one warehouse to another.
-     *
-     * @param originWarehouseId The unique identifier of the origin warehouse.
-     * @param productToTransferId The unique identifier of the product to be transferred.
-     * @param inventoryRequest The InventoryTransferRequest object containing details of the transfer.
-     *
-     * @return The updated InventoryResponse object after the transfer, or null if the operation fails.
-     */
     override suspend fun transferProductsToAnotherWarehouse(
         originWarehouseId: String,
         productToTransferId: String,
