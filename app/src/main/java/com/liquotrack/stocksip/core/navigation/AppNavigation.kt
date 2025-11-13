@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.InventoryView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
@@ -49,6 +50,7 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryexitform.InventoryExitFormView
 import java.net.URLEncoder
 
 /**
@@ -214,6 +216,54 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         // Warehouses
         composable(route = Route.Warehouses.route) {
             WarehouseView(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // Inventories
+        composable(
+            route = Route.Inventory.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.Inventory.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.Inventory.warehouseIdArg)
+            if (warehouseId != null) {
+                InventoryView(
+                    warehouseId = warehouseId,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            } else {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            }
+        }
+
+        composable(
+            route = Route.InventoryExitForm.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryExitForm.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) {
+            InventoryExitFormView(
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true

@@ -51,6 +51,12 @@ sealed class Route(val route: String) {
         val routeWithArgs = "$route/{$warehouseIdArg}"
     }
 
+    object InventoryExitForm : Route(route = "inventory_exit_form") {
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+        fun buildRoute(warehouseId: String): String = "$route/$warehouseId"
+    }
+
     object Products : Route(route = "products_storage")
 
     object ProductCreateEdit {
@@ -67,7 +73,13 @@ sealed class Route(val route: String) {
 
     object Alerts : Route(route = "alerts")
     object Addresses : Route(route = "addresses")
-    object Inventory : Route(route = "inventory")
+
+    object Inventory {
+        const val route = "warehouse_inventory"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
     object CareGuides : Route(route = "care_guide")
     object CareGuideCreate : Route(route = "care_guide_create")
     object CareGuideEdit : Route(route = "care_guide_edit") {
