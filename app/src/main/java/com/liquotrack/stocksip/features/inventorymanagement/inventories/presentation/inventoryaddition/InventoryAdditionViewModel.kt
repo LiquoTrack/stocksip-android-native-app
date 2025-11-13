@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryAdditionRequest
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryResponse
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.repositories.InventoryRepository
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductsWithCount
@@ -26,6 +27,9 @@ class InventoryAdditionViewModel @Inject constructor(
 
     private val _productList = MutableStateFlow<List<ProductResponse>>(emptyList())
     val productList: StateFlow<List<ProductResponse>> = _productList.asStateFlow()
+
+    private val _inventoryList = MutableStateFlow<List<InventoryResponse>>(emptyList())
+    val inventoryList: StateFlow<List<InventoryResponse>> = _inventoryList.asStateFlow()
 
     private val _selectedProductId = MutableStateFlow<String?>(null)
     val selectedProductId: StateFlow<String?> = _selectedProductId.asStateFlow()
@@ -67,15 +71,17 @@ class InventoryAdditionViewModel @Inject constructor(
     /**
      * Loads the list of products associated with the current account.
      */
-    fun loadProductList() {
+    fun loadProductList(warehouseId: String) {
         viewModelScope.launch {
             val accountId = tokenManager.getAccountId()
             var productsWithCount = ProductsWithCount(0,0, emptyList())
+            val inventories = repository.getAllInventoriesByWarehouseId(warehouseId)
 
             accountId?.let {
                 productsWithCount = productRepository.getAllProductsByAccountId(it)
             }
 
+            _inventoryList.value = inventories
             _productList.value = productsWithCount.products
         }
     }

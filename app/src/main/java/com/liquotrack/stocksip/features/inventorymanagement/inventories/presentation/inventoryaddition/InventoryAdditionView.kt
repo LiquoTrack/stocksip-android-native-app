@@ -37,12 +37,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.components.ProductDoubleSelectorField
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.components.ProductSelectorField
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
 import com.liquotrack.stocksip.shared.presentation.components.DateInputField
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
 import com.liquotrack.stocksip.shared.utils.stringToDate
 
+/**
+ * Composable function for the Inventory Addition View.
+ *
+ * @param viewModel The ViewModel for managing inventory addition state and logic.
+ * @param warehouseId The ID of the warehouse to which products are being added.
+ * @param onNavigateBack Callback function to navigate back to the previous screen.
+ */
 @Composable
 fun InventoryAdditionView(
     viewModel: InventoryAdditionViewModel = hiltViewModel(),
@@ -56,12 +64,13 @@ fun InventoryAdditionView(
         if (warehouseId.isNullOrEmpty()) {
             onNavigateBack()
         } else {
-            viewModel.loadProductList()
+            viewModel.loadProductList(warehouseId)
         }
     }
 
     val selectedProductId by viewModel.selectedProductId.collectAsState()
     val productsList by viewModel.productList.collectAsState()
+    val inventories by viewModel.inventoryList.collectAsState()
     val quantityToAdd by viewModel.quantityToAdd.collectAsState()
     val expirationDate by viewModel.expirationDate.collectAsState()
     val quantityError by viewModel.quantityError.collectAsState()
@@ -117,8 +126,9 @@ fun InventoryAdditionView(
                     .background(Color(0xFFF4ECEC))
             ) {
                 // Product Selection Dropdown
-                ProductSelectorField(
+                ProductDoubleSelectorField(
                     products = productsList,
+                    inventories = inventories,
                     selectedProductId = selectedProductId,
                     onProductSelected = { viewModel.updateSelectedProductId(it) }
                 )
