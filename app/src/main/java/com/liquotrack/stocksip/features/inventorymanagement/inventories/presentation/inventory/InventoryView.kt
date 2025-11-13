@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +30,7 @@ import com.liquotrack.stocksip.features.authentication.login.presentation.login.
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.components.InventoryList
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
+import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLightMediumContrast
 import com.liquotrack.stocksip.shared.ui.theme.onTertiaryContainerLightMediumContrast
 import kotlinx.coroutines.launch
 
@@ -115,7 +120,50 @@ fun InventoryView(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        // Here will go the buttons (add, subtrack, transfer)
+                        // Inventory Addition Button
+                        // Navigates to the inventory addition screen for the specified warehouse
+                        Button(
+                            onClick = {
+                                onNavigate("inventory_addition/${warehouseId}")
+                            },
+                            modifier = Modifier.height(36.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = onSurfaceLightMediumContrast,
+                                contentColor = onTertiaryContainerLightMediumContrast
+                            )
+                        ) {
+                            Text(" + Add Products")
+                        }
+
+                        // Inventory Subtrack Button
+                        // Navigates to the inventory subtrack screen for the specified warehouse
+                        Button(
+                            onClick = {
+                                onNavigate("inventory_subtrack/${warehouseId}")
+                            },
+                            modifier = Modifier.height(36.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = onSurfaceLightMediumContrast,
+                                contentColor = onTertiaryContainerLightMediumContrast
+                            )
+                        ) {
+                            Text(" - Subtrack Products")
+                        }
+
+                        // Inventory Transfer Button
+                        // Navigates to the inventory transfer screen for the specified warehouse
+                        Button(
+                            onClick = {
+                                onNavigate("inventory_transfer/${warehouseId}")
+                            },
+                            modifier = Modifier.height(36.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = onSurfaceLightMediumContrast,
+                                contentColor = onTertiaryContainerLightMediumContrast
+                            )
+                        ) {
+                            Text(" <-> Transfer Products")
+                        }
                     }
                 }
 
