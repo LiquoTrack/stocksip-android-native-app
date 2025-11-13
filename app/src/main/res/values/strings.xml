@@ -9,8 +9,8 @@
     <string name="label_sign_in_google">Sign in with Google</string>
     <string name="label_dont_have_an_account">Don\'t have an account?</string>
     <string name="label_warehouses">Warehouses</string>
-    <string name="label_current_warehouses">Current:</string>
-    <string name="label_max_warehouses">Max. Allowed:</string>
+    <string name="label_current_warehouses">Current</string>
+    <string name="label_max_warehouses">Max. Allowed</string>
     <string name="label_new_warehouse">New Warehouse</string>
     <string name="label_edit_warehouse">Edit Warehouse</string>
     <string name="label_select_image">Select an image</string>

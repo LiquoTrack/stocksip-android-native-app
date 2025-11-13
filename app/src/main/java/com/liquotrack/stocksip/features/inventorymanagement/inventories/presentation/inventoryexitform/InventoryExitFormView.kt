@@ -52,8 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
