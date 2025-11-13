@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
@@ -254,6 +255,28 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     }
                 }
             )
+        }
+
+        // Product Detail
+        composable(
+            route = Route.ProductDetail.routeWithArgs,
+            arguments = listOf(navArgument(Route.ProductDetail.productIdArg) {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString(Route.ProductDetail.productIdArg)
+            if (productId == null) {
+                // Handle null productId case and navigates back
+                navController.popBackStack()
+            } else {
+                ProductDetailView(
+                    productId = productId,
+                    onNavigate = { route ->
+                        navController.navigate(route) { launchSingleTop = true }
+                    },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
 
         // Product Create And Edit

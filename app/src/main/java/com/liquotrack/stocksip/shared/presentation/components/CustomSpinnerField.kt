@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.shared.presentation.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,10 +9,15 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,47 +45,69 @@ fun CustomSpinnerField(
     isRequired: Boolean = false,
     label: String
 ) {
+    // State to manage the expanded/collapsed state of the dropdown menu
     var expanded by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf(items[0]) }
 
+    // Value to check if the items list is empty
+    val isEmpty = items.isEmpty()
+
+    // State to hold the currently selected item. Also initializes with the first item if available.
+    var selectedItem by remember(items) { mutableStateOf(items.firstOrNull() ?: "") }
+
+    // Effect to set the initial selected item when the items list changes
+    LaunchedEffect(items) {
+        items.firstOrNull()?.let {
+            selectedItem = it
+            onItemSelected(it)
+        } ?: run {
+            selectedItem = ""
+        }
+    }
+
+    // UI layout for the custom spinner field
     Column(modifier = modifier) {
-        Text(
-            text = if (isRequired) "$label *" else label,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-
-        OutlinedButton(
-            onClick = { expanded = !expanded },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(selectedItem)
-            Icon(
-                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (expanded) "Hide" else "Display"
+        Box {
+            TextField(
+                value = selectedItem,
+                onValueChange = { },
+                readOnly = true,
+                label = { Text(if (isRequired) "$label *" else label) },
+                trailingIcon = {
+                    IconButton(onClick = { if (!isEmpty) expanded = !expanded }) {
+                        val icon = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+                        Icon(imageVector = icon, contentDescription = null)
+                    }
+                },
+                enabled = !isEmpty,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(item) },
+                        onClick = {
+                            selectedItem = item
+                            onItemSelected(item)
+                            expanded = false
+                        }
+                    )
+                }
+            }
         }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            items.forEach { item ->
-                DropdownMenuItem(
-                    text = {
-                        Text(text = item)
-                    },
-                    onClick = {
-                        selectedItem = item
-                        onItemSelected(item)
-                        expanded = false
-                    }
-                )
-            }
+        if (isEmpty) {
+            Text(
+                text = "No options available",
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
 }

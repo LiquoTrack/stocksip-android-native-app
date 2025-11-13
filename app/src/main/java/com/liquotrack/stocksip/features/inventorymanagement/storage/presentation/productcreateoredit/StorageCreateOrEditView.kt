@@ -55,6 +55,9 @@ fun StorageCreateOrEditView(
     onNavigateBack : () -> Unit
 ) {
 
+    val brands by viewModel.brands.collectAsState()
+    val types by viewModel.productTypes.collectAsState()
+
     val name by viewModel.productName.collectAsState()
     val type by viewModel.productType.collectAsState()
     val brand by viewModel.brand.collectAsState()
@@ -169,7 +172,7 @@ fun StorageCreateOrEditView(
                     ) {
                         // Product Type
                         CustomSpinnerField(
-                            items = emptyList(),
+                            items = types,
                             onItemSelected = viewModel::updateProductType,
                             label = "Type",
                             modifier = Modifier.weight(1f)
@@ -177,7 +180,7 @@ fun StorageCreateOrEditView(
 
                         // Brand
                         CustomSpinnerField(
-                            items = emptyList(),
+                            items = brands,
                             onItemSelected = viewModel::updateBrand,
                             label = "Brand",
                             modifier = Modifier.weight(1f)
@@ -199,7 +202,7 @@ fun StorageCreateOrEditView(
 
                        // Currency Code
                         CustomSpinnerField(
-                            items = emptyList(),
+                            items = listOf("USD", "EUR", "INR", "GBP", "JPY"),
                             onItemSelected = viewModel::updateCurrencyCode,
                             label = "Currency",
                             modifier = Modifier.weight(1f)
@@ -228,7 +231,6 @@ fun StorageCreateOrEditView(
                                 productId = productId,
                                 onSuccess = { onNavigateBack() }
                             )
-
                         },
                         modifier = Modifier
                             .fillMaxWidth()
