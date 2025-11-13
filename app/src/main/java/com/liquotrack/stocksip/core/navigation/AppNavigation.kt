@@ -33,6 +33,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.InventoryView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.InventoryAdditionView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
@@ -50,7 +51,7 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
-import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryexitform.InventoryExitFormView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.InventoryExitFormView
 import java.net.URLEncoder
 
 /**
@@ -254,6 +255,25 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             } else {
                 // Handle null warehouseId case and navigates back
                 navController.popBackStack()
+            }
+        }
+
+        // Inventory Addition Form
+        composable(
+            route = Route.InventoryAddition.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryAddition.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventoryAddition.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryAdditionView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
 
