@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.liquotrack.stocksip.R
 
 @Composable
 fun Failure(
@@ -77,7 +79,7 @@ fun Failure(
 
             // Error Text
             Text(
-                text = "Payment Failed",
+                text = stringResource(R.string.label_payment_failure),
                 fontSize = 42.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White,
@@ -106,7 +108,7 @@ fun Failure(
 
             // Error Message
             Text(
-                text = "We couldn't process your payment.",
+                text = stringResource(R.string.label_subscription_failure),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.9f),
@@ -117,7 +119,7 @@ fun Failure(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Please check your payment method and try again.",
+                text = "${stringResource(R.string.label_subscription_failure_message)}.",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.White.copy(alpha = 0.7f),
@@ -143,7 +145,7 @@ fun Failure(
                 )
             ) {
                 Text(
-                    text = "Return to Home",
+                    text = stringResource(R.string.label_return_home),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,

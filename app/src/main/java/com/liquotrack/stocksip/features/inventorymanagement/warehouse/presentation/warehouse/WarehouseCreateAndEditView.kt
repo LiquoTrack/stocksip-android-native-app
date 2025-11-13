@@ -13,13 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
-import com.liquotrack.stocksip.shared.ui.components.TopAppBar
 import java.io.File
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
 import com.liquotrack.stocksip.shared.presentation.components.CustomDoubleTextField
@@ -28,6 +28,7 @@ import com.liquotrack.stocksip.shared.presentation.components.ImageSelectionSect
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 import kotlinx.coroutines.launch
+import com.liquotrack.stocksip.R
 
 @Composable
 fun WarehouseCreateAndEditView(
@@ -36,7 +37,6 @@ fun WarehouseCreateAndEditView(
     warehouse: WarehouseResponse? = null,
     onNavigateBack: () -> Unit
 ) {
-
     val name by viewModel.warehouseName.collectAsState()
     val street by viewModel.street.collectAsState()
     val city by viewModel.cityState.collectAsState()
@@ -48,7 +48,6 @@ fun WarehouseCreateAndEditView(
     val maxTemp by viewModel.maxTemp.collectAsState()
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
-
 
     val isEditMode = warehouseId != null && warehouseId != "new" && warehouseId.isNotBlank()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -107,14 +106,17 @@ fun WarehouseCreateAndEditView(
         Scaffold(
             topBar = {
                 TopBarWithBack(
-                    title = if (isEditMode) "Edit Warehouse" else "New Warehouse",
+                    title = if (isEditMode)
+                        stringResource(R.string.label_edit_warehouse)
+                    else
+                        stringResource(R.string.label_new_warehouse),
                     onBackClick = onNavigateBack,
                     actions = {
                         if (isEditMode) {
                             IconButton(onClick = { viewModel.showDeleteConfirmationDialog(true) }) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete Warehouse",
+                                    contentDescription = stringResource(R.string.label_delete),
                                     tint = Color(0xFFE8B4BE)
                                 )
                             }
@@ -142,86 +144,73 @@ fun WarehouseCreateAndEditView(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Form Fields
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Warehouse Name
                     CustomTextField(
                         value = name,
                         onValueChange = viewModel::updateWarehouseName,
-                        label = "Name",
+                        label = stringResource(R.string.label_warehouse_name),
                         placeholder = "e.g., Main Warehouse"
                     )
 
-                    // Street
                     CustomTextField(
                         value = street,
                         onValueChange = viewModel::updateStreet,
-                        label = "Street",
-                        placeholder = "e.g. 123 Main St"
+                        label = stringResource(R.string.label_warehouse_street),
+                        placeholder = "e.g., 123 Main St"
                     )
 
-                    // City and District in Row
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomTextField(
                             value = city,
                             onValueChange = viewModel::updateCity,
-                            label = "City",
-                            placeholder = "eg. Lima",
+                            label = stringResource(R.string.label_warehouse_city),
+                            placeholder = "e.g., Lima",
                             modifier = Modifier.weight(1f)
                         )
 
                         CustomTextField(
                             value = district,
                             onValueChange = viewModel::updateDistrict,
-                            label = "District",
-                            placeholder = "e.g. Chorrillos",
+                            label = stringResource(R.string.label_warehouse_district),
+                            placeholder = "e.g., Chorrillos",
                             modifier = Modifier.weight(1f)
                         )
                     }
 
-                    // Postal Code and Country
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomTextField(
                             value = postalCode,
                             onValueChange = viewModel::updatePostalCode,
-                            label = "Postal Code",
-                            placeholder = "e.g. 15063",
+                            label = stringResource(R.string.label_warehouse_postal_code),
+                            placeholder = "e.g., 15063",
                             modifier = Modifier.weight(1f)
                         )
 
                         CustomTextField(
                             value = country,
                             onValueChange = viewModel::updateCountry,
-                            label = "Country",
-                            placeholder = "e.g. Peru",
+                            label = stringResource(R.string.label_warehouse_country),
+                            placeholder = "e.g., Perú",
                             modifier = Modifier.weight(1f)
                         )
                     }
 
-                    // Capacity
                     CustomDoubleTextField(
                         value = capacity,
                         onValueChange = viewModel::updateCapacity,
-                        label = "Capacity",
-                        placeholder = "e.g. 5000.0",
+                        label = stringResource(R.string.label_warehouse_capacity),
+                        placeholder = "e.g., 5000.0",
                         keyboardType = KeyboardType.Decimal
                     )
 
-                    // Temperature Range
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomDoubleTextField(
                             value = minTemp,
                             onValueChange = viewModel::updateMinTemp,
-                            label = "Min Temperature (°C)",
-                            placeholder = "e.g. -5.0",
+                            label = stringResource(R.string.label_warehouse_min_temperature),
+                            placeholder = "e.g., -5.0",
                             modifier = Modifier.weight(1f),
                             keyboardType = KeyboardType.Number,
                             showError = temperatureError != null
@@ -230,8 +219,8 @@ fun WarehouseCreateAndEditView(
                         CustomDoubleTextField(
                             value = maxTemp,
                             onValueChange = viewModel::updateMaxTemp,
-                            label = "Max Temperature (°C)",
-                            placeholder = "e.g. 25.0",
+                            label = stringResource(R.string.label_warehouse_max_temperature),
+                            placeholder = "e.g., 25.0",
                             modifier = Modifier.weight(1f),
                             keyboardType = KeyboardType.Number,
                             showError = temperatureError != null
@@ -241,7 +230,6 @@ fun WarehouseCreateAndEditView(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Save button
                 Button(
                     onClick = {
                         viewModel.updateImageFile(selectedImageFile)
@@ -250,7 +238,6 @@ fun WarehouseCreateAndEditView(
                             warehouseId = warehouseId,
                             onSuccess = { onNavigateBack() }
                         )
-
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -269,7 +256,10 @@ fun WarehouseCreateAndEditView(
                         )
                     } else {
                         Text(
-                            text = if (isEditMode) "Update Warehouse" else "Add Warehouse",
+                            text = if (isEditMode)
+                                stringResource(R.string.label_update_warehouse)
+                            else
+                                stringResource(R.string.label_add_warehouse),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -278,7 +268,6 @@ fun WarehouseCreateAndEditView(
                 }
             }
 
-            // Confirmation Dialog for Deletion
             if (viewModel.showDeleteDialog.collectAsState().value) {
                 AlertDialog(
                     onDismissRequest = { viewModel.showDeleteConfirmationDialog(false) },
@@ -291,21 +280,23 @@ fun WarehouseCreateAndEditView(
                                 }
                             }
                         }) {
-                            Text("Delete", color = Color.Red)
+                            Text(
+                                stringResource(R.string.label_delete),
+                                color = Color.Red
+                            )
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { viewModel.showDeleteConfirmationDialog(false) }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.label_cancel))
                         }
                     },
-                    title = { Text("Delete Warehouse") },
-                    text = { Text("Are you sure you want to delete this warehouse? This action is irreversible.") },
+                    title = { Text(stringResource(R.string.label_delete_warehouse)) },
+                    text = { Text(stringResource(R.string.label_delete_confirmation_message)) },
                     containerColor = Color.White
                 )
             }
 
-            // Overlay Loading Indicator
             if (isLoading) {
                 Box(
                     modifier = Modifier

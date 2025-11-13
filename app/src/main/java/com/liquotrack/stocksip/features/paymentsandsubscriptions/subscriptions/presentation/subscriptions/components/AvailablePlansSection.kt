@@ -1,7 +1,6 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components
 
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,11 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.presentation.plan.PlanViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.SubscriptionsViewModel
 
@@ -93,7 +94,7 @@ fun AvailablePlansSection(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "You already have the highest plan!",
+                    text = stringResource(R.string.label_highest_plan),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -104,7 +105,7 @@ fun AvailablePlansSection(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Thank you for being a premium member.",
+                    text = "${stringResource(R.string.label_highest_plan_thanks)}.",
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
@@ -121,7 +122,7 @@ fun AvailablePlansSection(
         ) {
 
             Text(
-                "Update Your plan",
+                text = stringResource(R.string.label_update_plan),
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 color = Color(0xFF4A1B2A)
             )
@@ -156,9 +157,8 @@ fun AvailablePlansSection(
                     containerColor = Color(0xFF4A1B2A),
                 ),
             ) {
-                Text("Upgrade Plan")
+                Text(stringResource(R.string.label_update))
             }
         }
     }
 }
-
