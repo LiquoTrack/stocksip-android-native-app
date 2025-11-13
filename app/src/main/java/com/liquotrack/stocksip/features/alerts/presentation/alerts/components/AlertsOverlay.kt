@@ -33,7 +33,6 @@ fun AlertsOverlay(
     alerts: List<Alert>,
     onDismiss: () -> Unit
 ) {
-    // Usamos un Dialog para que flote por encima de todo
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
@@ -45,7 +44,6 @@ fun AlertsOverlay(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(16.dp)
             ) {
-                // --- Barra de Título y Botón X ---
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -58,7 +56,7 @@ fun AlertsOverlay(
                     )
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.size(24.dp) // Tamaño del botón
+                        modifier = Modifier.size(24.dp)
                     ) {
                         Icon(
                             Icons.Default.Close,
@@ -69,9 +67,7 @@ fun AlertsOverlay(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // --- Lista de Alertas ---
                 LazyColumn(
-                    // Limita la altura máxima para que no ocupe toda la pantalla si hay muchas alertas
                     modifier = Modifier.heightIn(max = 400.dp)
                 ) {
                     items(alerts) { alert ->

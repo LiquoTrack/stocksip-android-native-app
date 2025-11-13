@@ -186,9 +186,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         }
 
 
-        // --- INICIO DE LA MODIFICACIÓN ---
-
-        // MAIN FLOW
+        // MAIN FLOW CON OVERLAY
         composable(route = Route.Main.route) {
 
             // 1. Inyectamos el ViewModel de Alertas aquí
@@ -198,7 +196,7 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             // 2. Usamos un Box para poder superponer elementos
             Box(modifier = Modifier.fillMaxSize()) {
 
-                // 3. Tu HomeView se queda intacto, sin cambios (Capa inferior)
+                // 3. Tu HomeView (Capa inferior)
                 HomeView(
                     onNavigate = { route ->
                         navController.navigate(route) {
@@ -212,19 +210,18 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     }
                 )
 
-                // 4. Mostramos el Overlay "encima" del HomeView si hay alertas (Capa superior)
+                // 4. Mostramos el Overlay "encima" si hay alertas (Capa superior)
                 if (alertsToShow.isNotEmpty()) {
                     AlertsOverlay(
                         alerts = alertsToShow,
                         onDismiss = {
-                            alertsViewModel.dismissOverlay() // Al cerrarlo, llamamos al ViewModel
+                            alertsViewModel.dismissOverlay()
                         }
                     )
                 }
             }
         }
-
-        // --- FIN DE LA MODIFICACIÓN ---
+        // --- FIN DEL BLOQUE ---
 
 
         // Profile

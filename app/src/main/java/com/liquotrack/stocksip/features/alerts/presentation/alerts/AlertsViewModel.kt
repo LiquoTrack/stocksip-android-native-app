@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// 1. Define el estado de tu UI
 data class AlertsUiState(
     val isLoading: Boolean = false,
     val alerts: List<Alert> = emptyList(),
@@ -24,30 +23,48 @@ class AlertsViewModel @Inject constructor(
     private val repository: AlertsRepository
 ) : ViewModel() {
 
-    // 2. Crea el StateFlow para el estado
+    // 1. Estado para la AlertsScreen (la lista completa)
     private val _uiState = MutableStateFlow(AlertsUiState())
     val uiState: StateFlow<AlertsUiState> = _uiState.asStateFlow()
 
-    // 3. Función para cargar las alertas
+    // --- ESTA ES LA PARTE NUEVA QUE TE FALTA ---
+
+    // 2. Estado separado para las alertas del Overlay
+    private val _alertsToShowInOverlay = MutableStateFlow<List<Alert>>(emptyList())
+    val alertsToShowInOverlay: StateFlow<List<Alert>> = _alertsToShowInOverlay.asStateFlow()
+
+    // --- FIN DE LA PARTE NUEVA ---
+
     fun loadAlerts(accountId: String) {
         viewModelScope.launch {
-            // Pone el estado en "cargando"
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             try {
-                // Llama al repositorio
                 val fetchedAlerts = repository.fetchAlerts(accountId)
 
-                // Actualiza el estado con éxito
+                // Actualiza el estado de la pantalla de Alertas
                 _uiState.update {
                     it.copy(isLoading = false, alerts = fetchedAlerts)
                 }
+
+                // --- ESTA ES LA LÍNEA NUEVA ---
+                // También actualiza el estado del Overlay
+                _alertsToShowInOverlay.value = fetchedAlerts
+
             } catch (e: Exception) {
-                // Actualiza el estado con error
                 _uiState.update {
                     it.copy(isLoading = false, error = "Error al cargar alertas: ${e.message}")
                 }
             }
         }
     }
+
+    // --- ESTA ES LA FUNCIÓN NUEVA QUE TE FALTA ---
+
+    // 3. Función para cerrar el Overlay
+    fun dismissOverlay() {
+        _alertsToShowInOverlay.value = emptyList()
+    }
+
+    // --- FIN DE LA FUNCIÓN NUEVA ---
 }

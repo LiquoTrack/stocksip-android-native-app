@@ -68,7 +68,7 @@ fun AlertCard(alert: Alert) {
 @Composable
 private fun getIconAndColorForSeverity(severity: ESeverityTypes): Pair<ImageVector, Color> {
     return when (severity) {
-        ESeverityTypes.Info -> Icons.Default.Info to Color.Blue
+        ESeverityTypes.Info -> Icons.Default.Info to MaterialTheme.colorScheme.primary
         ESeverityTypes.Warning -> Icons.Default.Warning to Color(0xFFFFA000)
         ESeverityTypes.Critical -> Icons.Default.Error to MaterialTheme.colorScheme.error
     }

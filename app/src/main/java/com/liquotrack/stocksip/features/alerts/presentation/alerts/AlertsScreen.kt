@@ -22,31 +22,24 @@ import com.liquotrack.stocksip.features.alerts.presentation.alerts.components.Al
 @Composable
 fun AlertsScreen(
     viewModel: AlertsViewModel = hiltViewModel(),
-    // Deberías pasar el accountId a tu pantalla, por ejemplo, desde la navegación
     accountId: String
 ) {
-    // 1. Llama a la función del ViewModel para cargar los datos
-    // LaunchedEffect se asegura de que se llame solo una vez
     LaunchedEffect(key1 = accountId) {
         viewModel.loadAlerts(accountId)
     }
 
-    // 2. Observa el estado del ViewModel
     val state by viewModel.uiState.collectAsState()
 
-    // 3. Dibuja la UI según el estado
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         when {
-            // --- Estado de Carga ---
             state.isLoading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
 
-            // --- Estado de Error ---
             state.error != null -> {
                 Text(
                     text = state.error!!,
@@ -55,15 +48,11 @@ fun AlertsScreen(
                 )
             }
 
-            // --- Estado de Éxito ---
             else -> {
-                // Usamos LazyColumn para mostrar una lista de Alertas
                 LazyColumn(
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    // Itera sobre la lista de alertas del estado
                     items(state.alerts) { alert ->
-                        // Aquí usas tu AlertCard, que ya está hecho
                         AlertCard(alert = alert)
                     }
                 }
