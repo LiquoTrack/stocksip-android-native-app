@@ -415,10 +415,8 @@ private fun handleSignIn(
             FirebaseAuth.getInstance()
                 .signInWithCredential(firebaseCredential)
                 .addOnSuccessListener { authResult ->
-                    // Opcional: log de claims para depuración
                     viewModel.logGoogleIdTokenClaims(idToken)
 
-                    // Autenticar contra backend para obtener token y accountId válidos
                     viewModel.authenticateWithGoogle(
                         idToken = idToken,
                         clientId = context.getString(R.string.web_client),

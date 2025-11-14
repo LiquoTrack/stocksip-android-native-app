@@ -20,5 +20,6 @@ data class SubUser(
     val fullName: String,
     val phoneNumber: String,
     val profilePictureUrl: String,
-    val profileRole: String
+    val profileRole: String,
+    val password: String = ""
 )
