@@ -45,6 +45,14 @@ fun AddressListScreen(
 
     val isOrderLoading by purchaseOrdersViewModel.isLoading.collectAsState()
     val isBusy = isLoading || isOrderLoading
+    val createdId by purchaseOrdersViewModel.createdPurchaseOrderId.collectAsState()
+
+    LaunchedEffect(createdId) {
+        val id = createdId
+        if (!id.isNullOrEmpty()) {
+            onOrderCreated(id)
+        }
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -148,7 +156,6 @@ fun AddressListScreen(
                                 addressIndex = selectedAddressIndex
                             )
                             cartViewModel.clearCart()
-                            onOrderCreated(catalogId)
                         }
                     },
                     modifier = Modifier

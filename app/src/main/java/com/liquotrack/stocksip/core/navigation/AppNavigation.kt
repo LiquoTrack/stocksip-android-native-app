@@ -196,8 +196,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             val alertsToShow by alertsViewModel.alertsToShowInOverlay.collectAsStateWithLifecycle()
 
             Box(modifier = Modifier.fillMaxSize()) {
-
-                // 3. Tu HomeView (Capa inferior)
                 HomeView(
                     onNavigate = { route ->
                         navController.navigate(route) {
@@ -733,6 +731,44 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(
+            route = "salesorders/create/{purchaseOrderId}"
+        ) {
+            val purchaseOrderId = it.arguments?.getString("purchaseOrderId")
+
+            SupplierSalesOrdersView(
+                onNavigate = { route ->
+                    navController.navigate(route) { launchSingleTop = true }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                purchaseOrderId = purchaseOrderId,
+                orderId = null
+            )
+        }
+
+        composable(
+            route = "salesorders/detail/{orderId}"
+        ) {
+            val orderId = it.arguments?.getString("orderId")
+
+            SupplierSalesOrdersView(
+                onNavigate = { route ->
+                    navController.navigate(route) { launchSingleTop = true }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                purchaseOrderId = null,
+                orderId = orderId
             )
         }
 

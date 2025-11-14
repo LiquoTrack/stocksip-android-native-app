@@ -25,9 +25,6 @@ class SalesOrdersViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    /**
-     * Crea una SalesOrder automáticamente desde una PurchaseOrder existente.
-     */
     fun createSalesOrderFromProcurement(purchaseOrderId: String) {
         viewModelScope.launch {
             _isLoading.value = true
