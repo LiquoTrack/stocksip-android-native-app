@@ -16,7 +16,8 @@ fun ProductRequest.toMultipart(imageFile: File?): Pair<Map<String, RequestBody>,
         "UnitPrice" to unitPrice.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
         "Code" to currencyCode.toRequestBody("text/plain".toMediaTypeOrNull()),
         "Content" to content.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
-        "MinimumStock" to minimumStock.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        "MinimumStock" to minimumStock.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
+        "SupplierId" to supplierId.toRequestBody("text/plain".toMediaTypeOrNull())
     )
 
     val imagePart = imageFile?.let { file ->

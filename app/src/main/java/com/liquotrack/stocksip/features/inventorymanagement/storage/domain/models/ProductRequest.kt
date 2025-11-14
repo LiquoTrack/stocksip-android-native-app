@@ -20,5 +20,5 @@ data class ProductRequest(
     val currencyCode: String,
     val minimumStock: Int,
     val content: Double,
-    val supplierId: String? = "string"
+    val supplierId: String = "string"
 )

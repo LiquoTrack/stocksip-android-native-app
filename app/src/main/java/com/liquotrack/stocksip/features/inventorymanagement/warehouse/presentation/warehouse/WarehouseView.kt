@@ -122,14 +122,14 @@ fun WarehouseView(
                             Column {
                                 Row {
                                     Text(
-                                        text= "${stringResource(R.string.label_current_warehouses)}:",
+                                        text= "${stringResource(R.string.label_current)}:",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast,
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        "${warehouses?.total}",
+                                        "${warehouses?.total ?: "0"}",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
@@ -138,7 +138,7 @@ fun WarehouseView(
 
                                 Row {
                                     Text(
-                                        text = "${stringResource(R.string.label_max_warehouses)}:",
+                                        text = "${stringResource(R.string.label_max)}:",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
@@ -147,7 +147,7 @@ fun WarehouseView(
                                     Spacer(modifier = Modifier.width(8.dp))
 
                                     Text(
-                                        "${warehouses?.maxWarehousesAllowed}",
+                                        "${warehouses?.maxWarehousesAllowed ?: "0"}",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast

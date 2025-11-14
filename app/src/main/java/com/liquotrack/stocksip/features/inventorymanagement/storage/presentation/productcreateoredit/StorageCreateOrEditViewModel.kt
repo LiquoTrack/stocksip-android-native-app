@@ -184,8 +184,7 @@ class StorageCreateOrEditViewModel @Inject constructor(
                     unitPrice = _unitPrice.value,
                     currencyCode = code,
                     minimumStock = _minimumStock.value,
-                    content = _content.value,
-                    supplierId = null
+                    content = _content.value
                 )
 
                 Log.d("PRODUCT", "Registering productRequest: $productRequest")

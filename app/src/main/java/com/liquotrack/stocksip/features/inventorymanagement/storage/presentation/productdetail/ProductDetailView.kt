@@ -75,6 +75,8 @@ fun ProductDetailView(
 
     val selectedProduct = viewModel.selectedProduct.collectAsState()
 
+    val backgroundColor = Color(0xFFF4ECEC)
+
     if (selectedProduct.value == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -89,6 +91,7 @@ fun ProductDetailView(
 
         selectedProduct.value?.let {
             Scaffold(
+                containerColor = backgroundColor,
                 floatingActionButton = {
                     Row(
                         modifier = Modifier
