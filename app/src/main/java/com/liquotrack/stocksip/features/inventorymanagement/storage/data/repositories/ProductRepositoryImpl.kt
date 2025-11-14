@@ -42,6 +42,7 @@ class ProductRepositoryImpl @Inject constructor(private val service: ProductServ
                                 unitPrice = productDto.unitPrice,
                                 currencyCode = productDto.moneyCode,
                                 minimumStock = productDto.minimumStock,
+                                content = productDto.content,
                                 totalStockInWarehouse = productDto.totalStockInWarehouse,
                                 imageUrl = productDto.imageUrl ?: "",
                                 supplierId = productDto.supplierId ?: "",
@@ -87,6 +88,7 @@ class ProductRepositoryImpl @Inject constructor(private val service: ProductServ
                         unitPrice = productDto.unitPrice,
                         currencyCode = productDto.moneyCode,
                         minimumStock = productDto.minimumStock,
+                        content = productDto.content,
                         totalStockInWarehouse = productDto.totalStockInWarehouse,
                         imageUrl = productDto.imageUrl ?: "",
                         supplierId = productDto.supplierId ?: "",
@@ -125,29 +127,41 @@ class ProductRepositoryImpl @Inject constructor(private val service: ProductServ
             )
 
             if (response.isSuccessful) {
-                response.body()?.let { productDto ->
-                    return@withContext ProductResponse(
-                        id = productDto.productId,
-                        name = productDto.name,
-                        productType = productDto.productType,
-                        brand = productDto.brand,
-                        unitPrice = productDto.unitPrice,
-                        currencyCode = productDto.moneyCode,
-                        minimumStock = productDto.minimumStock,
-                        totalStockInWarehouse = productDto.totalStockInWarehouse,
-                        imageUrl = productDto.imageUrl ?: "",
-                        supplierId = productDto.supplierId ?: "",
-                        isInWarehouse = productDto.isInWarehouse
-                    )
+                val productDto = response.body()
+                if (productDto == null) {
+                    val raw = try { response.errorBody()?.string() } catch (_: Exception) { null }
+                    throw Exception("Empty response body when registering product (HTTP ${response.code()}). ErrorBody: ${raw ?: "none"}")
                 }
+
+                val id = productDto.productId
+
+                if (id.isBlank()) {
+                    throw Exception("Response missing productId")
+                }
+
+                return@withContext ProductResponse(
+                    id = id,
+                    name = productDto.name,
+                    productType = productDto.productType,
+                    brand = productDto.brand,
+                    unitPrice = productDto.unitPrice,
+                    currencyCode = productDto.moneyCode,
+                    minimumStock = productDto.minimumStock,
+                    content = productDto.content,
+                    totalStockInWarehouse = productDto.totalStockInWarehouse,
+                    imageUrl = productDto.imageUrl ?: "",
+                    supplierId = productDto.supplierId ?: "",
+                    isInWarehouse = productDto.isInWarehouse
+                )
             } else {
-                throw Exception("Error while registering product: ${response.code()} ${response.message()}")
+                val rawError = try { response.errorBody()?.string() } catch (_: Exception) { null }
+                throw Exception("Failed to register product: HTTP ${response.code()} ${response.message()} - ErrorBody: ${rawError ?: "none"}")
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
+            throw Exception("Failed to register product: ${e.message}", e)
         }
-        throw Exception("Failed to register product")
     }
 
     /**
@@ -187,6 +201,7 @@ class ProductRepositoryImpl @Inject constructor(private val service: ProductServ
                     unitPrice = body.unitPrice,
                     currencyCode = body.moneyCode,
                     minimumStock = body.minimumStock,
+                    content = body.content,
                     totalStockInWarehouse = body.totalStockInWarehouse,
                     imageUrl = body.imageUrl ?: "",
                     supplierId = body.supplierId ?: "",
@@ -201,6 +216,7 @@ class ProductRepositoryImpl @Inject constructor(private val service: ProductServ
                     unitPrice = product.unitPrice,
                     currencyCode = product.currencyCode,
                     minimumStock = product.minimumStock,
+                    content = product.content,
                     totalStockInWarehouse = 0,
                     imageUrl = "",
                     supplierId = product.supplierId ?: "",
@@ -238,6 +254,7 @@ class ProductRepositoryImpl @Inject constructor(private val service: ProductServ
                         unitPrice = productDto.unitPrice,
                         currencyCode = productDto.moneyCode,
                         minimumStock = productDto.minimumStock,
+                        content = productDto.content,
                         totalStockInWarehouse = productDto.totalStockInWarehouse,
                         imageUrl = productDto.imageUrl ?: "",
                         supplierId = productDto.supplierId ?: "",

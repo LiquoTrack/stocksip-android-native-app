@@ -37,9 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
 import com.liquotrack.stocksip.shared.presentation.components.CustomDoubleTextField
 import com.liquotrack.stocksip.shared.presentation.components.CustomSpinnerField
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
@@ -51,9 +49,10 @@ import java.io.File
 fun StorageCreateOrEditView(
     viewModel: StorageCreateOrEditViewModel = hiltViewModel(),
     productId: String?,
-    product: ProductResponse? = null,
     onNavigateBack : () -> Unit
 ) {
+
+    val isEditMode = productId != null && productId != "new" && productId.isNotBlank()
 
     val brands by viewModel.brands.collectAsState()
     val types by viewModel.productTypes.collectAsState()
@@ -64,39 +63,44 @@ fun StorageCreateOrEditView(
     val unitPrice by viewModel.unitPrice.collectAsState()
     val currencyCode by viewModel.currencyCode.collectAsState()
     val minimumStock by viewModel.minimumStock.collectAsState()
+    val content by viewModel.content.collectAsState()
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
-    val isEditMode = productId != null && productId != "new" && productId.isNotBlank()
+
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedProduct by viewModel.selectedProduct.collectAsState()
     val minimumStockError by viewModel.minimumStockError.collectAsState()
-
+    val contentError by viewModel.contentError.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val isValidFormat = name.isNotBlank() &&
-            type.isNotBlank() &&
-            brand.isNotBlank() &&
-            unitPrice >= 0.0 &&
-            currencyCode.isNotBlank() &&
-            minimumStock >= 0
 
     // Load product details if in edit mode
     LaunchedEffect(productId) {
-        if (isEditMode && product != null) {
-            viewModel.loadProductForEdit(product)
+        if (isEditMode && productId != "new") {
+            viewModel.getProductById(productId)
         }
     }
 
-    // Update UI when selected product changes
     LaunchedEffect(selectedProduct) {
-        selectedProduct?.let { product ->
-            viewModel.loadProductForEdit(product)
-            if (product.imageUrl.isNotBlank()) {
-                selectedImageUri = product.imageUrl.toUri()
-            }
-        }
+        selectedProduct?.let { viewModel.loadProductForEdit(it) }
     }
+
+    val baseCurrencies = listOf("USD", "EUR", "INR", "GBP", "JPY")
+    val currencies = if (currencyCode.isNotBlank() && !baseCurrencies.contains(currencyCode)) {
+        listOf(currencyCode) + baseCurrencies
+    } else {
+        baseCurrencies
+    }
+
+    val isValidFormat = name.isNotBlank() &&
+            currencyCode.isNotBlank() &&
+            type.isNotBlank() &&
+            brand.isNotBlank() &&
+            content >= 0.0 &&
+            unitPrice >= 0.0 &&
+            currencyCode.isNotBlank() &&
+            minimumStock >= 0
 
     // Show minimum stock error snack bar
     LaunchedEffect(minimumStockError) {
@@ -106,6 +110,17 @@ fun StorageCreateOrEditView(
                 duration = SnackbarDuration.Short
             )
             viewModel.clearMinimumStockError()
+        }
+    }
+
+    // Show product content error snack bar
+    LaunchedEffect(contentError) {
+        contentError?.let { error ->
+            snackBarHostState.showSnackbar(
+                message = error,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearContentError()
         }
     }
 
@@ -187,6 +202,9 @@ fun StorageCreateOrEditView(
                         )
                     }
 
+                    // Space between sections
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     // Row for Unit Price and Currency Code
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -200,24 +218,45 @@ fun StorageCreateOrEditView(
                             modifier = Modifier.weight(1f)
                         )
 
-                       // Currency Code
+                        // Currency Code
                         CustomSpinnerField(
-                            items = listOf("USD", "EUR", "INR", "GBP", "JPY"),
-                            onItemSelected = viewModel::updateCurrencyCode,
+                            items = currencies,
+                            onItemSelected = { selected -> viewModel.updateCurrencyCode(selected) },
                             label = "Currency",
                             modifier = Modifier.weight(1f)
                         )
                     }
 
-                    // Minimum Stock
-                    CustomTextField(
-                        value = if (minimumStock == 0) "" else minimumStock.toString(),
-                        onValueChange = { viewModel.updateMinimumStock(it.toIntOrNull() ?: 0) },
-                        label = "Minimum Stock",
-                        placeholder = "e.g., 10",
-                        keyboardType = KeyboardType.Number,
-                        showError = minimumStockError != null
-                    )
+                    // Space between sections
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Row for Minimum Stock and Product Content
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Minimum Stock
+                        CustomTextField(
+                            value = if (minimumStock == 0) "" else minimumStock.toString(),
+                            onValueChange = { viewModel.updateMinimumStock(it.toIntOrNull() ?: 0) },
+                            label = "Minimum Stock",
+                            placeholder = "e.g., 10",
+                            keyboardType = KeyboardType.Number,
+                            showError = minimumStockError != null,
+                            isRequired = true,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        // Product Content
+                        CustomDoubleTextField(
+                            value = content,
+                            onValueChange = { viewModel.updateProductContent(it) },
+                            label = "Product Content",
+                            placeholder = "e.g., 750.0",
+                            modifier = Modifier.weight(1f),
+                            showError = contentError != null,
+                            isRequired = true,
+                        )
+                    }
 
                     // Space at the bottom
                     Spacer(modifier = Modifier.height(32.dp))

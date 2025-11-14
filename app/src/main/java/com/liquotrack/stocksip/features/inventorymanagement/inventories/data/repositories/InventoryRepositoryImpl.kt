@@ -225,6 +225,43 @@ class InventoryRepositoryImpl @Inject constructor(private val service: Inventory
     }
 
     /**
+     * Retrieves an inventory by its unique identifier.
+     *
+     * @param inventoryId The unique identifier of the inventory.
+     *
+     * @return The InventoryResponse object if found, null otherwise.
+     */
+    override suspend fun getInventoryById(inventoryId: String): InventoryResponse? = withContext(Dispatchers.IO) {
+        try {
+            val response = service.getInventoryById(inventoryId)
+            if (response.isSuccessful) {
+                val body = response.body() ?: return@withContext null
+                return@withContext body.let { dto ->
+                    InventoryResponse(
+                        id = dto.inventoryId,
+                        productId = dto.productId,
+                        name = dto.name,
+                        type = dto.type,
+                        brand = dto.brand,
+                        unitPrice = dto.unitPrice,
+                        moneyCode = dto.moneyCode,
+                        minimumStock = dto.minimumStock,
+                        imageUrl = dto.imageUrl,
+                        currentState = dto.currentState,
+                        quantity = dto.quantity,
+                        warehouseId = dto.warehouseId,
+                        expirationDate = dto.expirationDate
+                    )
+                }
+            }
+            return@withContext null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext null
+        }
+    }
+
+    /**
      * Deletes an inventory by its unique identifier.
      *
      * @param inventoryId The unique identifier of the inventory to be deleted.

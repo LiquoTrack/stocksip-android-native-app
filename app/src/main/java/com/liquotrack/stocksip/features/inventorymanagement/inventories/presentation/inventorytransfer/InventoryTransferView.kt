@@ -45,17 +45,6 @@ fun InventoryTransferView(
     onNavigateBack: () -> Unit
 ) {
 
-    // Navigate back if warehouseId is null or empty
-    // Also load inventory and warehouse list when warehouseId is valid
-    LaunchedEffect(warehouseId) {
-        if (warehouseId.isNullOrEmpty()) {
-            onNavigateBack()
-        } else {
-            viewModel.loadInventoryList(warehouseId)
-            viewModel.loadWarehouseList()
-        }
-    }
-
     val inventoryList by viewModel.inventoryList.collectAsState()
     val warehouseList by viewModel.warehouseList.collectAsState()
 
@@ -76,6 +65,17 @@ fun InventoryTransferView(
                 selectedProductId != null &&
                 selectedWarehouseId != null &&
                 quantityError.isNullOrEmpty()
+
+    // Navigate back if warehouseId is null or empty
+    // Also load inventory and warehouse list when warehouseId is valid
+    LaunchedEffect(warehouseId) {
+        if (warehouseId.isNullOrEmpty()) {
+            onNavigateBack()
+        } else {
+            viewModel.loadInventoryList(warehouseId)
+            viewModel.loadWarehouseList()
+        }
+    }
 
     // Show 'quantity to transfer' error snack bar
     LaunchedEffect(quantityError) {
@@ -125,8 +125,8 @@ fun InventoryTransferView(
                     inventories = inventoryList,
                     selectedProductId = selectedProductId,
                     selectedExpirationDate = expirationDate,
-                    onInventorySelected = { productId, expirationDate ->
-                        viewModel.updateSelectedProductIdAndExpirationDate(productId, expirationDate)
+                    onInventorySelected = { productId, expirationDate, currentQuantity ->
+                        viewModel.updateOnSelectedInventory(productId, expirationDate, currentQuantity)
                     }
                 )
 

@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductRequest
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
-import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductsWithCount
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.BrandRepository
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.ProductRepository
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.ProductTypeRepository
@@ -57,6 +56,9 @@ class StorageCreateOrEditViewModel @Inject constructor(
     private val _minimumStock = MutableStateFlow(0)
     val minimumStock: StateFlow<Int> = _minimumStock
 
+    private val _content = MutableStateFlow(0.0)
+    val content: StateFlow<Double> = _content
+
     private val _imageFile = MutableStateFlow<File?>(null)
     val imageFile: StateFlow<File?> = _imageFile
 
@@ -66,14 +68,14 @@ class StorageCreateOrEditViewModel @Inject constructor(
     private val _selectedProduct = MutableStateFlow<ProductResponse?>(null)
     val selectedProduct: StateFlow<ProductResponse?> = _selectedProduct
 
-    private val _editingProduct = MutableStateFlow<ProductResponse?>(null)
-    val editingProduct: StateFlow<ProductResponse?> = _editingProduct
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
     private val _minimumStockError = MutableStateFlow<String?>(null)
     val minimumStockError: StateFlow<String?> = _minimumStockError.asStateFlow()
+
+    private val _contentError = MutableStateFlow<String?>(null)
+    val contentError: StateFlow<String?> = _contentError.asStateFlow()
 
     fun updateProductName(value: String) { _productName.value = value }
 
@@ -92,7 +94,33 @@ class StorageCreateOrEditViewModel @Inject constructor(
         validateMinimumStock()
     }
 
+    fun updateProductContent(value: Double) {
+        _content.value = value
+        validateProductContent()
+    }
+
     fun clearMinimumStockError() { _minimumStockError.value = null }
+
+    fun clearContentError() { _contentError.value = null }
+
+    /**
+     * Fetches a product by its ID and updates the selected product state.
+     *
+     * @param productId The ID of the product to be fetched.
+     */
+    fun getProductById(productId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val product = repository.getProductById(productId)
+                _selectedProduct.value = product
+            } catch (e: Exception) {
+                Log.e("PRODUCT", "Error fetching product by ID", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 
     /**
      * Loads the product data into the form for editing.
@@ -100,12 +128,14 @@ class StorageCreateOrEditViewModel @Inject constructor(
      */
     fun loadProductForEdit(product: ProductResponse) {
         _isLoading.value = true
-        _editingProduct.value = product
+        _selectedProduct.value = product
         updateProductName(product.name)
         updateProductType(product.productType)
         updateBrand(product.brand)
         updateUnitPrice(product.unitPrice)
         updateCurrencyCode(product.currencyCode)
+        updateMinimumStock(product.minimumStock)
+        updateProductContent(product.content)
         updateImageFile(null)
         _isLoading.value = false
     }
@@ -114,13 +144,14 @@ class StorageCreateOrEditViewModel @Inject constructor(
      * Clears the product form fields.
      */
     fun clearForm() {
-        _editingProduct.value = null
+        _selectedProduct.value = null
         _productName.value = ""
         _productType.value = ""
         _brand.value = ""
         _unitPrice.value = 0.0
         _currencyCode.value = ""
         _minimumStock.value = 0
+        _content.value = 0.0
         _imageFile.value = null
         _imageUrl.value = ""
     }
@@ -140,15 +171,24 @@ class StorageCreateOrEditViewModel @Inject constructor(
 
                 val imageFile = _imageFile.value
 
+                val code = _currencyCode.value.trim()
+                val type = _productType.value.trim()
+
+                if (code.isBlank()) throw Exception("'Code' field is required")
+                if (type.isBlank()) throw Exception("'Type' field is required")
+
                 val productRequest = ProductRequest(
                     name = _productName.value,
-                    productType = _productType.value,
+                    productType = type,
                     brand = _brand.value,
                     unitPrice = _unitPrice.value,
-                    currencyCode = _currencyCode.value,
+                    currencyCode = code,
                     minimumStock = _minimumStock.value,
+                    content = _content.value,
                     supplierId = null
                 )
+
+                Log.d("PRODUCT", "Registering productRequest: $productRequest")
 
                 if (isEditing && productId != null) {
                     repository.updateProduct(
@@ -181,6 +221,20 @@ class StorageCreateOrEditViewModel @Inject constructor(
             false
         } else {
             _minimumStockError.value = null
+            true
+        }
+    }
+
+    /**
+     * Validates the product content input to ensure it is greater than zero.
+     * @return True if the product content input is valid, false otherwise.
+     */
+    private fun validateProductContent(): Boolean {
+        return if (_content.value <= 0) {
+            _contentError.value = "Product content must be greater than 0"
+            false
+        } else {
+            _contentError.value = null
             true
         }
     }

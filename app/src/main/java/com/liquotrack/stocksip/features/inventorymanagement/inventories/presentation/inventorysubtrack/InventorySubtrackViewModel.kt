@@ -48,9 +48,10 @@ class InventorySubtrackViewModel @Inject constructor(
 
     fun clearQuantityError() { _quantityError.value = null }
 
-    fun updateSelectedProductIdAndExpirationDate(productId: String?, date: Date?) {
+    fun updateSelectedInventory(productId: String?, date: Date?, currentQty: Int) {
         _selectedProductId.value = productId
         _expirationDate.value = date
+        _currentQuantity.value = currentQty
     }
 
     // Updates the quantity to subtrack and validates it.
