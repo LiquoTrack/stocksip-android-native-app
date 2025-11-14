@@ -10,6 +10,7 @@ package com.liquotrack.stocksip.features.inventorymanagement.storage.domain.mode
  * @param unitPrice Price per unit of the product.
  * @param currencyCode Currency code for the unit price (e.g., USD, EUR).
  * @param minimumStock Minimum stock level to maintain for the product.
+ * @param content Content quantity of the product (e.g., volume, weight).
  * @param totalStockInWarehouse Total stock of the product available in the warehouse.
  * @param imageUrl URL of an image representing the product.
  * @param supplierId Identifier for the supplier of the product.
@@ -23,8 +24,9 @@ data class ProductResponse (
     val unitPrice: Double,
     val currencyCode: String,
     val minimumStock: Int,
+    val content: Double,
     val totalStockInWarehouse: Int,
     val imageUrl: String,
-    val supplierId: String,
+    val supplierId: String? = "string",
     val isInWarehouse: Boolean
 )

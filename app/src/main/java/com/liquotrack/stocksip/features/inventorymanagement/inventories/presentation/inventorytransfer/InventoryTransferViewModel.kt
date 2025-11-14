@@ -68,9 +68,10 @@ class InventoryTransferViewModel @Inject constructor(
         _selectedWarehouseId.value = warehouseId
     }
 
-    fun updateSelectedProductIdAndExpirationDate(productId: String?, date: Date?) {
+    fun updateOnSelectedInventory(productId: String?, date: Date?, currentQty: Int) {
         _selectedProductId.value = productId
         _expirationDate.value = date
+        _currentQuantity.value = currentQty
     }
 
     // Updates the quantity to transfer and validates it.
@@ -101,10 +102,10 @@ class InventoryTransferViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val token = tokenManager.getToken()
+                val accountId = tokenManager.getAccountId()
                 var warehouseWithCount = WarehousesWithCount(0, 0, emptyList())
 
-                token?.let {
+                accountId?.let {
                     warehouseWithCount = warehouseRepository.getAllWarehousesByAccountId(it)
                 }
 
@@ -162,9 +163,12 @@ class InventoryTransferViewModel @Inject constructor(
      * @return True if the quantity inputs are valid, false otherwise.
      */
     private fun validateTransferQuantity(): Boolean {
-        return if (_quantityToTransfer.value <= 0 && _currentQuantity.value - _quantityToTransfer.value < 0) {
+        val qty = _quantityToTransfer.value
+        val current = _currentQuantity.value
+
+        return if (qty <= 0 || qty > current) {
             _quantityError.value =
-                "Quantity to transfer must be greater than 0 and less than current quantity"
+                "Quantity must be greater than 0 and less than or equal to available quantity."
             false
         } else {
             _quantityError.value = null

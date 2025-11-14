@@ -169,7 +169,7 @@ fun StorageView(
                 ProductList(
                     products = products?.products ?: emptyList(),
                     onClick = { product ->
-                        onNavigate("product_details/${product.id}")
+                        onNavigate("product_detail/${product.id}")
                     },
                     modifier = Modifier
                         .fillMaxSize()

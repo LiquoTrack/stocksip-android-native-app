@@ -93,6 +93,18 @@ interface InventoryService {
     ): Response<InventoryDtoItem>
 
     /**
+     * Retrieves an inventory by its ID.
+     *
+     * @param inventoryId The ID of the inventory to be retrieved. It is passed as a path parameter.
+     *
+     * @return A [Response] object containing the [InventoryDtoItem] for the specified inventory ID.
+     */
+    @GET("inventories/{inventoryId}")
+    suspend fun getInventoryById(
+        @Path("inventoryId") inventoryId: String
+    ): Response<InventoryDtoItem>
+
+    /**
      * Deletes an inventory by its ID.
      *
      * @param inventoryId The ID of the inventory to be deleted. It is passed as a path parameter.

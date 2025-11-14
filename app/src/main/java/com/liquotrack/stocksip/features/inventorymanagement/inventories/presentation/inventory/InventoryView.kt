@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
@@ -126,13 +127,17 @@ fun InventoryView(
                             onClick = {
                                 onNavigate("inventory_addition/${warehouseId}")
                             },
-                            modifier = Modifier.height(36.dp),
+                            modifier = Modifier
+                                .height(36.dp)
+                                .width(108.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = onSurfaceLightMediumContrast,
-                                contentColor = onTertiaryContainerLightMediumContrast
+                                containerColor = Color.Green
                             )
                         ) {
-                            Text(" + Add Products")
+                            Text(
+                                text = "+ Add",
+                                color = Color.White
+                            )
                         }
 
                         // Inventory Subtrack Button
@@ -141,13 +146,17 @@ fun InventoryView(
                             onClick = {
                                 onNavigate("inventory_subtrack/${warehouseId}")
                             },
-                            modifier = Modifier.height(36.dp),
+                            modifier = Modifier
+                                .height(36.dp)
+                                .width(108.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = onSurfaceLightMediumContrast,
-                                contentColor = onTertiaryContainerLightMediumContrast
+                                containerColor = Color.Red,
                             )
                         ) {
-                            Text(" - Subtrack Products")
+                            Text(
+                                text = "- Subtrack",
+                                color = Color.White
+                            )
                         }
 
                         // Inventory Transfer Button
@@ -156,13 +165,17 @@ fun InventoryView(
                             onClick = {
                                 onNavigate("inventory_transfer/${warehouseId}")
                             },
-                            modifier = Modifier.height(36.dp),
+                            modifier = Modifier
+                                .height(36.dp)
+                                .width(108.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = onSurfaceLightMediumContrast,
-                                contentColor = onTertiaryContainerLightMediumContrast
+                                containerColor = Color.LightGray
                             )
                         ) {
-                            Text(" <-> Transfer Products")
+                            Text(
+                                text = "<-> Transfer",
+                                color = Color.White
+                            )
                         }
                     }
                 }
@@ -171,7 +184,7 @@ fun InventoryView(
                 InventoryList(
                     inventories = inventories,
                     onClick = { inventory ->
-                        onNavigate("inventory_details/${inventory.id}")
+                        onNavigate("inventory_detail/${inventory.id}")
                     },
                     modifier = Modifier
                         .fillMaxSize()

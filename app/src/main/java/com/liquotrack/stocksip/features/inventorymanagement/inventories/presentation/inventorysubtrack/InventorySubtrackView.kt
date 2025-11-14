@@ -127,8 +127,8 @@ fun InventorySubtrackView(
                     inventories = inventoryList,
                     selectedProductId = selectedProductId,
                     selectedExpirationDate = expirationDate,
-                    onInventorySelected = { productId, expirationDate ->
-                        viewModel.updateSelectedProductIdAndExpirationDate(productId, expirationDate)
+                    onInventorySelected = { productId, expirationDate, currentStock ->
+                        viewModel.updateSelectedInventory(productId, expirationDate, currentStock)
                     }
                 )
 
@@ -185,7 +185,7 @@ fun InventorySubtrackView(
                         )
                     } else {
                         Text(
-                            text = "Subtrack Products",
+                            text = "Subtrack",
                             fontSize = 16.sp,
                             color = Color.White
                         )

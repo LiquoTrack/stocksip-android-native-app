@@ -79,6 +79,15 @@ interface InventoryRepository {
     ): InventoryResponse?
 
     /**
+     * Retrieves an inventory by its unique identifier.
+     *
+     * @param inventoryId The unique identifier of the inventory.
+     *
+     * @return The InventoryResponse object if found, null otherwise.
+     */
+    suspend fun getInventoryById(inventoryId: String): InventoryResponse?
+
+    /**
      * Deletes an inventory by its unique identifier.
      *
      * @param inventoryId The unique identifier of the inventory to be deleted.
