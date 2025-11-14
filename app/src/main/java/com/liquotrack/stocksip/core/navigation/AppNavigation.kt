@@ -35,6 +35,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.InventoryView
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.InventoryAdditionView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorydetail.InventoryDetailView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
@@ -312,6 +313,25 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             } else {
                 InventoryTransferView(
                     warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Inventory Detail
+        composable(
+            route = Route.InventoryDetails.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryDetails.inventoryIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val inventoryId = backStackEntry.arguments?.getString(Route.InventoryDetails.inventoryIdArg)
+            if (inventoryId == null) {
+                // Handle null InventoryId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryDetailView (
+                    inventoryId = inventoryId,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

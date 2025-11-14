@@ -131,12 +131,11 @@ fun InventoryView(
                                 .height(36.dp)
                                 .width(108.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Green,
-                                contentColor = onTertiaryContainerLightMediumContrast
+                                containerColor = Color.Green
                             )
                         ) {
                             Text(
-                                text = " + Add Products",
+                                text = "+ Add",
                                 color = Color.White
                             )
                         }
@@ -152,11 +151,10 @@ fun InventoryView(
                                 .width(108.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Red,
-                                contentColor = onTertiaryContainerLightMediumContrast
                             )
                         ) {
                             Text(
-                                text = " - Subtrack Products",
+                                text = "- Subtrack",
                                 color = Color.White
                             )
                         }
@@ -171,12 +169,11 @@ fun InventoryView(
                                 .height(36.dp)
                                 .width(108.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray,
-                                contentColor = onTertiaryContainerLightMediumContrast
+                                containerColor = Color.LightGray
                             )
                         ) {
                             Text(
-                                text = " <-> Transfer Products",
+                                text = "<-> Transfer",
                                 color = Color.White
                             )
                         }
@@ -187,7 +184,7 @@ fun InventoryView(
                 InventoryList(
                     inventories = inventories,
                     onClick = { inventory ->
-                        onNavigate("inventory_details/${inventory.id}")
+                        onNavigate("inventory_detail/${inventory.id}")
                     },
                     modifier = Modifier
                         .fillMaxSize()
