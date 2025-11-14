@@ -31,6 +31,9 @@ class InventorySubtrackViewModel @Inject constructor(
     private val _currentQuantity = MutableStateFlow(0)
     val currentQuantity: StateFlow<Int> = _currentQuantity.asStateFlow()
 
+    private val _exitType = MutableStateFlow("")
+    val exitType: StateFlow<String> = _exitType.asStateFlow()
+
     private val _selectedProductId = MutableStateFlow<String?>(null)
     val selectedProductId: StateFlow<String?> = _selectedProductId.asStateFlow()
 
@@ -52,6 +55,10 @@ class InventorySubtrackViewModel @Inject constructor(
         _selectedProductId.value = productId
         _expirationDate.value = date
         _currentQuantity.value = currentQty
+    }
+
+    fun updateExitType(exitType: String) {
+        _exitType.value = exitType
     }
 
     // Updates the quantity to subtrack and validates it.
@@ -92,7 +99,8 @@ class InventorySubtrackViewModel @Inject constructor(
 
                     val request = InventorySubtrackRequest(
                         quantityToSubtrack = _quantityToSubtrack.value,
-                        expirationDate = _expirationDate.value
+                        expirationDate = _expirationDate.value,
+                        exitType = _exitType.value
                     )
 
                     if (selectedProductId != null) {

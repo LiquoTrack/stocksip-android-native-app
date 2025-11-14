@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.components.InventorySelectorField
+import com.liquotrack.stocksip.shared.presentation.components.CustomSpinnerField
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
 
@@ -67,6 +68,7 @@ fun InventorySubtrackView(
     val quantityToSubtrack by viewModel.quantityToSubtrack.collectAsState()
     val currentQuantity by viewModel.currentQuantity.collectAsState()
     val expirationDate by viewModel.expirationDate.collectAsState()
+    val exitType by viewModel.exitType.collectAsState()
 
     val quantityError by viewModel.quantityError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -89,6 +91,16 @@ fun InventorySubtrackView(
             viewModel.clearQuantityError()
         }
     }
+
+    val exitTypeList = listOf(
+        "Sold",
+        "Donated",
+        "Spoiled",
+        "Consumed",
+        "Expired",
+        "Damaged",
+        "Broke"
+    )
 
     // Main Scaffold
     Scaffold(
@@ -151,6 +163,18 @@ fun InventorySubtrackView(
                         keyboardType = KeyboardType.Number,
                         isRequired = true,
                         showError = quantityError != null,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Exit Type Dropdown Field
+                    CustomSpinnerField(
+                        items = exitTypeList,
+                        onItemSelected = {
+                            viewModel.updateExitType(it)
+                        },
+                        isRequired = true,
+                        label = "Exit Reason",
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
