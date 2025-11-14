@@ -50,9 +50,14 @@ fun AddressListScreen(
     LaunchedEffect(createdId) {
         val id = createdId
         if (!id.isNullOrEmpty()) {
+            Log.d("ADDRESS_SCREEN", ">>> PurchaseOrder creada. Convirtiendo a SalesOrder…")
+
+            purchaseOrdersViewModel.convertPurchaseToSales(id)
+
             onOrderCreated(id)
         }
     }
+
 
     val snackbarHostState = remember { SnackbarHostState() }
 

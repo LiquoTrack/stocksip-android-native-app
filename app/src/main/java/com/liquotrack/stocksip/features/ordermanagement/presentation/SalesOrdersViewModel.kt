@@ -1,9 +1,11 @@
 package com.liquotrack.stocksip.features.ordermanagement.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderRepository
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderResponse
+import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,45 +15,56 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SalesOrdersViewModel @Inject constructor(
-    private val repository: SalesOrderRepository
+    private val repository: SalesOrderRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
+
+    private val _salesOrders = MutableStateFlow<List<SalesOrderResponse>>(emptyList())
+    val salesOrders: StateFlow<List<SalesOrderResponse>> = _salesOrders.asStateFlow()
 
     private val _salesOrder = MutableStateFlow<SalesOrderResponse?>(null)
     val salesOrder: StateFlow<SalesOrderResponse?> = _salesOrder.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoading = _isLoading.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
+    val error = _error.asStateFlow()
 
-    fun createSalesOrderFromProcurement(purchaseOrderId: String) {
+    fun getSalesOrdersForAccount() {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
+
             try {
-                val response = repository.createSalesOrderFromPurchaseOrder(purchaseOrderId)
-                _salesOrder.value = response
+                val accountId = tokenManager.getAccountId()
+                val allOrders = repository.getAllOrders()
+                val filtered = allOrders.filter { it.supplierId == accountId }
+                _salesOrders.value = filtered
+
+                Log.d("SALES_VM", ">>>: ${filtered.size}")
+
             } catch (e: Exception) {
-                _error.value = e.message ?: "Error al crear la Sales Order"
+                _error.value = e.message ?: "Error fetching sales orders"
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    /**
-     * Obtiene una SalesOrder por su ID.
-     */
-    fun getSalesOrderById(orderId: String) {
+    fun createSalesOrderFromProcurement(purchaseOrderId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
+
             try {
-                val response = repository.getOrderById(orderId)
+                val response = repository.createSalesOrderFromPurchaseOrder(purchaseOrderId)
                 _salesOrder.value = response
+
+                getSalesOrdersForAccount()
+
             } catch (e: Exception) {
-                _error.value = e.message ?: "Error al obtener la Sales Order"
+                _error.value = e.message ?: "Error creating sales order"
             } finally {
                 _isLoading.value = false
             }

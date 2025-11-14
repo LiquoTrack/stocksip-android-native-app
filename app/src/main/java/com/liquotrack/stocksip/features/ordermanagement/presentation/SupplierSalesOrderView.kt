@@ -24,29 +24,22 @@ fun SupplierSalesOrdersView(
     onNavigate: (String) -> Unit,
     onLogout: () -> Unit,
     purchaseOrderId: String? = null,
-    orderId: String? = null
 ) {
     val bg = Color(0xFFF4ECEC)
     val viewModel: SalesOrdersViewModel = hiltViewModel()
-    val salesOrder by viewModel.salesOrder.collectAsState()
+    val orders by viewModel.salesOrders.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    LaunchedEffect(Unit) {
-        when {
-            purchaseOrderId != null ->
-                viewModel.createSalesOrderFromProcurement(purchaseOrderId)
-
-            orderId != null ->
-                viewModel.getSalesOrderById(orderId)
+    LaunchedEffect(purchaseOrderId) {
+        if (purchaseOrderId != null) {
+            viewModel.createSalesOrderFromProcurement(purchaseOrderId)
         }
     }
 
     LaunchedEffect(Unit) {
-        println(">>> purchaseOrderId = $purchaseOrderId")
-        println(">>> orderId = $orderId")
+        viewModel.getSalesOrdersForAccount()
     }
-
 
     DrawerScaffold(
         title = stringResource(id = R.string.orders_title),
@@ -72,24 +65,25 @@ fun SupplierSalesOrdersView(
                 }
                 error != null -> {
                     Text(
-                        text = error ?: "Error desconocido",
+                        text = error ?: "Unknown error",
                         color = Color.Red,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
-                salesOrder != null -> {
+                orders.isNotEmpty() -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Top
                     ) {
-                        item {
-                            SupplierOrderCard(order = salesOrder!!)
+                        items(orders) { order ->
+                            SupplierOrderCard(order = order)
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
                 else -> {
                     Text(
-                        text = stringResource(id = R.string.error_unknown),
+                        text = "No orders found.",
                         color = Color.Gray,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -107,16 +101,6 @@ fun SupplierOrderCard(order: SalesOrderResponse) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "ID: ${order.id}",
-                color = Color(0xFF9A9A9A),
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 text = order.orderCode,
                 color = Color(0xFF4A1B2A),

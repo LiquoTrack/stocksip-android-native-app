@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presenta
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderRepository
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.data.remote.models.PurchaseOrderDto
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.data.remote.models.PurchaseOrderItemRequestDto
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.data.remote.models.PurchaseOrderRequestDto
@@ -35,10 +36,10 @@ data class OrderItemUi(
     val products: List<OrderProductUi> = emptyList()
 )
 
-
 @HiltViewModel
 class PurchaseOrdersViewModel @Inject constructor(
     private val purchaseOrderRepository: PurchaseOrderRepository,
+    private val salesOrderRepository: SalesOrderRepository,
     private val addressRepository: AddressRepository,
     private val tokenManager: TokenManager,
     private val cartRepository: CartRepository
@@ -63,14 +64,14 @@ class PurchaseOrdersViewModel @Inject constructor(
                 val accountId = tokenManager.getAccountId()
                     ?: throw IllegalStateException("Account ID not found in token")
 
-                purchaseOrderRepository.getPurchaseOrders(accountId)
-                    .onSuccess { orders ->
-                        _ordersUi.value = orders.map { it.toUi() }
-                    }
-                    .onFailure { e ->
-                        Log.e("PURCHASE_ORDER_VM", "Error fetching orders", e)
-                        _error.value = e.message
-                    }
+                val result = purchaseOrderRepository.getPurchaseOrders(accountId)
+
+                result.onSuccess { orders ->
+                    _ordersUi.value = orders.map { it.toUi() }
+                }.onFailure { e ->
+                    Log.e("PURCHASE_ORDER_VM", "Error fetching orders", e)
+                    _error.value = e.message
+                }
 
             } catch (e: Exception) {
                 Log.e("PURCHASE_ORDER_VM", "Unexpected error loading orders", e)
@@ -89,7 +90,7 @@ class PurchaseOrdersViewModel @Inject constructor(
                     ?: throw IllegalStateException("Account ID not found in token")
 
                 val cartItems = cartRepository.getAllCartItems().first()
-                if (cartItems.isEmpty()) throw IllegalStateException("Cart is empty. Cannot create an order.")
+                if (cartItems.isEmpty()) throw IllegalStateException("Cart is empty.")
 
                 if (addressIndex == null) throw IllegalStateException("Address index is null")
 
@@ -101,7 +102,6 @@ class PurchaseOrdersViewModel @Inject constructor(
                     addressIndex = addressIndex
                 )
 
-                // Create order
                 val createdOrder = purchaseOrderRepository
                     .createPurchaseOrder(accountId, request)
                     .getOrElse { throw it }
@@ -112,7 +112,6 @@ class PurchaseOrdersViewModel @Inject constructor(
                 _createdPurchaseOrderId.value = orderId
                 Log.d("PURCHASE_ORDER_VM", "Order created with ID: $orderId")
 
-                // Add items
                 cartItems.forEach { item ->
                     val itemRequest = PurchaseOrderItemRequestDto(
                         productId = item.productId,
@@ -120,27 +119,20 @@ class PurchaseOrdersViewModel @Inject constructor(
                     )
 
                     purchaseOrderRepository.addItem(orderId, itemRequest)
-                        .onSuccess {
-                            Log.d("PURCHASE_ORDER_VM", "Item ${item.productId} added successfully")
-                        }
                         .onFailure { e ->
                             Log.e("PURCHASE_ORDER_VM", "Failed adding item ${item.productId}", e)
                         }
                 }
 
-                // Confirm
                 purchaseOrderRepository.confirmOrder(orderId)
                     .onSuccess {
-                        Log.d("PURCHASE_ORDER_VM", "Order $orderId confirmed successfully")
+                        Log.d("PURCHASE_ORDER_VM", "Order $orderId confirmed")
                     }
                     .onFailure { e ->
-                        Log.e("PURCHASE_ORDER_VM", "Order $orderId confirmation failed", e)
+                        Log.e("PURCHASE_ORDER_VM", "Order confirm failed", e)
                     }
 
-                // Clear cart
                 cartRepository.clearCart()
-
-                // Refresh list
                 loadOrders()
 
             } catch (e: Exception) {
@@ -152,12 +144,23 @@ class PurchaseOrdersViewModel @Inject constructor(
         }
     }
 
+    fun convertPurchaseToSales(purchaseOrderId: String) {
+        viewModelScope.launch {
+            try {
+                Log.d("CONVERSION", ">>> Convirtiendo $purchaseOrderId a SalesOrder…")
 
+                val response = salesOrderRepository.createSalesOrderFromPurchaseOrder(purchaseOrderId)
 
+                Log.d("CONVERSION", ">>> SalesOrder creada: ${response.id}")
+
+            } catch (e: Exception) {
+                Log.e("CONVERSION", "ERROR creando SalesOrder", e)
+            }
+        }
+    }
 
     private fun generateOrderCode(): String {
-        val number = (1000..9999).random()
-        return "O$number"
+        return "O" + (1000..9999).random()
     }
 
     private fun PurchaseOrderDto.toUi(): OrderItemUi = OrderItemUi(
