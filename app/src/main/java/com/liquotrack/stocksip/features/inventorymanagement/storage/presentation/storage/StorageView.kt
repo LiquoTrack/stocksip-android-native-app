@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,10 +26,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.components.ProductList
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
@@ -119,14 +120,14 @@ fun StorageView(
                             Column {
                                 Row {
                                     Text(
-                                        "Current: ",
+                                        text = "${stringResource(R.string.label_current)}:",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast,
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        "${products?.total}",
+                                        "${products?.total ?: "0"}",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
@@ -135,13 +136,13 @@ fun StorageView(
 
                                 Row {
                                     Text(
-                                        "Max. Allowed: ",
+                                        text = "${stringResource(R.string.label_max)}: ",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
                                     )
                                     Text(
-                                        "${products?.maxProductsAllowed}",
+                                        "${products?.maxProductsAllowed ?: "0"}",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
                                         color = onSurfaceLightMediumContrast
