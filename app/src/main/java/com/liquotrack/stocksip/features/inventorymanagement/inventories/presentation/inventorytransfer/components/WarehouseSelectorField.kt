@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.components
+package com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorytransfer.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,28 +26,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryResponse
-import java.util.Date
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import kotlin.collections.forEach
 
 /**
- * A composable function that displays an inventory selector field with a dropdown menu.
+ * A composable function that displays a warehouse selector field with a dropdown menu.
  *
- * @param inventories The list of available inventories in the warehouse to select from.
- * @param selectedProductId The ID of the currently selected inventory product.
- * @param selectedExpirationDate The expiration date of the currently selected inventory product.
- * @param onInventorySelected A callback function that is invoked when a product is selected.
+ * @param warehouses The list of available warehouses to select from.
+ * @param selectedWarehouseId The ID of the currently selected warehouse.
+ * @param onWarehouseSelected A callback function that is invoked when a warehouse is selected.
  */
 @Composable
-fun InventorySelectorField(
-    inventories: List<InventoryResponse>,
-    selectedProductId: String?,
-    selectedExpirationDate: Date?,
-    onInventorySelected: (String, Date) -> Unit
+fun WarehouseSelectorField(
+    warehouses: List<WarehouseResponse>,
+    selectedWarehouseId: String?,
+    onWarehouseSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val selectedProduct = inventories.find { it.id == selectedProductId }
-    val selectedExpirationDate = inventories.find { it.expirationDate == selectedExpirationDate }
+    val selectedProduct = warehouses.find { it.id == selectedWarehouseId }
 
     Box {
         // Button to open the dropdown
@@ -64,7 +60,7 @@ fun InventorySelectorField(
             ) {
                 AsyncImage(
                     model = selectedProduct?.imageUrl,
-                    contentDescription = "Selected Product Image",
+                    contentDescription = "Selected Warehouse Image",
                     modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
@@ -72,35 +68,35 @@ fun InventorySelectorField(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = selectedProduct?.name ?: "Select a product",
+                    text = selectedProduct?.name ?: "Select a warehouse",
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
 
-        // Dropdown with all products options
+        // Dropdown with all the warehouses options
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            inventories.forEach { inventory ->
+            warehouses.forEach { warehouse ->
                 DropdownMenuItem(
                     text = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             AsyncImage(
-                                model = inventory.imageUrl,
-                                contentDescription = inventory.name,
+                                model = warehouse.imageUrl,
+                                contentDescription = warehouse.name,
                                 modifier = Modifier.size(36.dp).clip(RoundedCornerShape(6.dp)),
                                 contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(inventory.name)
+                            Text(warehouse.name)
                         }
                     },
                     onClick = {
-                        onInventorySelected(inventory.id, inventory.expirationDate ?: Date())
+                        onWarehouseSelected(warehouse.id)
                         expanded = false
                     }
                 )

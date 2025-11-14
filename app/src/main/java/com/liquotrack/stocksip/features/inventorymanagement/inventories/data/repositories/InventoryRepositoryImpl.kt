@@ -197,8 +197,40 @@ class InventoryRepositoryImpl @Inject constructor(private val service: Inventory
         originWarehouseId: String,
         productToTransferId: String,
         inventoryRequest: InventoryTransferRequest
-    ): InventoryResponse? {
-        TODO("Not yet implemented")
+    ): InventoryResponse? = withContext(Dispatchers.IO) {
+        try {
+            val response = service.transferProductsToAnotherWarehouse(
+                warehouseId = originWarehouseId,
+                productId = productToTransferId,
+                inventoryTransferRequest = inventoryRequest
+            )
+
+            if (response.isSuccessful) {
+                val body = response.body() ?: return@withContext null
+                return@withContext body.let { dto ->
+                    InventoryResponse(
+                        id = dto.inventoryId,
+                        productId = dto.productId,
+                        name = dto.name,
+                        type = dto.type,
+                        brand = dto.brand,
+                        unitPrice = dto.unitPrice,
+                        moneyCode = dto.moneyCode,
+                        minimumStock = dto.minimumStock,
+                        imageUrl = dto.imageUrl,
+                        currentState = dto.currentState,
+                        quantity = dto.quantity,
+                        warehouseId = dto.warehouseId,
+                        expirationDate = dto.expirationDate
+                    )
+                }
+            } else {
+                return@withContext null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext null
+        }
     }
 
     /**

@@ -53,6 +53,7 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.InventorySubtrackView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorytransfer.InventoryTransferView
 import java.net.URLEncoder
 
 /**
@@ -291,6 +292,25 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 navController.popBackStack()
             } else {
                 InventorySubtrackView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Inventory Transfer Form
+        composable(
+            route = Route.InventoryTransfer.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryTransfer.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventoryTransfer.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryTransferView(
                     warehouseId = warehouseId,
                     onNavigateBack = { navController.popBackStack() }
                 )
