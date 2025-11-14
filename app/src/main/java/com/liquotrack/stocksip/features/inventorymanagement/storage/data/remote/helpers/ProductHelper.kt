@@ -11,9 +11,11 @@ import java.io.File
 fun ProductRequest.toMultipart(imageFile: File?): Pair<Map<String, RequestBody>, MultipartBody.Part?> {
     val fields = mapOf(
         "Name" to name.toRequestBody("text/plain".toMediaTypeOrNull()),
-        "ProductType" to productType.toRequestBody("text/plain".toMediaTypeOrNull()),
+        "Type" to productType.toRequestBody("text/plain".toMediaTypeOrNull()),
         "Brand" to brand.toRequestBody("text/plain".toMediaTypeOrNull()),
         "UnitPrice" to unitPrice.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
+        "Code" to currencyCode.toRequestBody("text/plain".toMediaTypeOrNull()),
+        "Content" to content.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
         "MinimumStock" to minimumStock.toString().toRequestBody("text/plain".toMediaTypeOrNull())
     )
 

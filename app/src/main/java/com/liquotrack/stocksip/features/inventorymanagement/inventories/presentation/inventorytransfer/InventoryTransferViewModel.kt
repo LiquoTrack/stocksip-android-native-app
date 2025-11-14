@@ -68,9 +68,10 @@ class InventoryTransferViewModel @Inject constructor(
         _selectedWarehouseId.value = warehouseId
     }
 
-    fun updateSelectedProductIdAndExpirationDate(productId: String?, date: Date?) {
+    fun updateOnSelectedInventory(productId: String?, date: Date?, currentQty: Int) {
         _selectedProductId.value = productId
         _expirationDate.value = date
+        _currentQuantity.value = currentQty
     }
 
     // Updates the quantity to transfer and validates it.
@@ -170,5 +171,9 @@ class InventoryTransferViewModel @Inject constructor(
             _quantityError.value = null
             true
         }
+    }
+
+    init {
+        loadWarehouseList()
     }
 }

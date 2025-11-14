@@ -43,7 +43,7 @@ fun InventorySelectorField(
     inventories: List<InventoryResponse>,
     selectedProductId: String?,
     selectedExpirationDate: Date?,
-    onInventorySelected: (String, Date) -> Unit
+    onInventorySelected: (String, Date, Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedProduct = inventories.find { it.id == selectedProductId }
@@ -100,7 +100,7 @@ fun InventorySelectorField(
                         }
                     },
                     onClick = {
-                        onInventorySelected(inventory.id, inventory.expirationDate ?: Date())
+                        onInventorySelected(inventory.id, inventory.expirationDate ?: Date(), inventory.quantity)
                         expanded = false
                     }
                 )
