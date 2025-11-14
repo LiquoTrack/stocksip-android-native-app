@@ -692,7 +692,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         }
 
 
-        // Making Orders
         composable(Route.MakingOrders.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
@@ -702,35 +701,27 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             }
 
             val roleNormalized = role?.trim()?.lowercase()
-            if (roleNormalized == "supplier") {
-                SupplierSalesOrdersView(
-                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
-                    onLogout = {
-                        navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } }
-                    }
-                )
-            } else {
-                PurchaseOrdersView(
-                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
-                    onLogout = { navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } } },
-                    navToCreate = { navController.navigate(Route.Catalogs.route) }
-                )
+
+            LaunchedEffect(roleNormalized) {
+                when (roleNormalized) {
+                    "supplier" -> navController.navigate(Route.MakingOrdersSupplier.route)
+                    else -> navController.navigate(Route.MakingOrders.route)
+                }
             }
         }
 
+        composable(Route.MakingOrders.route) {
+            PurchaseOrdersView(
+                onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                onLogout = { navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } } },
+                navToCreate = { navController.navigate(Route.Catalogs.route) }
+            )
+        }
 
-        composable(route = Route.MakingOrdersSupplier.route) {
+        composable(Route.MakingOrdersSupplier.route) {
             SupplierSalesOrdersView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
+                onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                onLogout = { navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } } }
             )
         }
 
