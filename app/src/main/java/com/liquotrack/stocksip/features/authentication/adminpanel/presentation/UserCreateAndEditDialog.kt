@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Print
@@ -34,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.liquotrack.stocksip.features.authentication.adminpanel.domain.domain.AccountUsers
@@ -48,6 +51,7 @@ fun NewUserDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var selectedUserRole by remember { mutableStateOf("Employee") }
     var selectedProfileRole by remember { mutableStateOf("Seller") }
@@ -107,6 +111,22 @@ fun NewUserDialog(
                         unfocusedBorderColor = Color(0xFFD1C4C4)
                     ),
                     shape = RoundedCornerShape(8.dp)
+                )
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = { Text(stringResource(id = R.string.password_placeholder)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = Color(0xFFD1C4C4),
+                        unfocusedBorderColor = Color(0xFFD1C4C4)
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
 
                 OutlinedTextField(
@@ -217,7 +237,8 @@ fun NewUserDialog(
                         fullName = name.trim(),
                         phoneNumber = phone.trim(),
                         profilePictureUrl = "",
-                        profileRole = selectedProfileRole
+                        profileRole = selectedProfileRole,
+                        password = password
                     )
                     onSave(newUser)
                 },

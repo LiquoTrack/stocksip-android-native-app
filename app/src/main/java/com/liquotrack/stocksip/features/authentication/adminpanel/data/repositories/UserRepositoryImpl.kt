@@ -47,14 +47,14 @@ class UserRepositoryImpl @Inject constructor(
                             totalUsers = it.totalUsers,
                             users = it.users.map { subUserDto ->
                                 SubUser(
-                                    id = subUserDto.userId,
-                                    email = subUserDto.email,
-                                    userRole = subUserDto.role,
-                                    profileId = subUserDto.profileId,
-                                    fullName = subUserDto.fullName,
-                                    phoneNumber = subUserDto.phoneNumber,
-                                    profilePictureUrl = subUserDto.profilePictureUrl,
-                                    profileRole = subUserDto.profileRole
+                                    id = subUserDto.userId.orEmpty(),
+                                    email = subUserDto.email.orEmpty(),
+                                    userRole = subUserDto.role.orEmpty(),
+                                    profileId = subUserDto.profileId.orEmpty(),
+                                    fullName = subUserDto.fullName.orEmpty(),
+                                    phoneNumber = subUserDto.phoneNumber.orEmpty(),
+                                    profilePictureUrl = subUserDto.profilePictureUrl.orEmpty(),
+                                    profileRole = subUserDto.profileRole.orEmpty()
                                 )
                             }
                         )
@@ -85,7 +85,7 @@ class UserRepositoryImpl @Inject constructor(
             val request = RegisterSubUserDto(
                 email = user.email,
                 name = user.fullName,
-                password = "ChangeMe123!",
+                password = user.password.ifBlank { "ChangeMe123!" },
                 phoneNumber = user.phoneNumber,
                 profileRole = user.profileRole,
                 role = user.userRole
@@ -101,16 +101,17 @@ class UserRepositoryImpl @Inject constructor(
                 val dto = response.body()
                 val created = dto?.let {
                     SubUser(
-                        id = it.userId,
-                        email = it.email,
-                        userRole = it.role,
-                        profileId = it.profileId,
-                        fullName = it.fullName,
-                        phoneNumber = it.phoneNumber,
-                        profilePictureUrl = it.profilePictureUrl,
-                        profileRole = it.profileRole
+                        id = it.userId.orEmpty(),
+                        email = it.email.orEmpty(),
+                        userRole = it.role.orEmpty(),
+                        profileId = it.profileId.orEmpty(),
+                        fullName = it.fullName.orEmpty(),
+                        phoneNumber = it.phoneNumber.orEmpty(),
+                        profilePictureUrl = it.profilePictureUrl.orEmpty(),
+                        profileRole = it.profileRole.orEmpty()
                     )
                 }
+
                 return@withContext Response.success(created)
             } else {
                 val errorBodyString = response.errorBody()?.string()
