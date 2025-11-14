@@ -79,8 +79,11 @@ fun StorageCreateOrEditView(
     LaunchedEffect(productId) {
         if (isEditMode && productId != "new") {
             viewModel.getProductById(productId)
-            viewModel.loadProductForEdit(selectedProduct ?: return@LaunchedEffect)
         }
+    }
+
+    LaunchedEffect(selectedProduct) {
+        selectedProduct?.let { viewModel.loadProductForEdit(it) }
     }
 
     val baseCurrencies = listOf("USD", "EUR", "INR", "GBP", "JPY")
