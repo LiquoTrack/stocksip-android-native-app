@@ -16,18 +16,37 @@ class SalesOrderRepositoryImpl @Inject constructor(
 
     override suspend fun createSalesOrderFromPurchaseOrder(purchaseOrderId: String): SalesOrderResponse =
         withContext(Dispatchers.IO) {
+            println(">>> [Repo] POST /orders/from-procurement/$purchaseOrderId")
+
             val response = service.createSalesOrderFromPurchaseOrder(purchaseOrderId)
-            if (!response.isSuccessful) throw Exception("Error creating sales order: ${response.code()} ${response.message()}")
+
+            if (!response.isSuccessful) {
+                println(">>> [Repo] Error: ${response.code()} - ${response.message()}")
+                throw Exception("Error creating sales order: ${response.code()} ${response.message()}")
+            }
+
             val dto = response.body() ?: throw Exception("Empty body")
+
+            println(">>> [Repo] SalesOrder: ${dto.id}")
             dto.toDomain()
         }
 
-    override suspend fun getOrderById(orderId: String): SalesOrderResponse = withContext(Dispatchers.IO) {
-        val response = service.getOrderById(orderId)
-        if (!response.isSuccessful) throw Exception("Error fetching order: ${response.code()} ${response.message()}")
-        val dto = response.body() ?: throw Exception("Empty body")
-        dto.toDomain()
-    }
+    override suspend fun getAllOrders(): List<SalesOrderResponse> =
+        withContext(Dispatchers.IO) {
+
+            println(">>> [Repo] GET /orders")
+
+            val response = service.getAllOrders()
+
+            if (!response.isSuccessful) {
+                throw Exception("Error fetching all orders: ${response.code()} ${response.message()}")
+            }
+
+            val dtoList = response.body() ?: emptyList()
+
+            dtoList.map { it.toDomain() }
+        }
+
 
     private fun SalesOrderDto.toDomain(): SalesOrderResponse = SalesOrderResponse(
         id = id,
@@ -48,7 +67,14 @@ class SalesOrderRepositoryImpl @Inject constructor(
         completitionDate = completitionDate,
         buyer = buyer,
         deliveryProposal = deliveryProposal?.let {
-            DeliveryProposalResource(it.proposedDate, it.notes, it.status, it.createdAt, it.respondedAt)
-        }
+            DeliveryProposalResource(
+                it.proposedDate,
+                it.notes,
+                it.status,
+                it.createdAt,
+                it.respondedAt
+            )
+        },
+        supplierId = supplierId
     )
 }

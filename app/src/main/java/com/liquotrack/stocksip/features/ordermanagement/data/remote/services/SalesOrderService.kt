@@ -22,8 +22,7 @@ interface SalesOrderService {
         @Path("purchaseOrderId") purchaseOrderId: String
     ): Response<SalesOrderDto>
 
-    @GET("orders/{id}")
-    suspend fun getOrderById(
-        @Path("id") id: String
-    ): Response<SalesOrderDto>
+    @GET("orders")
+    suspend fun getAllOrders(): Response<List<SalesOrderDto>>
+
 }

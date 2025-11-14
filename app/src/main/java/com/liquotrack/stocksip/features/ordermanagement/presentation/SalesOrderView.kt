@@ -36,8 +36,17 @@ fun PurchaseOrdersView(
     val viewModel: PurchaseOrdersViewModel = hiltViewModel()
     val ordersUi by viewModel.ordersUi.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val createdId by viewModel.createdPurchaseOrderId.collectAsState()
 
     LaunchedEffect(Unit) { viewModel.loadOrders() }
+
+    LaunchedEffect(createdId) {
+        if (!createdId.isNullOrEmpty()) {
+            println(">>> NAV: salesorders/create/$createdId")
+            onNavigate("salesorders/create/$createdId")
+        }
+    }
+
 
     DrawerScaffold(
         title = stringResource(R.string.purchase_orders_title),

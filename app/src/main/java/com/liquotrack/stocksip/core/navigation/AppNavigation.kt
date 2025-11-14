@@ -691,8 +691,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-
-        // Making Orders
         composable(Route.MakingOrders.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
@@ -702,73 +700,53 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             }
 
             val roleNormalized = role?.trim()?.lowercase()
-            if (roleNormalized == "supplier") {
-                SupplierSalesOrdersView(
-                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
-                    onLogout = {
-                        navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } }
-                    }
-                )
-            } else {
-                PurchaseOrdersView(
-                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
-                    onLogout = { navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } } },
-                    navToCreate = { navController.navigate(Route.Catalogs.route) }
-                )
+
+            when (roleNormalized) {
+                "supplier" -> {
+                    SupplierSalesOrdersView(
+                        onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                        onLogout = {
+                            navController.navigate(Route.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+
+                "liquorstoreowner" -> {
+                    PurchaseOrdersView(
+                        onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                        onLogout = {
+                            navController.navigate(Route.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        navToCreate = { navController.navigate(Route.Catalogs.route) }
+                    )
+                }
+
+                else -> {
+                    PurchaseOrdersView(
+                        onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                        onLogout = {
+                            navController.navigate(Route.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        navToCreate = { navController.navigate(Route.Catalogs.route) }
+                    )
+                }
             }
         }
 
-
-        composable(route = Route.MakingOrdersSupplier.route) {
+        composable(Route.MakingOrdersSupplier.route) {
             SupplierSalesOrdersView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                },
+                onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
                 onLogout = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
-            )
-        }
-
-        composable(
-            route = "salesorders/create/{purchaseOrderId}"
-        ) {
-            val purchaseOrderId = it.arguments?.getString("purchaseOrderId")
-
-            SupplierSalesOrdersView(
-                onNavigate = { route ->
-                    navController.navigate(route) { launchSingleTop = true }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                },
-                purchaseOrderId = purchaseOrderId,
-                orderId = null
-            )
-        }
-
-        composable(
-            route = "salesorders/detail/{orderId}"
-        ) {
-            val orderId = it.arguments?.getString("orderId")
-
-            SupplierSalesOrdersView(
-                onNavigate = { route ->
-                    navController.navigate(route) { launchSingleTop = true }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                },
-                purchaseOrderId = null,
-                orderId = orderId
             )
         }
 
