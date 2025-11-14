@@ -162,9 +162,11 @@ fun InventorySubtrackView(
                         placeholder = "Enter quantity",
                         keyboardType = KeyboardType.Number,
                         isRequired = true,
-                        showError = quantityError != null,
-                        modifier = Modifier.weight(1f)
+                        showError = quantityError != null
                     )
+
+                    // Spacer
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Exit Type Dropdown Field
                     CustomSpinnerField(
@@ -174,7 +176,6 @@ fun InventorySubtrackView(
                         },
                         isRequired = true,
                         label = "Exit Reason",
-                        modifier = Modifier.weight(1f)
                     )
                 }
 
