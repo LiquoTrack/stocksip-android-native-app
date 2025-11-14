@@ -3,6 +3,7 @@ package com.liquotrack.stocksip.shared.presentation.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -45,16 +46,10 @@ fun CustomSpinnerField(
     isRequired: Boolean = false,
     label: String
 ) {
-    // State to manage the expanded/collapsed state of the dropdown menu
     var expanded by remember { mutableStateOf(false) }
-
-    // Value to check if the items list is empty
     val isEmpty = items.isEmpty()
-
-    // State to hold the currently selected item. Also initializes with the first item if available.
     var selectedItem by remember(items) { mutableStateOf(items.firstOrNull() ?: "") }
 
-    // Effect to set the initial selected item when the items list changes
     LaunchedEffect(items) {
         items.firstOrNull()?.let {
             selectedItem = it
@@ -64,40 +59,39 @@ fun CustomSpinnerField(
         }
     }
 
-    // UI layout for the custom spinner field
-    Column(modifier = modifier) {
-        Box {
-            TextField(
-                value = selectedItem,
-                onValueChange = { },
-                readOnly = true,
-                label = { Text(if (isRequired) "$label *" else label) },
-                trailingIcon = {
-                    IconButton(onClick = { if (!isEmpty) expanded = !expanded }) {
-                        val icon = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
-                        Icon(imageVector = icon, contentDescription = null)
-                    }
-                },
-                enabled = !isEmpty,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(item) },
-                        onClick = {
-                            selectedItem = item
-                            onItemSelected(item)
-                            expanded = false
-                        }
-                    )
+    // QUITAR el Box con height fijo y usar Column en su lugar
+    Column(modifier = modifier.fillMaxWidth()) {
+        TextField(
+            value = selectedItem,
+            onValueChange = { },
+            readOnly = true,
+            label = { Text(if (isRequired) "$label *" else label) },
+            trailingIcon = {
+                IconButton(onClick = { if (!isEmpty) expanded = !expanded }) {
+                    val icon =
+                        if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+                    Icon(imageVector = icon, contentDescription = null)
                 }
+            },
+            enabled = !isEmpty,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(item) },
+                    onClick = {
+                        selectedItem = item
+                        onItemSelected(item)
+                        expanded = false
+                    }
+                )
             }
         }
 
