@@ -1,4 +1,5 @@
 package com.liquotrack.stocksip.core.navigation
+
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +34,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.InventoryView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.InventoryAdditionView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
@@ -50,7 +52,8 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
-import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryexitform.InventoryExitFormView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.InventorySubtrackView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorytransfer.InventoryTransferView
 import java.net.URLEncoder
 
 
@@ -278,24 +281,61 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             }
         }
 
+        // Inventory Addition Form
         composable(
-            route = Route.InventoryExitForm.routeWithArgs,
+            route = Route.InventoryAddition.routeWithArgs,
             arguments = listOf(
-                navArgument(Route.InventoryExitForm.warehouseIdArg) { type = NavType.StringType }
+                navArgument(Route.InventoryAddition.warehouseIdArg) { type = NavType.StringType }
             )
-        ) {
-            InventoryExitFormView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventoryAddition.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryAdditionView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Inventory Subtrack Form
+        composable(
+            route = Route.InventorySubtrack.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventorySubtrack.warehouseIdArg) { type = NavType.StringType }
             )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventorySubtrack.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventorySubtrackView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Inventory Transfer Form
+        composable(
+            route = Route.InventoryTransfer.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryTransfer.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventoryTransfer.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryTransferView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
 
         // Warehouse Create and Edit

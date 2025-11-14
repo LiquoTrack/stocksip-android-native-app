@@ -35,7 +35,18 @@ class SubscriptionRepositoryImpl @Inject constructor(private val service: Subscr
         val response = service.createInitialSubscription(accountId, request)
 
         if (!response.isSuccessful) {
-            throw Exception("Failed to create initial subscription: ${response.code()} ${response.message()}")
+            val err = try { response.errorBody()?.string()?.ifBlank { null } } catch (_: Exception) { null }
+            val composed = buildString {
+                append("Failed to create initial subscription: ")
+                append(response.code())
+                append(" ")
+                append(response.message())
+                err?.let {
+                    append("\n")
+                    append(it.take(500))
+                }
+            }
+            throw Exception(composed)
         }
 
         val body = response.body() ?: throw Exception("Response body is null")
@@ -117,9 +128,19 @@ class SubscriptionRepositoryImpl @Inject constructor(private val service: Subscr
             val requestBody = UpgradeSubscriptionDto(newPlanId)
             val response = service.upgradeSubscription(accountId, subscriptionId, requestBody)
 
-
             if (!response.isSuccessful) {
-                throw Exception("Failed to upgrade subscription: ${response.code()} ${response.message()}")
+                val err = try { response.errorBody()?.string()?.ifBlank { null } } catch (_: Exception) { null }
+                val composed = buildString {
+                    append("Failed to upgrade subscription: ")
+                    append(response.code())
+                    append(" ")
+                    append(response.message())
+                    err?.let {
+                        append("\n")
+                        append(it.take(500))
+                    }
+                }
+                throw Exception(composed)
             }
 
             val body = response.body() ?: throw Exception("Response body is null")

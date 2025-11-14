@@ -4,6 +4,7 @@ import com.liquotrack.stocksip.features.inventorymanagement.inventories.data.rem
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryAdditionRequest
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryResponse
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventorySubtrackRequest
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.models.InventoryTransferRequest
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.domain.repositories.InventoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.produce
@@ -155,6 +156,46 @@ class InventoryRepositoryImpl @Inject constructor(private val service: Inventory
     ): InventoryResponse? = withContext(Dispatchers.IO) {
         try {
             val response = service.subtrackProductsFromWarehouseInventory(warehouseId, productId, inventory)
+            if (response.isSuccessful) {
+                val body = response.body() ?: return@withContext null
+                return@withContext body.let { dto ->
+                    InventoryResponse(
+                        id = dto.inventoryId,
+                        productId = dto.productId,
+                        name = dto.name,
+                        type = dto.type,
+                        brand = dto.brand,
+                        unitPrice = dto.unitPrice,
+                        moneyCode = dto.moneyCode,
+                        minimumStock = dto.minimumStock,
+                        imageUrl = dto.imageUrl,
+                        currentState = dto.currentState,
+                        quantity = dto.quantity,
+                        warehouseId = dto.warehouseId,
+                        expirationDate = dto.expirationDate
+                    )
+                }
+            } else {
+                return@withContext null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext null
+        }
+    }
+
+    override suspend fun transferProductsToAnotherWarehouse(
+        originWarehouseId: String,
+        productToTransferId: String,
+        inventoryRequest: InventoryTransferRequest
+    ): InventoryResponse? = withContext(Dispatchers.IO) {
+        try {
+            val response = service.transferProductsToAnotherWarehouse(
+                warehouseId = originWarehouseId,
+                productId = productToTransferId,
+                inventoryTransferRequest = inventoryRequest
+            )
+
             if (response.isSuccessful) {
                 val body = response.body() ?: return@withContext null
                 return@withContext body.let { dto ->
