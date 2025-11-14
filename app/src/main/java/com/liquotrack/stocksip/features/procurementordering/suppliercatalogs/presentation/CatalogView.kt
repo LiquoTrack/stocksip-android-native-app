@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,7 +12,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -143,9 +147,18 @@ fun CatalogListScreen(
 
                         Box(
                             modifier = Modifier
-                                .size(80.dp)
-                                .background(Color(0xFF9B6B76), RoundedCornerShape(8.dp))
-                        )
+                                .size(160.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.wines1),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(14.dp)),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
                     }
                 }
 

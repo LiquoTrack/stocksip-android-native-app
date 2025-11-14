@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseViewModel
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 import kotlinx.coroutines.launch
@@ -46,15 +46,35 @@ fun CatalogCreateAndEditScreen(
     val warehouses by warehouseViewModel.warehouses.collectAsStateWithLifecycle()
     val warehouseProducts by warehouseViewModel.products.collectAsStateWithLifecycle()
 
-    var catalogName by remember { mutableStateOf(selectedCatalog?.name ?: "") }
-    var catalogDescription by remember { mutableStateOf(selectedCatalog?.description ?: "") }
-    var contactEmail by remember { mutableStateOf(selectedCatalog?.contactEmail ?: "") }
-    var isPublished by remember { mutableStateOf(selectedCatalog?.isPublished ?: false) }
+    var catalogName by remember { mutableStateOf("") }
+    var catalogDescription by remember { mutableStateOf("") }
+    var contactEmail by remember { mutableStateOf("") }
+    var isPublished by remember { mutableStateOf(false) }
+
+    LaunchedEffect(selectedCatalog?.id) {
+        selectedCatalog?.let { catalog ->
+            catalogName = catalog.name
+            catalogDescription = catalog.description
+            contactEmail = catalog.contactEmail
+            isPublished = catalog.isPublished
+        }
+    }
+
 
     var selectedWarehouseId by remember { mutableStateOf<String?>(null) }
     var showWarehouseDialog by remember { mutableStateOf(false) }
     var showProductDialog by remember { mutableStateOf(false) }
     val selectedProductIds = remember { mutableStateListOf<String>() }
+
+    val hasCatalogChanged by remember {
+        derivedStateOf {
+            (catalogName != selectedCatalog?.name) ||
+                    (catalogDescription != selectedCatalog?.description) ||
+                    (contactEmail != selectedCatalog?.contactEmail) ||
+                    (isPublished != (selectedCatalog?.isPublished ?: false)) ||
+                    pendingItems.isNotEmpty()
+        }
+    }
 
     LaunchedEffect(Unit) {
         catalogViewModel.loadCatalogsByAccount()
@@ -527,7 +547,7 @@ fun CatalogCreateAndEditScreen(
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5C1F2E)),
                 shape = RoundedCornerShape(25.dp),
-                enabled = catalogName.isNotBlank()
+                enabled = if (isEditMode) hasCatalogChanged else catalogName.isNotBlank()
             ) {
                 Text(
                     text = if (isEditMode)

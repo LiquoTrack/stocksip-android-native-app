@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -407,7 +407,9 @@ fun CatalogItemDetailScreen(
                     ),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF8B4C5C),
-                    disabledContainerColor = Color.Gray
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.White.copy(alpha = 0.5f)
                 ),
                 shape = RoundedCornerShape(30.dp),
                 enabled = item.availableStock > 0 && !isLoading

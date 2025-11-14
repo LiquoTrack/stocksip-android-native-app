@@ -22,13 +22,31 @@ import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
 @Composable
 fun SupplierSalesOrdersView(
     onNavigate: (String) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    purchaseOrderId: String? = null,
+    orderId: String? = null
 ) {
     val bg = Color(0xFFF4ECEC)
     val viewModel: SalesOrdersViewModel = hiltViewModel()
     val salesOrder by viewModel.salesOrder.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    LaunchedEffect(Unit) {
+        when {
+            purchaseOrderId != null ->
+                viewModel.createSalesOrderFromProcurement(purchaseOrderId)
+
+            orderId != null ->
+                viewModel.getSalesOrderById(orderId)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        println(">>> purchaseOrderId = $purchaseOrderId")
+        println(">>> orderId = $orderId")
+    }
+
 
     DrawerScaffold(
         title = stringResource(id = R.string.orders_title),
@@ -71,7 +89,7 @@ fun SupplierSalesOrdersView(
                 }
                 else -> {
                     Text(
-                        text = stringResource(id = R.string.no_products_found),
+                        text = stringResource(id = R.string.error_unknown),
                         color = Color.Gray,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )

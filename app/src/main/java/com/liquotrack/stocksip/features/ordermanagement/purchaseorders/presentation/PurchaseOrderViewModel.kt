@@ -53,6 +53,9 @@ class PurchaseOrdersViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
+    private val _createdPurchaseOrderId = MutableStateFlow<String?>(null)
+    val createdPurchaseOrderId = _createdPurchaseOrderId.asStateFlow()
+
     fun loadOrders() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -82,63 +85,73 @@ class PurchaseOrdersViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                Log.d("PURCHASE_ORDER_VM", "Starting order creation...")
                 val accountId = tokenManager.getAccountId()
                     ?: throw IllegalStateException("Account ID not found in token")
-                Log.d("PURCHASE_ORDER_VM", "Account ID: $accountId")
 
                 val cartItems = cartRepository.getAllCartItems().first()
-                Log.d("PURCHASE_ORDER_VM", "Cart items fetched: $cartItems")
                 if (cartItems.isEmpty()) throw IllegalStateException("Cart is empty. Cannot create an order.")
 
                 if (addressIndex == null) throw IllegalStateException("Address index is null")
 
                 val orderCode = generateOrderCode()
-                Log.d("PURCHASE_ORDER_VM", "Generated order code: $orderCode")
 
                 val request = PurchaseOrderRequestDto(
                     orderCode = orderCode,
                     catalogIdBuyFrom = catalogIdBuyFrom,
                     addressIndex = addressIndex
                 )
-                Log.d("PURCHASE_ORDER_VM", "Order request: $request")
 
-                val createdOrder = purchaseOrderRepository.createPurchaseOrder(accountId, request)
+                // Create order
+                val createdOrder = purchaseOrderRepository
+                    .createPurchaseOrder(accountId, request)
                     .getOrElse { throw it }
-                val orderId = createdOrder.id ?: throw IllegalStateException("Order ID not returned")
+
+                val orderId = createdOrder.id
+                    ?: throw IllegalStateException("Order ID not returned")
+
+                _createdPurchaseOrderId.value = orderId
                 Log.d("PURCHASE_ORDER_VM", "Order created with ID: $orderId")
 
+                // Add items
                 cartItems.forEach { item ->
-                    val itemRequest = PurchaseOrderItemRequestDto(productId = item.productId, quantity = item.quantity)
-                    Log.d("PURCHASE_ORDER_VM", "Adding item to order: $itemRequest")
-                    purchaseOrderRepository.addItem(orderId, itemRequest).onFailure { e ->
-                        Log.e("PURCHASE_ORDER_VM", "Error adding item ${item.productId}", e)
-                    }.onSuccess {
-                        Log.d("PURCHASE_ORDER_VM", "Item ${item.productId} added successfully")
+                    val itemRequest = PurchaseOrderItemRequestDto(
+                        productId = item.productId,
+                        quantity = item.quantity
+                    )
+
+                    purchaseOrderRepository.addItem(orderId, itemRequest)
+                        .onSuccess {
+                            Log.d("PURCHASE_ORDER_VM", "Item ${item.productId} added successfully")
+                        }
+                        .onFailure { e ->
+                            Log.e("PURCHASE_ORDER_VM", "Failed adding item ${item.productId}", e)
+                        }
+                }
+
+                // Confirm
+                purchaseOrderRepository.confirmOrder(orderId)
+                    .onSuccess {
+                        Log.d("PURCHASE_ORDER_VM", "Order $orderId confirmed successfully")
                     }
-                }
+                    .onFailure { e ->
+                        Log.e("PURCHASE_ORDER_VM", "Order $orderId confirmation failed", e)
+                    }
 
-                Log.d("PURCHASE_ORDER_VM", "All items added, confirming order...")
-                purchaseOrderRepository.confirmOrder(orderId).onFailure { e ->
-                    Log.e("PURCHASE_ORDER_VM", "Error confirming order", e)
-                }.onSuccess {
-                    Log.d("PURCHASE_ORDER_VM", "Order $orderId confirmed successfully")
-                }
-
+                // Clear cart
                 cartRepository.clearCart()
-                Log.d("PURCHASE_ORDER_VM", "Cart cleared after order creation")
+
+                // Refresh list
                 loadOrders()
-                Log.d("PURCHASE_ORDER_VM", "Order list reloaded")
 
             } catch (e: Exception) {
-                Log.e("PURCHASE_ORDER_VM", "Error creating full order", e)
                 _error.value = e.message
+                Log.e("PURCHASE_ORDER_VM", "Error creating full order", e)
             } finally {
                 _isLoading.value = false
-                Log.d("PURCHASE_ORDER_VM", "createFullOrder finished, isLoading=false")
             }
         }
     }
+
 
 
 
