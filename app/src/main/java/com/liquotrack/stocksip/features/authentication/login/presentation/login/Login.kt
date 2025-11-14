@@ -1,8 +1,8 @@
 package com.liquotrack.stocksip.features.authentication.login.presentation.login
 
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Context
+import android.widget.Toast
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,16 +55,22 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
-
-private const val TAG = "LoginScreen"
+import kotlinx.coroutines.launch
 
 @Composable
 fun Login(
@@ -87,53 +94,16 @@ fun Login(
 
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val webClientId = stringResource(R.string.web_client)
-
-    val googleSignInOptions = remember(webClientId) {
-        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(webClientId)
-            .requestEmail()
+    val coroutineScope = rememberCoroutineScope()
+    val signInWithGoogleOption = remember(context) {
+        GetSignInWithGoogleOption.Builder(context.getString(R.string.web_client))
+            .setNonce("nonce")
             .build()
     }
-
-    val googleSignInClient = remember(context, googleSignInOptions) {
-        GoogleSignIn.getClient(context, googleSignInOptions)
-    }
-
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            val idToken = account.idToken
-            if (idToken.isNullOrBlank()) {
-                viewModel.setError("No se recibió ID token de Google")
-                return@rememberLauncherForActivityResult
-            }
-
-            val email = account.email.orEmpty()
-            val fullName = account.displayName.orEmpty()
-
-            viewModel.logGoogleIdTokenClaims(idToken)
-
-            viewModel.authenticateWithGoogle(
-                idToken = idToken,
-                clientId = webClientId
-            ) { success, error ->
-                if (success) {
-                    val backendUser = viewModel.user.value
-                    val accountExists = !backendUser?.accountId.isNullOrBlank()
-                    onGoogleSignInSuccess(email, fullName, accountExists)
-                } else {
-                    viewModel.setError(error ?: "La autenticación con el backend falló")
-                    Log.e(TAG, "La autenticación con el backend falló: ${error ?: "Error desconocido"}")
-                }
-            }
-        } catch (e: ApiException) {
-            viewModel.setError("Google Sign-In falló: ${e.statusCode}")
-            Log.e(TAG, "Google Sign-In lanzó ApiException", e)
-        }
+    val credentialRequest = remember(signInWithGoogleOption) {
+        GetCredentialRequest.Builder()
+            .addCredentialOption(signInWithGoogleOption)
+            .build()
     }
 
     LaunchedEffect(user) {
@@ -221,7 +191,7 @@ fun Login(
                 onValueChange = viewModel::updateEmail,
                 placeholder = {
                     Text(
-                        text = "Email",
+                        text = stringResource(R.string.label_email),
                         color = Color(0xFF8B7375)
                     )
                 },
@@ -256,7 +226,7 @@ fun Login(
                 onValueChange = viewModel::updatePassword,
                 placeholder = {
                     Text(
-                        text = "Password",
+                        text = stringResource(R.string.label_password),
                         color = Color(0xFF8B7375)
                     )
                 },
@@ -297,7 +267,7 @@ fun Login(
 
             // "Forgot Password?" clickable text -> navigates to PasswordRecover screen
             Text(
-                text = "Forgot Password?",
+                text = stringResource(R.string.label_forgot_password),
                 color = Color(0xFFE53E3E),
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
@@ -328,7 +298,7 @@ fun Login(
                     )
                 } else {
                     Text(
-                        text = "Sign In",
+                        text = stringResource(R.string.label_sign_in),
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
@@ -340,8 +310,22 @@ fun Login(
 
             Button(
                 onClick = {
-                    googleSignInClient.signOut().addOnCompleteListener {
-                        googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                    coroutineScope.launch {
+                        val credentialManager = CredentialManager.create(context)
+                        try {
+                            val result = credentialManager.getCredential(
+                                request = credentialRequest,
+                                context = context
+                            )
+                            handleSignIn(
+                                result = result,
+                                context = context,
+                                viewModel = viewModel,
+                                onGoogleSignInSuccess = onGoogleSignInSuccess
+                            )
+                        } catch (e: GetCredentialException) {
+                            Toast.makeText(context, "Google Sign-In failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
                     }
                 },
                 modifier = Modifier
@@ -354,7 +338,7 @@ fun Login(
                 enabled = !isLoading
             ) {
                 Text(
-                    text = "Sign In with Google",
+                    text = stringResource(R.string.label_sign_in_google),
                     color = Color(0xFF4A1B2A),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium
@@ -366,7 +350,7 @@ fun Login(
             // Register text
             val annotatedText = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.Black)) {
-                    append("Don't have an account? ")
+                    append(stringResource(R.string.label_dont_have_an_account))
                 }
                 pushStringAnnotation(tag = "REGISTER", annotation = "register")
                 withStyle(
@@ -375,7 +359,7 @@ fun Login(
                         fontWeight = FontWeight.Medium
                     )
                 ) {
-                    append("Sign Up")
+                    append(" ${stringResource(R.string.label_sign_up)}")
                 }
                 pop()
             }
@@ -412,6 +396,57 @@ fun Login(
         }
     }
 }
+
+private fun handleSignIn(
+    result: GetCredentialResponse,
+    context: Context,
+    viewModel: LoginViewModel,
+    onGoogleSignInSuccess: (email: String, fullName: String, accountExists: Boolean) -> Unit
+) {
+    val credential = result.credential
+
+    if (credential is CustomCredential &&
+        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+    ) {
+        try {
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            val idToken = googleIdTokenCredential.idToken
+            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+            FirebaseAuth.getInstance()
+                .signInWithCredential(firebaseCredential)
+                .addOnSuccessListener { authResult ->
+                    // Opcional: log de claims para depuración
+                    viewModel.logGoogleIdTokenClaims(idToken)
+
+                    // Autenticar contra backend para obtener token y accountId válidos
+                    viewModel.authenticateWithGoogle(
+                        idToken = idToken,
+                        clientId = context.getString(R.string.web_client),
+                        accessToken = null
+                    ) { success, error ->
+                        if (success) {
+                            val firebaseUser = authResult.user
+                            val email = firebaseUser?.email.orEmpty()
+                            val fullName = firebaseUser?.displayName.orEmpty()
+                            val accountExists = authResult.additionalUserInfo?.isNewUser == false
+                            Toast.makeText(context, "Google Sign-In success", Toast.LENGTH_SHORT).show()
+                            onGoogleSignInSuccess(email, fullName, accountExists)
+                        } else {
+                            Toast.makeText(context, error ?: "Backend auth failed", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Toast.makeText(context, "Firebase sign-in failed: ${error.message}", Toast.LENGTH_LONG).show()
+                }
+        } catch (e: GoogleIdTokenParsingException) {
+            Toast.makeText(context, "Received an invalid google id token response: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    } else {
+        Toast.makeText(context, "Unexpected type of credential", Toast.LENGTH_LONG).show()
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun LoginPreview() {

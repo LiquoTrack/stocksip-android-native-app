@@ -13,16 +13,18 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.liquotrack.stocksip.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.WarehouseViewModel
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 import kotlinx.coroutines.launch
@@ -37,28 +39,42 @@ fun CatalogCreateAndEditScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    // Catalog data
     val catalogs by catalogViewModel.catalogs.collectAsStateWithLifecycle()
     val selectedCatalog = catalogs.find { it.id == catalogId }
     val pendingItems by catalogViewModel.pendingItems.collectAsStateWithLifecycle()
 
-    // Warehouse data
     val warehouses by warehouseViewModel.warehouses.collectAsStateWithLifecycle()
     val warehouseProducts by warehouseViewModel.products.collectAsStateWithLifecycle()
 
-    // Form states
-    var catalogName by remember { mutableStateOf(selectedCatalog?.name ?: "") }
-    var catalogDescription by remember { mutableStateOf(selectedCatalog?.description ?: "") }
-    var contactEmail by remember { mutableStateOf(selectedCatalog?.contactEmail ?: "") }
-    var isPublished by remember { mutableStateOf(selectedCatalog?.isPublished ?: false) }
+    var catalogName by remember { mutableStateOf("") }
+    var catalogDescription by remember { mutableStateOf("") }
+    var contactEmail by remember { mutableStateOf("") }
+    var isPublished by remember { mutableStateOf(false) }
 
-    // Warehouse selection
+    LaunchedEffect(selectedCatalog?.id) {
+        selectedCatalog?.let { catalog ->
+            catalogName = catalog.name
+            catalogDescription = catalog.description
+            contactEmail = catalog.contactEmail
+            isPublished = catalog.isPublished
+        }
+    }
+
+
     var selectedWarehouseId by remember { mutableStateOf<String?>(null) }
     var showWarehouseDialog by remember { mutableStateOf(false) }
     var showProductDialog by remember { mutableStateOf(false) }
-
-    // Selected products to add to catalog
     val selectedProductIds = remember { mutableStateListOf<String>() }
+
+    val hasCatalogChanged by remember {
+        derivedStateOf {
+            (catalogName != selectedCatalog?.name) ||
+                    (catalogDescription != selectedCatalog?.description) ||
+                    (contactEmail != selectedCatalog?.contactEmail) ||
+                    (isPublished != (selectedCatalog?.isPublished ?: false)) ||
+                    pendingItems.isNotEmpty()
+        }
+    }
 
     LaunchedEffect(Unit) {
         catalogViewModel.loadCatalogsByAccount()
@@ -73,17 +89,15 @@ fun CatalogCreateAndEditScreen(
 
     DisposableEffect(Unit) {
         onDispose {
-            if (!isEditMode) {
-                catalogViewModel.clearPendingItems()
-            }
+            if (!isEditMode) catalogViewModel.clearPendingItems()
         }
     }
 
-    // Warehouse selection dialog
+    // Warehouse dialog
     if (showWarehouseDialog) {
         AlertDialog(
             onDismissRequest = { showWarehouseDialog = false },
-            title = { Text("Select Warehouse") },
+            title = { Text(stringResource(R.string.select_warehouse)) },
             text = {
                 LazyColumn {
                     items(warehouses?.warehouses ?: emptyList()) { warehouse ->
@@ -113,13 +127,13 @@ fun CatalogCreateAndEditScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showWarehouseDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
     }
 
-    // Product selection dialog
+    // Product dialog
     if (showProductDialog && selectedWarehouseId != null) {
         val productStockInputs = remember { mutableStateMapOf<String, String>() }
 
@@ -129,7 +143,7 @@ fun CatalogCreateAndEditScreen(
                 selectedProductIds.clear()
                 productStockInputs.clear()
             },
-            title = { Text("Select Products to Add") },
+            title = { Text(stringResource(R.string.select_products_to_add)) },
             text = {
                 LazyColumn {
                     items(warehouseProducts) { product ->
@@ -145,11 +159,8 @@ fun CatalogCreateAndEditScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
                                 .clickable(enabled = !isAlreadyInCatalog) {
-                                    if (isSelected) {
-                                        selectedProductIds.remove(product.id)
-                                    } else {
-                                        selectedProductIds.add(product.id)
-                                    }
+                                    if (isSelected) selectedProductIds.remove(product.id)
+                                    else selectedProductIds.add(product.id)
                                 },
                             colors = CardDefaults.cardColors(
                                 containerColor = when {
@@ -186,16 +197,12 @@ fun CatalogCreateAndEditScreen(
 
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(product.name, fontWeight = FontWeight.Medium)
-                                        Text(
-                                            "${product.price} ${product.currency}",
-                                            color = Color.Gray,
-                                            fontSize = 12.sp
-                                        )
+                                        Text("${product.price} ${product.currency}", color = Color.Gray, fontSize = 12.sp)
                                     }
 
                                     if (isAlreadyInCatalog) {
                                         Text(
-                                            "Added",
+                                            stringResource(R.string.added),
                                             color = Color.Gray,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Medium
@@ -216,7 +223,7 @@ fun CatalogCreateAndEditScreen(
                                     OutlinedTextField(
                                         value = productStockInputs[product.id] ?: "",
                                         onValueChange = { productStockInputs[product.id] = it },
-                                        label = { Text("Enter stock") },
+                                        label = { Text(stringResource(R.string.enter_stock)) },
                                         singleLine = true,
                                         modifier = Modifier.fillMaxWidth(),
                                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -234,46 +241,31 @@ fun CatalogCreateAndEditScreen(
                 }
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showProductDialog = false
-
-                        if (isEditMode && catalogId != null && selectedWarehouseId != null) {
-                            selectedProductIds.forEach { productId ->
-                                val enteredStock = productStockInputs[productId]?.toIntOrNull() ?: 0
-                                if (enteredStock > 0) {
-                                    scope.launch {
-                                        catalogViewModel.addCatalogItem(
-                                            catalogId,
-                                            productId,
-                                            selectedWarehouseId!!,
-                                            enteredStock
-                                        )
-                                    }
-                                } else {
-                                    Log.w("CATALOG", "⚠️ Product $productId without valid stock" )
-                                }
-                            }
-                        } else if (selectedWarehouseId != null) {
-                            selectedProductIds.forEach { productId ->
-                                val enteredStock = productStockInputs[productId]?.toIntOrNull() ?: 0
-                                if (enteredStock > 0) {
-                                    catalogViewModel.addPendingItem(
-                                        productId,
-                                        selectedWarehouseId!!,
-                                        enteredStock
+                TextButton(onClick = {
+                    showProductDialog = false
+                    if (isEditMode && catalogId != null && selectedWarehouseId != null) {
+                        selectedProductIds.forEach { productId ->
+                            val enteredStock = productStockInputs[productId]?.toIntOrNull() ?: 0
+                            if (enteredStock > 0) {
+                                scope.launch {
+                                    catalogViewModel.addCatalogItem(
+                                        catalogId, productId, selectedWarehouseId!!, enteredStock
                                     )
-                                } else {
-                                    Log.w("CATALOG", "⚠️ Product $productId without valid stock" )
                                 }
+                            } else Log.w("CATALOG", "⚠️ Product $productId without valid stock")
+                        }
+                    } else if (selectedWarehouseId != null) {
+                        selectedProductIds.forEach { productId ->
+                            val enteredStock = productStockInputs[productId]?.toIntOrNull() ?: 0
+                            if (enteredStock > 0) {
+                                catalogViewModel.addPendingItem(productId, selectedWarehouseId!!, enteredStock)
                             }
                         }
-
-                        selectedProductIds.clear()
-                        productStockInputs.clear()
                     }
-                ) {
-                    Text("Confirm")
+                    selectedProductIds.clear()
+                    productStockInputs.clear()
+                }) {
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
@@ -282,7 +274,7 @@ fun CatalogCreateAndEditScreen(
                     selectedProductIds.clear()
                     productStockInputs.clear()
                 }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel_catalog))
                 }
             }
         )
@@ -294,7 +286,9 @@ fun CatalogCreateAndEditScreen(
             .background(Color(0xFFF4ECEC))
     ) {
         TopBarWithBack(
-            title = if (isEditMode) "Edit Catalog" else "New Catalog",
+            title = if (isEditMode)
+                stringResource(R.string.edit_catalog)
+            else stringResource(R.string.new_catalog),
             onBackClick = onBack,
             actions = {
                 if (isEditMode && catalogId != null) {
@@ -303,7 +297,7 @@ fun CatalogCreateAndEditScreen(
                     }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.delete),
                             tint = Color(0xFFE8B4BE)
                         )
                     }
@@ -316,18 +310,21 @@ fun CatalogCreateAndEditScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text("Catalog info", color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.catalog_info), color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = catalogName,
                 onValueChange = { catalogName = it },
-                placeholder = { Text("Name", color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.name_placeholder_catalog), color = Color.Gray) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White,
-                    focusedBorderColor = Color(0xFF8B4C5C)
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    errorBorderColor = Color.Transparent
                 ),
                 shape = RoundedCornerShape(8.dp)
             )
@@ -337,12 +334,15 @@ fun CatalogCreateAndEditScreen(
             OutlinedTextField(
                 value = catalogDescription,
                 onValueChange = { catalogDescription = it },
-                placeholder = { Text("Description", color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.description_placeholder), color = Color.Gray) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White,
-                    focusedBorderColor = Color(0xFF8B4C5C)
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    errorBorderColor = Color.Transparent
                 ),
                 shape = RoundedCornerShape(8.dp)
             )
@@ -352,33 +352,36 @@ fun CatalogCreateAndEditScreen(
             OutlinedTextField(
                 value = contactEmail,
                 onValueChange = { contactEmail = it },
-                placeholder = { Text("Contact Email", color = Color.Gray) },
+                placeholder = { Text(stringResource(R.string.contact_email_placeholder), color = Color.Gray) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White,
-                    focusedBorderColor = Color(0xFF8B4C5C)
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent,
+                    errorBorderColor = Color.Transparent
                 ),
                 shape = RoundedCornerShape(8.dp)
             )
 
             Spacer(Modifier.height(24.dp))
 
-            // Catalog items section
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Catalog items", color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.catalog_items), color = Color(0xFFE8B4BE), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 IconButton(onClick = { showWarehouseDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add products",
+                        contentDescription = stringResource(R.string.add_products),
                         tint = Color(0xFF8B4C5C)
                     )
                 }
             }
+
             Spacer(Modifier.height(8.dp))
 
             Card(
@@ -544,10 +547,13 @@ fun CatalogCreateAndEditScreen(
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5C1F2E)),
                 shape = RoundedCornerShape(25.dp),
-                enabled = catalogName.isNotBlank()
+                enabled = if (isEditMode) hasCatalogChanged else catalogName.isNotBlank()
             ) {
                 Text(
-                    if (isEditMode) "Save" else "Create",
+                    text = if (isEditMode)
+                        stringResource(R.string.save)
+                    else
+                        stringResource(R.string.create),
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium

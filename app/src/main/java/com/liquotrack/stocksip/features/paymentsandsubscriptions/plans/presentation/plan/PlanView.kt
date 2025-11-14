@@ -37,6 +37,8 @@ fun ChoosePlanScreen(
     val context = LocalContext.current
 
     val subscription by subscriptionViewModel.subscriptions.collectAsState()
+    val subLoading by subscriptionViewModel.isLoading.collectAsState()
+    val subErrorMessage by subscriptionViewModel.errorMessage.collectAsState()
 
     LaunchedEffect(subscription) {
         subscription?.let {
@@ -160,6 +162,19 @@ fun ChoosePlanScreen(
                 }
 
                 else -> {
+                    // Mostrar errores del flujo de suscripción
+                    if (subErrorMessage != null) {
+                        Text(
+                            text = subErrorMessage ?: "",
+                            color = Color(0xFFFFCDD2),
+                            textAlign = TextAlign.Center,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+                    }
+
                     LazyColumn(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -191,15 +206,23 @@ fun ChoosePlanScreen(
                             disabledContainerColor = Color(0xFF4A1520)
                         ),
                         shape = RoundedCornerShape(28.dp),
-                        enabled = selectedPlan != null
+                        enabled = selectedPlan != null && !subLoading
                     ) {
-                        Text(
-                            text = "Continue",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            letterSpacing = 1.sp
-                        )
+                        if (subLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                strokeWidth = 3.dp,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        } else {
+                            Text(
+                                text = "Continue",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                letterSpacing = 1.sp
+                            )
+                        }
                     }
                 }
             }

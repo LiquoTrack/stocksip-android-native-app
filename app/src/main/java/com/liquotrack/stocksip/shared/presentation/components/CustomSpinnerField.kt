@@ -1,17 +1,24 @@
 package com.liquotrack.stocksip.shared.presentation.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,39 +47,45 @@ fun CustomSpinnerField(
     label: String
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf(items[0]) }
+    val isEmpty = items.isEmpty()
+    var selectedItem by remember(items) { mutableStateOf(items.firstOrNull() ?: "") }
 
-    Column(modifier = modifier) {
-        Text(
-            text = if (isRequired) "$label *" else label,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-
-        OutlinedButton(
-            onClick = { expanded = !expanded },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(selectedItem)
-            Icon(
-                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (expanded) "Hide" else "Display"
-            )
+    LaunchedEffect(items) {
+        items.firstOrNull()?.let {
+            selectedItem = it
+            onItemSelected(it)
+        } ?: run {
+            selectedItem = ""
         }
+    }
+
+    // QUITAR el Box con height fijo y usar Column en su lugar
+    Column(modifier = modifier.fillMaxWidth()) {
+        TextField(
+            value = selectedItem,
+            onValueChange = { },
+            readOnly = true,
+            label = { Text(if (isRequired) "$label *" else label) },
+            trailingIcon = {
+                IconButton(onClick = { if (!isEmpty) expanded = !expanded }) {
+                    val icon =
+                        if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown
+                    Icon(imageVector = icon, contentDescription = null)
+                }
+            },
+            enabled = !isEmpty,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
         ) {
             items.forEach { item ->
                 DropdownMenuItem(
-                    text = {
-                        Text(text = item)
-                    },
+                    text = { Text(item) },
                     onClick = {
                         selectedItem = item
                         onItemSelected(item)
@@ -80,6 +93,15 @@ fun CustomSpinnerField(
                     }
                 )
             }
+        }
+
+        if (isEmpty) {
+            Text(
+                text = "No options available",
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
 }

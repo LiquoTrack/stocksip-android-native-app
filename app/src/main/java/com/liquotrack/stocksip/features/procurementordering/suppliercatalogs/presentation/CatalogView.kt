@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,11 +12,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
@@ -47,8 +53,6 @@ fun CatalogListScreen(
         catalogViewModel.loadCatalogsByAccount()
     }
 
-
-
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
             onLogout()
@@ -74,7 +78,7 @@ fun CatalogListScreen(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Catalogs",
+                    title = stringResource(R.string.catalogs_title),
                     showBackButton = false,
                     onNavigationClick = { scope.launch { drawerState.open() } }
                 )
@@ -90,11 +94,11 @@ fun CatalogListScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search", color = Color.Gray) },
+                    placeholder = { Text(stringResource(R.string.search_placeholder), color = Color.Gray) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
+                            contentDescription = stringResource(R.string.search_icon_description),
                             tint = Color.Gray
                         )
                     },
@@ -124,7 +128,7 @@ fun CatalogListScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Create catalogs\nto start selling\nyour products",
+                                stringResource(R.string.create_catalogs_message),
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium
@@ -137,16 +141,24 @@ fun CatalogListScreen(
                                 ),
                                 shape = RoundedCornerShape(20.dp)
                             ) {
-                                Text("+ New", color = Color.White)
+                                Text(stringResource(R.string.new_button_catalog), color = Color.White)
                             }
                         }
 
-                        // Placeholder visual
                         Box(
                             modifier = Modifier
-                                .size(80.dp)
-                                .background(Color(0xFF9B6B76), RoundedCornerShape(8.dp))
-                        )
+                                .size(160.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.wines1),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(14.dp)),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
                     }
                 }
 
@@ -164,7 +176,7 @@ fun CatalogListScreen(
 
                     error != null -> {
                         Text(
-                            text = "Error loading catalogs: $error",
+                            text = stringResource(R.string.error_loading_catalogs, error ?: ""),
                             color = Color.Red,
                             fontSize = 14.sp,
                             modifier = Modifier.padding(8.dp)
@@ -176,7 +188,7 @@ fun CatalogListScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("No catalogs found", color = Color.Gray)
+                            Text(stringResource(R.string.no_catalogs_found), color = Color.Gray)
                         }
                     }
 

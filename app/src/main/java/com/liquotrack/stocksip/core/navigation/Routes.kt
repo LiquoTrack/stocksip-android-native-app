@@ -67,7 +67,37 @@ sealed class Route(val route: String) {
 
     object Alerts : Route(route = "alerts")
     object Addresses : Route(route = "addresses")
-    object Inventory : Route(route = "inventory")
+
+    object Inventory {
+        const val route = "warehouse_inventory"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventoryAddition {
+        const val route = "inventory_addition"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventorySubtrack {
+        const val route = "inventory_subtrack"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventoryTransfer {
+        const val route = "inventory_transfer"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventoryDetails {
+        const val route = "inventory_detail"
+        const val inventoryIdArg = "inventoryId"
+        val routeWithArgs = "$route/{$inventoryIdArg}"
+    }
+
     object CareGuides : Route(route = "care_guide")
     object CareGuideCreate : Route(route = "care_guide_create")
     object CareGuideEdit : Route(route = "care_guide_edit") {

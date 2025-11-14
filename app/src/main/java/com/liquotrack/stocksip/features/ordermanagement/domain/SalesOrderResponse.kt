@@ -19,12 +19,13 @@ data class DeliveryProposalResource(
 data class SalesOrderResponse(
     val id: String,
     val orderCode: String,
-    val purchaseOrderId: String,
+    val purchaseOrderId: String?,
     val items: List<SalesOrderItemResource>,
     val status: String,
-    val catalogToBuyFrom: String,
-    val receiptDate: String,
-    val completitionDate: String,
-    val buyer: String,
-    val deliveryProposal: DeliveryProposalResource?
+    val catalogToBuyFrom: String?,
+    val receiptDate: String?,
+    val completitionDate: String?,
+    val buyer: String?,
+    val deliveryProposal: DeliveryProposalResource?,
+    val supplierId: String?
 )

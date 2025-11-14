@@ -21,10 +21,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
+import com.liquotrack.stocksip.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,14 +59,18 @@ fun CatalogItemDetailScreen(
             onDismissRequest = { showSuccessDialog = false },
             title = {
                 Text(
-                    "Added to Cart",
+                    stringResource(R.string.catalog_item_detail_added_title),
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2D1B2E)
                 )
             },
             text = {
                 Text(
-                    "$quantity ${item.productName} added to your cart successfully!",
+                    stringResource(
+                        R.string.catalog_item_detail_added_message,
+                        quantity,
+                        item.productName
+                    ),
                     color = Color(0xFF666666)
                 )
             },
@@ -78,7 +84,10 @@ fun CatalogItemDetailScreen(
                         contentColor = Color(0xFF8B4C5C)
                     )
                 ) {
-                    Text("View Cart", fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(R.string.catalog_item_detail_view_cart),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
@@ -88,7 +97,7 @@ fun CatalogItemDetailScreen(
                         contentColor = Color(0xFF8B4C5C)
                     )
                 ) {
-                    Text("Continue Shopping")
+                    Text(stringResource(R.string.catalog_item_detail_continue))
                 }
             },
             containerColor = Color.White,
@@ -115,7 +124,6 @@ fun CatalogItemDetailScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Custom TopBar
             TopAppBar(
                 title = { },
                 navigationIcon = {
@@ -176,7 +184,7 @@ fun CatalogItemDetailScreen(
                                 )
                             } else {
                                 Text(
-                                    "No Image",
+                                    stringResource(R.string.catalog_item_detail_no_image),
                                     fontSize = 16.sp,
                                     color = Color.Gray
                                 )
@@ -184,45 +192,28 @@ fun CatalogItemDetailScreen(
                         }
                     }
 
-                    // Stock badge
-                    if (item.availableStock > 0) {
-                        Surface(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(16.dp),
-                            shape = RoundedCornerShape(20.dp),
-                            color = Color(0xFF4CAF50)
-                        ) {
-                            Text(
-                                "In Stock",
-                                modifier = Modifier.padding(
-                                    horizontal = 12.dp,
-                                    vertical = 6.dp
-                                ),
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    } else {
-                        Surface(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(16.dp),
-                            shape = RoundedCornerShape(20.dp),
-                            color = Color(0xFFFF5252)
-                        ) {
-                            Text(
-                                "Out of Stock",
-                                modifier = Modifier.padding(
-                                    horizontal = 12.dp,
-                                    vertical = 6.dp
-                                ),
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    val stockLabel = if (item.availableStock > 0)
+                        stringResource(R.string.catalog_item_detail_in_stock)
+                    else
+                        stringResource(R.string.catalog_item_detail_out_of_stock)
+
+                    val stockColor =
+                        if (item.availableStock > 0) Color(0xFF4CAF50) else Color(0xFFFF5252)
+
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = stockColor
+                    ) {
+                        Text(
+                            stockLabel,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
 
@@ -239,7 +230,6 @@ fun CatalogItemDetailScreen(
                             .fillMaxWidth()
                             .padding(24.dp)
                     ) {
-                        // Product name and price
                         Text(
                             item.productName,
                             fontSize = 28.sp,
@@ -255,7 +245,8 @@ fun CatalogItemDetailScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                item.unitPrice ?: "Price not available",
+                                item.unitPrice
+                                    ?: stringResource(R.string.catalog_item_detail_price_not_available),
                                 fontSize = 32.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color(0xFF8B4C5C)
@@ -271,23 +262,26 @@ fun CatalogItemDetailScreen(
                         ) {
                             InfoCard(
                                 icon = Icons.Outlined.Inventory,
-                                label = "Stock",
-                                value = "${item.availableStock} units",
+                                label = stringResource(R.string.catalog_item_detail_stock_label),
+                                value = stringResource(
+                                    R.string.catalog_item_detail_stock_value,
+                                    item.availableStock
+                                ),
                                 modifier = Modifier.weight(1f)
                             )
                             InfoCard(
                                 icon = Icons.Outlined.LocalOffer,
-                                label = "Price per unit",
-                                value = item.unitPrice ?: "N/A",
+                                label = stringResource(R.string.catalog_item_detail_price_label),
+                                value = item.unitPrice
+                                    ?: stringResource(R.string.catalog_item_detail_price_not_available),
                                 modifier = Modifier.weight(1f)
                             )
                         }
 
                         Spacer(Modifier.height(24.dp))
 
-                        // Description section
                         Text(
-                            "About this product",
+                            stringResource(R.string.catalog_item_detail_about_title),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2D1B2E)
@@ -297,13 +291,11 @@ fun CatalogItemDetailScreen(
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color.White
-                            ),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Text(
-                                "Premium quality product from our carefully curated selection. Perfect for your business needs with guaranteed freshness and quality.",
+                                stringResource(R.string.catalog_item_detail_about_text),
                                 modifier = Modifier.padding(16.dp),
                                 color = Color(0xFF666666),
                                 fontSize = 15.sp,
@@ -313,9 +305,8 @@ fun CatalogItemDetailScreen(
 
                         Spacer(Modifier.height(24.dp))
 
-                        // Quantity selector
                         Text(
-                            "Select Quantity",
+                            stringResource(R.string.catalog_item_detail_select_quantity),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF2D1B2E)
@@ -325,9 +316,7 @@ fun CatalogItemDetailScreen(
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color.White
-                            ),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Row(
@@ -341,10 +330,7 @@ fun CatalogItemDetailScreen(
                                     onClick = { if (quantity > 1) quantity-- },
                                     modifier = Modifier
                                         .size(48.dp)
-                                        .background(
-                                            Color(0xFFF0E6E8),
-                                            CircleShape
-                                        )
+                                        .background(Color(0xFFF0E6E8), CircleShape)
                                 ) {
                                     Icon(
                                         Icons.Default.Remove,
@@ -353,9 +339,7 @@ fun CatalogItemDetailScreen(
                                     )
                                 }
 
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
                                         quantity.toString(),
                                         fontSize = 32.sp,
@@ -363,7 +347,7 @@ fun CatalogItemDetailScreen(
                                         color = Color(0xFF2D1B2E)
                                     )
                                     Text(
-                                        "units",
+                                        stringResource(R.string.catalog_item_detail_units),
                                         fontSize = 12.sp,
                                         color = Color.Gray
                                     )
@@ -371,16 +355,11 @@ fun CatalogItemDetailScreen(
 
                                 IconButton(
                                     onClick = {
-                                        if (quantity < item.availableStock) {
-                                            quantity++
-                                        }
+                                        if (quantity < item.availableStock) quantity++
                                     },
                                     modifier = Modifier
                                         .size(48.dp)
-                                        .background(
-                                            Color(0xFF8B4C5C),
-                                            CircleShape
-                                        ),
+                                        .background(Color(0xFF8B4C5C), CircleShape),
                                     enabled = quantity < item.availableStock
                                 ) {
                                     Icon(
@@ -392,7 +371,7 @@ fun CatalogItemDetailScreen(
                             }
                         }
 
-                        Spacer(Modifier.height(100.dp)) // Space for bottom button
+                        Spacer(Modifier.height(100.dp))
                     }
                 }
             }
@@ -428,7 +407,9 @@ fun CatalogItemDetailScreen(
                     ),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF8B4C5C),
-                    disabledContainerColor = Color.Gray
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.White.copy(alpha = 0.5f)
                 ),
                 shape = RoundedCornerShape(30.dp),
                 enabled = item.availableStock > 0 && !isLoading
@@ -444,16 +425,12 @@ fun CatalogItemDetailScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(24.dp))
                         Text(
                             if (item.availableStock > 0)
-                                "Add $quantity to Cart"
+                                stringResource(R.string.catalog_item_detail_add_to_cart, quantity)
                             else
-                                "Out of Stock",
+                                stringResource(R.string.catalog_item_detail_out_of_stock),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -473,9 +450,7 @@ fun InfoCard(
 ) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -484,26 +459,11 @@ fun InfoCard(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = Color(0xFF8B4C5C),
-                modifier = Modifier.size(32.dp)
-            )
+            Icon(icon, contentDescription = null, tint = Color(0xFF8B4C5C), modifier = Modifier.size(32.dp))
             Spacer(Modifier.height(8.dp))
-            Text(
-                label,
-                fontSize = 12.sp,
-                color = Color.Gray,
-                fontWeight = FontWeight.Medium
-            )
+            Text(label, fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(4.dp))
-            Text(
-                value,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2D1B2E)
-            )
+            Text(value, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D1B2E))
         }
     }
 }

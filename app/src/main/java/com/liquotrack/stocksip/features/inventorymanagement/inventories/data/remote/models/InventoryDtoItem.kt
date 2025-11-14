@@ -2,7 +2,7 @@ package com.liquotrack.stocksip.features.inventorymanagement.inventories.data.re
 
 
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDate
+import java.util.Date
 
 /**
  * Data Transfer Object representing an inventory item received from a remote source.
@@ -13,7 +13,7 @@ data class InventoryDtoItem(
     @SerializedName("currentState")
     val currentState: String,
     @SerializedName("expirationDate")
-    val expirationDate: LocalDate?,
+    val expirationDate: Date?,
     @SerializedName("imageUrl")
     val imageUrl: String,
     @SerializedName("inventoryId")

@@ -1,4 +1,5 @@
 package com.liquotrack.stocksip.core.navigation
+
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,7 +14,7 @@ import androidx.navigation.navArgument
 import com.liquotrack.stocksip.features.authentication.adminpanel.presentation.AdminPanel
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.Login
 import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccount
-import com.liquotrack.stocksip.features.authentication.login.presentation.register.RegisterUser
+import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterUser
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.ConfirmationCode
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.RecoverPassword
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation.CareGuideCreate
@@ -32,6 +33,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit.StorageCreateOrEditView
 import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.storage.StorageView
 import com.liquotrack.stocksip.features.authentication.passwordrecover.presentation.UpdatePasswordView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.InventoryView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.InventoryAdditionView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorydetail.InventoryDetailView
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
@@ -48,7 +53,18 @@ import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.pre
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.CatalogItemDetailViewModel
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierCatalogListScreen
 import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.presentation.storeownercatalogs.presentation.SupplierSearchScreen
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.InventorySubtrackView
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorytransfer.InventoryTransferView
 import java.net.URLEncoder
+
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.liquotrack.stocksip.features.alerts.presentation.alerts.AlertsViewModel
+import com.liquotrack.stocksip.features.alerts.presentation.alerts.components.AlertsOverlay
+
 
 /**
  * Main navigation graph of the app.
@@ -62,7 +78,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
 
     NavHost(navController, startDestination = startDestination) {
 
-        // AUTHENTICATION FLOW
         composable(route = Route.Login.route) {
             Login(
                 onNavigateToRegister = {
@@ -94,7 +109,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // REGISTER USER FLOW
         composable(route = Route.Register.route) {
             RegisterUser(
                 onNavigateToAccountRegistration = { email, fullName, password ->
@@ -104,7 +118,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // REGISTER ACCOUNT AND BUSINESS FLOW
         composable(
             route = Route.RegisterAccount.routeWithArguments,
             arguments = listOf(
@@ -129,7 +142,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // PASSWORD RECOVERY FLOW
         composable(route = Route.PasswordRecovery.route) {
             RecoverPassword(
                 onNavigateToConfirmation = { email ->
@@ -155,11 +167,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 onNavigateToUpdatePassword = {
                     val encodedEmail = URLEncoder.encode(email, "UTF-8")
                     navController.navigate("update_password/$encodedEmail")
-                },
-                onConfirmClick = { code ->
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(Route.Login.route) { inclusive = true }
-                    }
                 }
             )
         }
@@ -183,20 +190,34 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // MAIN FLOW
         composable(route = Route.Main.route) {
-            HomeView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
+
+            val alertsViewModel: AlertsViewModel = hiltViewModel()
+            val alertsToShow by alertsViewModel.alertsToShowInOverlay.collectAsStateWithLifecycle()
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                HomeView(
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                },
-                onLogout = {
-                    navController.navigate(Route.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+                )
+
+                if (alertsToShow.isNotEmpty()) {
+                    AlertsOverlay(
+                        alerts = alertsToShow,
+                        onDismiss = {
+                            alertsViewModel.dismissOverlay()
+                        }
+                    )
                 }
-            )
+            }
         }
 
         // Profile
@@ -231,6 +252,110 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
+        // Inventories
+        composable(
+            route = Route.Inventory.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.Inventory.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.Inventory.warehouseIdArg)
+            if (warehouseId != null) {
+                InventoryView(
+                    warehouseId = warehouseId,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onLogout = {
+                        navController.navigate(Route.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            } else {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            }
+        }
+
+        // Inventory Addition Form
+        composable(
+            route = Route.InventoryAddition.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryAddition.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventoryAddition.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryAdditionView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Inventory Subtrack Form
+        composable(
+            route = Route.InventorySubtrack.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventorySubtrack.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventorySubtrack.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventorySubtrackView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Inventory Transfer Form
+        composable(
+            route = Route.InventoryTransfer.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryTransfer.warehouseIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val warehouseId = backStackEntry.arguments?.getString(Route.InventoryTransfer.warehouseIdArg)
+            if (warehouseId == null) {
+                // Handle null warehouseId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryTransferView(
+                    warehouseId = warehouseId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Inventory Detail
+        composable(
+            route = Route.InventoryDetails.routeWithArgs,
+            arguments = listOf(
+                navArgument(Route.InventoryDetails.inventoryIdArg) { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val inventoryId = backStackEntry.arguments?.getString(Route.InventoryDetails.inventoryIdArg)
+            if (inventoryId == null) {
+                // Handle null InventoryId case and navigates back
+                navController.popBackStack()
+            } else {
+                InventoryDetailView (
+                    inventoryId = inventoryId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+        }
+
         // Warehouse Create and Edit
         composable(
             route = "warehouse_create_edit/{warehouseId}",
@@ -259,6 +384,28 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                     }
                 }
             )
+        }
+
+        // Product Detail
+        composable(
+            route = Route.ProductDetail.routeWithArgs,
+            arguments = listOf(navArgument(Route.ProductDetail.productIdArg) {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString(Route.ProductDetail.productIdArg)
+            if (productId == null) {
+                // Handle null productId case and navigates back
+                navController.popBackStack()
+            } else {
+                ProductDetailView(
+                    productId = productId,
+                    onNavigate = { route ->
+                        navController.navigate(route) { launchSingleTop = true }
+                    },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
 
         // Product Create And Edit
@@ -544,8 +691,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-
-        // Making Orders
         composable(Route.MakingOrders.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
@@ -555,32 +700,48 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             }
 
             val roleNormalized = role?.trim()?.lowercase()
-            if (roleNormalized == "supplier") {
-                SupplierSalesOrdersView(
-                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
-                    onChangeStatus = { },
-                    onLogout = {
-                        navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } }
-                    }
-                )
-            } else {
-                PurchaseOrdersView(
-                    onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
-                    onLogout = { navController.navigate(Route.Login.route) { popUpTo(0) { inclusive = true } } },
-                    navToCreate = { navController.navigate(Route.Catalogs.route) }
-                )
+
+            when (roleNormalized) {
+                "supplier" -> {
+                    SupplierSalesOrdersView(
+                        onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                        onLogout = {
+                            navController.navigate(Route.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+
+                "liquorstoreowner" -> {
+                    PurchaseOrdersView(
+                        onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                        onLogout = {
+                            navController.navigate(Route.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        navToCreate = { navController.navigate(Route.Catalogs.route) }
+                    )
+                }
+
+                else -> {
+                    PurchaseOrdersView(
+                        onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                        onLogout = {
+                            navController.navigate(Route.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        navToCreate = { navController.navigate(Route.Catalogs.route) }
+                    )
+                }
             }
         }
 
-
-        composable(route = Route.MakingOrdersSupplier.route) {
+        composable(Route.MakingOrdersSupplier.route) {
             SupplierSalesOrdersView(
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
-                    }
-                },
-                onChangeStatus = { },
+                onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
                 onLogout = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }

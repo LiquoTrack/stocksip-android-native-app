@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName
  * when communicating with remote services.
  */
 data class ProductDto(
-    @SerializedName("productId")
+    @SerializedName("id")
     val productId: String,
     @SerializedName("name")
     val name: String,
@@ -22,6 +22,8 @@ data class ProductDto(
     val moneyCode: String,
     @SerializedName("minimumStock")
     val minimumStock: Int,
+    @SerializedName("content")
+    val content: Double,
     @SerializedName("totalStockInWarehouse")
     val totalStockInWarehouse: Int,
     @SerializedName("imageUrl")

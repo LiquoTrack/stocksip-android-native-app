@@ -7,8 +7,7 @@ data class Alert(
     val severity: ESeverityTypes,
     val type: EAlertTypes,
     val accountId: String,
-    val inventoryId: String,
-    val generatedAt: String // Usa DateTime si lo mapeas con Gson/ Moshi
+    val inventoryId: String
 )
 
 enum class EAlertTypes {

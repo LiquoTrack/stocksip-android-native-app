@@ -16,11 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.addresses.data.remote.models.AddressDto
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.addresses.data.remote.models.AddressRequestDto
@@ -43,6 +45,19 @@ fun AddressListScreen(
 
     val isOrderLoading by purchaseOrdersViewModel.isLoading.collectAsState()
     val isBusy = isLoading || isOrderLoading
+    val createdId by purchaseOrdersViewModel.createdPurchaseOrderId.collectAsState()
+
+    LaunchedEffect(createdId) {
+        val id = createdId
+        if (!id.isNullOrEmpty()) {
+            Log.d("ADDRESS_SCREEN", ">>> PurchaseOrder creada. Convirtiendo a SalesOrder…")
+
+            purchaseOrdersViewModel.convertPurchaseToSales(id)
+
+            onOrderCreated(id)
+        }
+    }
+
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -60,7 +75,7 @@ fun AddressListScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopBarWithBack(
-                title = "Select Address",
+                title = stringResource(R.string.select_address_title),
                 onBackClick = onBackClick
             )
 
@@ -93,13 +108,13 @@ fun AddressListScreen(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    "No addresses yet",
+                                    stringResource(R.string.no_addresses),
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF2D1B2E)
                                 )
                                 Text(
-                                    "Add your first address",
+                                    stringResource(R.string.add_first_address),
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )
@@ -146,7 +161,6 @@ fun AddressListScreen(
                                 addressIndex = selectedAddressIndex
                             )
                             cartViewModel.clearCart()
-                            onOrderCreated(catalogId)
                         }
                     },
                     modifier = Modifier
@@ -167,7 +181,7 @@ fun AddressListScreen(
                         )
                     } else {
                         Text(
-                            "Create Order",
+                            stringResource(R.string.create_order),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -187,7 +201,7 @@ fun AddressListScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add address",
+                contentDescription = stringResource(R.string.add_address),
                 tint = Color.White
             )
         }
@@ -206,7 +220,6 @@ fun AddressListScreen(
         )
     }
 }
-
 
 @Composable
 fun AddressCard(
@@ -310,7 +323,7 @@ fun AddAddressDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "New Address",
+                    text = stringResource(R.string.new_address_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2D1B2E)
@@ -319,7 +332,7 @@ fun AddAddressDialog(
                 OutlinedTextField(
                     value = street,
                     onValueChange = { street = it },
-                    label = { Text("Street") },
+                    label = { Text(stringResource(R.string.street_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -333,7 +346,7 @@ fun AddAddressDialog(
                 OutlinedTextField(
                     value = city,
                     onValueChange = { city = it },
-                    label = { Text("City") },
+                    label = { Text(stringResource(R.string.city_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -347,7 +360,7 @@ fun AddAddressDialog(
                 OutlinedTextField(
                     value = state,
                     onValueChange = { state = it },
-                    label = { Text("State") },
+                    label = { Text(stringResource(R.string.state_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -361,7 +374,7 @@ fun AddAddressDialog(
                 OutlinedTextField(
                     value = country,
                     onValueChange = { country = it },
-                    label = { Text("Country") },
+                    label = { Text(stringResource(R.string.country_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -375,7 +388,7 @@ fun AddAddressDialog(
                 OutlinedTextField(
                     value = zipCode,
                     onValueChange = { zipCode = it },
-                    label = { Text("Zip Code") },
+                    label = { Text(stringResource(R.string.zipcode_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -404,7 +417,7 @@ fun AddAddressDialog(
                         )
                     ) {
                         Text(
-                            text = "Cancel",
+                            text = stringResource(R.string.cancel),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -442,7 +455,7 @@ fun AddAddressDialog(
                             )
                         } else {
                             Text(
-                                text = "Save",
+                                text = stringResource(R.string.save),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
