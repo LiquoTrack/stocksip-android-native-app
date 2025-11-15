@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -26,50 +27,74 @@ class ProfileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateProfile(
-        name: String,
-        email: String,
-        contactNumber: String,
-        profileImageUrl: String?
-    ) {
-        val request = UpdateProfileRequest(
-            name = name,
-            email = email,
-            contactNumber = contactNumber,
-            profileImageUrl = profileImageUrl
-        )
-        apiService.updateProfile(request)
-    }
+        profileId: String,
+        firstName: String?,
+        lastName: String?,
+        phoneNumber: String?,
+        assignedRole: String?,
+        profilePictureUri: Uri?
+    ): Profile {
+        var tempFile: File? = null
 
-    override suspend fun uploadProfileImage(uri: Uri): String {
-        // Convert Uri to File
-        val file = uriToFile(uri)
+        try {
+            val firstNameBody = firstName?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val lastNameBody = lastName?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val phoneNumberBody = phoneNumber?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val assignedRoleBody = assignedRole?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaTypeOrNull())
 
-        // Create multipart body
-        val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-        val multipartBody = MultipartBody.Part.createFormData(
-            "file",
-            file.name,
-            requestBody
-        )
+            val profilePicturePart = profilePictureUri?.let { uri ->
+                tempFile = uriToFile(uri)
+                val requestBody = tempFile!!.asRequestBody("image/*".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData(
+                    "ProfilePicture",
+                    tempFile!!.name,
+                    requestBody
+                )
+            }
 
-        // Upload to your backend (which forwards to Cloudinary)
-        val response = apiService.uploadProfileImage(multipartBody)
+            val response = apiService.updateProfile(
+                profileId = profileId,
+                firstName = firstNameBody,
+                lastName = lastNameBody,
+                phoneNumber = phoneNumberBody,
+                assignedRole = assignedRoleBody,
+                profilePicture = profilePicturePart
+            )
 
-        // Clean up temp file
-        file.delete()
-
-        return response.imageUrl
+            return response.toProfile()
+        } finally {
+            tempFile?.let {
+                if (it.exists()) {
+                    it.delete()
+                }
+            }
+        }
     }
 
     private fun uriToFile(uri: Uri): File {
         val inputStream = context.contentResolver.openInputStream(uri)
-            ?: throw IllegalArgumentException("Cannot open URI")
+            ?: throw IllegalArgumentException("Cannot open URI: $uri")
 
-        val tempFile = File.createTempFile("upload", ".jpg", context.cacheDir)
-        val outputStream = FileOutputStream(tempFile)
+        val extension = context.contentResolver.getType(uri)?.let { mimeType ->
+            when {
+                mimeType.contains("png") -> ".png"
+                mimeType.contains("jpg") || mimeType.contains("jpeg") -> ".jpg"
+                else -> ".jpg"
+            }
+        } ?: ".jpg"
 
-        inputStream.use { input ->
-            outputStream.use { output ->
+        val tempFile = File.createTempFile(
+            "profile_upload_${System.currentTimeMillis()}",
+            extension,
+            context.cacheDir
+        )
+
+        FileOutputStream(tempFile).use { output ->
+            inputStream.use { input ->
                 input.copyTo(output)
             }
         }
@@ -77,35 +102,3 @@ class ProfileRepositoryImpl @Inject constructor(
         return tempFile
     }
 }
-
-// API Service Interface
-
-
-// Data Transfer Objects
-data class ProfileResponse(
-    val id: String,
-    val name: String,
-    val email: String,
-    val contactNumber: String,
-    val profileImageUrl: String?
-) {
-    fun toProfile() = Profile(
-        id = id,
-        name = name,
-        email = email,
-        contactNumber = contactNumber,
-        profileImageUrl = profileImageUrl
-    )
-}
-
-data class UpdateProfileRequest(
-    val name: String,
-    val email: String,
-    val contactNumber: String,
-    val profileImageUrl: String?
-)
-
-data class UploadImageResponse(
-    val imageUrl: String,
-    val publicId: String
-)

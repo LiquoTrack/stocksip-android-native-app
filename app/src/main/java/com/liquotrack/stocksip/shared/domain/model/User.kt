@@ -1,7 +1,5 @@
 package com.liquotrack.stocksip.shared.domain.model
 
-import com.google.gson.annotations.SerializedName
-
 /**
  * Data class representing a user in the authentication system.
  *

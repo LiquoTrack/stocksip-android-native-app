@@ -1,5 +1,8 @@
 package com.liquotrack.stocksip.features.authentication.login.presentation.login
 
+import android.content.Context
+import android.widget.Toast
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,10 +38,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -49,17 +55,33 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.liquotrack.stocksip.R
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
+import kotlinx.coroutines.launch
 
 @Composable
 fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit = {},
     onNavigateToRecovery: () -> Unit = {},
-    onLoginSuccess: () -> Unit = {}
+    accountViewModel: AccountViewModel = hiltViewModel(),
+    onLoginSuccess: () -> Unit = {},
+    onNavigateToPlans: () -> Unit = {},
+    onNavigateToPending: () -> Unit = {},
+    onGoogleSignInSuccess: (email: String, fullName: String, accountExists: Boolean) -> Unit = { _, _, _ -> },
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -68,16 +90,37 @@ fun Login(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val user by viewModel.user.collectAsState()
 
-    val snackBarHostState = remember { SnackbarHostState() }
+    val accountStatus by accountViewModel.accountStatus.collectAsState()
 
-    // Navigate on successful login
+    val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val signInWithGoogleOption = remember(context) {
+        GetSignInWithGoogleOption.Builder(context.getString(R.string.web_client))
+            .setNonce("nonce")
+            .build()
+    }
+    val credentialRequest = remember(signInWithGoogleOption) {
+        GetCredentialRequest.Builder()
+            .addCredentialOption(signInWithGoogleOption)
+            .build()
+    }
+
     LaunchedEffect(user) {
         user?.let {
-            onLoginSuccess()
+            accountViewModel.fetchAccountStatus()
+            accountViewModel.fetchAccountRole()
         }
     }
 
-    // Show error messages in Snackbar
+    LaunchedEffect(accountStatus) {
+        when(accountStatus) {
+            "Active" -> onLoginSuccess()
+            "Inactive" -> onNavigateToPlans()
+            "Pending" -> onNavigateToPending()
+        }
+    }
+
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackBarHostState.showSnackbar(it)
@@ -146,7 +189,7 @@ fun Login(
                 onValueChange = viewModel::updateEmail,
                 placeholder = {
                     Text(
-                        text = "Email",
+                        text = stringResource(R.string.label_email),
                         color = Color(0xFF8B7375)
                     )
                 },
@@ -181,7 +224,7 @@ fun Login(
                 onValueChange = viewModel::updatePassword,
                 placeholder = {
                     Text(
-                        text = "Password",
+                        text = stringResource(R.string.label_password),
                         color = Color(0xFF8B7375)
                     )
                 },
@@ -222,7 +265,7 @@ fun Login(
 
             // "Forgot Password?" clickable text -> navigates to PasswordRecover screen
             Text(
-                text = "Forgot Password?",
+                text = stringResource(R.string.label_forgot_password),
                 color = Color(0xFFE53E3E),
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
@@ -253,7 +296,7 @@ fun Login(
                     )
                 } else {
                     Text(
-                        text = "Sign In",
+                        text = stringResource(R.string.label_sign_in),
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
@@ -263,10 +306,49 @@ fun Login(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        val credentialManager = CredentialManager.create(context)
+                        try {
+                            val result = credentialManager.getCredential(
+                                request = credentialRequest,
+                                context = context
+                            )
+                            handleSignIn(
+                                result = result,
+                                context = context,
+                                viewModel = viewModel,
+                                onGoogleSignInSuccess = onGoogleSignInSuccess
+                            )
+                        } catch (e: GetCredentialException) {
+                            Toast.makeText(context, "Google Sign-In failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                ),
+                shape = RoundedCornerShape(28.dp),
+                enabled = !isLoading
+            ) {
+                Text(
+                    text = stringResource(R.string.label_sign_in_google),
+                    color = Color(0xFF4A1B2A),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Register text
             val annotatedText = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.Black)) {
-                    append("Don't have an account? ")
+                    append(stringResource(R.string.label_dont_have_an_account))
                 }
                 pushStringAnnotation(tag = "REGISTER", annotation = "register")
                 withStyle(
@@ -275,7 +357,7 @@ fun Login(
                         fontWeight = FontWeight.Medium
                     )
                 ) {
-                    append("Sign Up")
+                    append(" ${stringResource(R.string.label_sign_up)}")
                 }
                 pop()
             }
@@ -298,7 +380,6 @@ fun Login(
             Spacer(modifier = Modifier.height(40.dp))
         }
 
-
         SnackbarHost(
             hostState = snackBarHostState,
             modifier = Modifier
@@ -311,6 +392,54 @@ fun Login(
                 contentColor = Color.White
             )
         }
+    }
+}
+
+private fun handleSignIn(
+    result: GetCredentialResponse,
+    context: Context,
+    viewModel: LoginViewModel,
+    onGoogleSignInSuccess: (email: String, fullName: String, accountExists: Boolean) -> Unit
+) {
+    val credential = result.credential
+
+    if (credential is CustomCredential &&
+        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+    ) {
+        try {
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            val idToken = googleIdTokenCredential.idToken
+            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+            FirebaseAuth.getInstance()
+                .signInWithCredential(firebaseCredential)
+                .addOnSuccessListener { authResult ->
+                    viewModel.logGoogleIdTokenClaims(idToken)
+
+                    viewModel.authenticateWithGoogle(
+                        idToken = idToken,
+                        clientId = context.getString(R.string.web_client),
+                        accessToken = null
+                    ) { success, error ->
+                        if (success) {
+                            val firebaseUser = authResult.user
+                            val email = firebaseUser?.email.orEmpty()
+                            val fullName = firebaseUser?.displayName.orEmpty()
+                            val accountExists = authResult.additionalUserInfo?.isNewUser == false
+                            Toast.makeText(context, "Google Sign-In success", Toast.LENGTH_SHORT).show()
+                            onGoogleSignInSuccess(email, fullName, accountExists)
+                        } else {
+                            Toast.makeText(context, error ?: "Backend auth failed", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Toast.makeText(context, "Firebase sign-in failed: ${error.message}", Toast.LENGTH_LONG).show()
+                }
+        } catch (e: GoogleIdTokenParsingException) {
+            Toast.makeText(context, "Received an invalid google id token response: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    } else {
+        Toast.makeText(context, "Unexpected type of credential", Toast.LENGTH_LONG).show()
     }
 }
 
