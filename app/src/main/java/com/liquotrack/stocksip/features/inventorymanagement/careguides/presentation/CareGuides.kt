@@ -118,10 +118,10 @@ fun CareGuides(
                     Button(
                         onClick = { onNavigate(Route.CareGuideCreate.route) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE53E3E),
+                            containerColor = Color(0xFF4A1B2A),
                             contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(20.dp)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Stocksip</string>
     <string name="placeholder_search">Buscar</string>
     <string name="web_client">473654732601-hdk907hv5s61igsm20nen7pkvirc4rl9.apps.googleusercontent.com</string>
@@ -66,6 +66,7 @@
     <string name="label_catalog">Catálogo</string>
     <string name="label_subscriptions">Suscripciones</string>
     <string name="label_admin_panel">Panel de administración</string>
+    <string name="password_placeholder">Contraseña</string>
     <string name="label_log_out">Cerrar sesión</string>
     <string name="label_your_current_plan">Tu plan actual</string>
     <string name="label_status">Estado</string>
@@ -314,4 +315,52 @@
     <string name="shortcut_new_user_button">+ Nuevo Usuario</string>
     <string name="shortcut_care_guides_title">Descubre cómo cuidar correctamente tu inventario</string>
     <string name="shortcut_care_guides_button"> + Nueva Guía</string>
+    <string name="new_product">Nuevo producto</string>
+    <string name="edit_product">Editar producto</string>
+    <string name="name">Nombre</string>
+    <string name="name_product_placeholder">Ej. Blue Label</string>
+    <string name="type_product">Tipo</string>
+    <string name="brand">Marca</string>
+    <string name="unit_price">Precio unitario</string>
+    <string name="currency">Moneda</string>
+    <string name="currency_required">Moneda *</string>
+    <string name="minimum_stock">Stock mínimo</string>
+    <string name="minimum_stock_placeholder">Ej. 10</string>
+    <string name="product_content">Contenido del producto</string>
+    <string name="product_content_placeholder">Ej. 750.0</string>
+    <string name="add_product">Agregar producto</string>
+    <string name="update_product">Actualizar producto</string>
+    <string name="storage">Productos</string>
+    <string name="in_stock">En stock</string>
+    <string name="out_of_stock">Agotado</string>
+    <string name="total_stored">Total almacenado</string>
+    <string name="content_ml">Contenido (mL)</string>
+    <string name="care_guide_associated">Guía de cuidado asociada</string>
+    <string name="delete_product">Eliminar producto</string>
+    <string name="confirm_deletion">Confirmar eliminación</string>
+    <string name="confirm_deletion_text">¿Está seguro que desea eliminar este producto?</string>
+    <string name="cannot_delete">No se puede eliminar</string>
+    <string name="product_has_stock">El producto aún tiene stock en inventario.</string>
+    <string name="ok">Aceptar</string>
+    <string name="inventory">Inventario</string>
+    <string name="quick_actions">Acciones rápidas</string>
+    <string name="subtract">Restar</string>
+    <string name="products_in_stock">Productos en stock</string>
+    <string name="no_inventory_found">No se encontró inventario</string>
+    <string name="add_products_to_get_started">Agrega productos para empezar</string>
+    <string name="quantity_to_add">Cantidad a agregar</string>
+    <string name="enter_quantity">Ingrese cantidad</string>
+    <string name="expiration_date_optional">Fecha de expiración (Opcional)</string>
+    <string name="subtrack_products">Restar productos</string>
+    <string name="quantity_to_subtrack">Cantidad a restar</string>
+    <string name="exit_reason">Motivo de salida</string>
+    <string name="subtrack">Restar</string>
+    <string name="transfer_products">Transferir productos</string>
+    <string name="quantity_to_transfer">Cantidad a transferir</string>
+    <string name="transfer">Transferir</string>
+    <string name="current_state">Estado actual:</string>
+    <string name="quantity_stored">Cantidad almacenada:</string>
+    <string name="delete_inventory">Eliminar inventario</string>
+    <string name="confirm_deletion_message">¿Está seguro que desea eliminar este producto de este almacén? Esta acción no se puede deshacer.</string>
+    <string name="cannot_delete_stock_available">Este producto no puede eliminarse del almacén porque aún tiene stock disponible.</string>
 </resources>

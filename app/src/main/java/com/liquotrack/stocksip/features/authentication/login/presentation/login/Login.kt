@@ -121,8 +121,6 @@ fun Login(
         }
     }
 
-
-    // Show error messages in Snackbar
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackBarHostState.showSnackbar(it)

@@ -18,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 
 @Composable
@@ -44,13 +46,13 @@ fun WarehouseList(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "You don't have any warehouses yet.",
+                    text = "${stringResource(R.string.label_empty_warehouses)}.",
                     color = Color.Gray,
                     fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Tap the button above to create one.",
+                    text = "${stringResource(R.string.label_empty_warehouses_description)}.",
                     color = Color.Gray,
                     fontSize = 14.sp
                 )

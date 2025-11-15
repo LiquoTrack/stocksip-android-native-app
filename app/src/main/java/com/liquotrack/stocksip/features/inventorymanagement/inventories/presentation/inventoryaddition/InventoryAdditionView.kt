@@ -32,16 +32,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.components.ProductDoubleSelectorField
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.components.ProductSelectorField
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
 import com.liquotrack.stocksip.shared.presentation.components.DateInputField
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
+import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 import com.liquotrack.stocksip.shared.utils.stringToDate
 
 /**
@@ -58,8 +61,6 @@ fun InventoryAdditionView(
     onNavigateBack: () -> Unit,
 ) {
 
-    // Navigate back if warehouseId is null or empty
-    // Also load product list when warehouseId is valid
     LaunchedEffect(warehouseId) {
         if (warehouseId.isNullOrEmpty()) {
             onNavigateBack()
@@ -82,7 +83,6 @@ fun InventoryAdditionView(
             selectedProductId != null
             && quantityError.isNullOrEmpty()
 
-    // Show 'quantity to add' error snack bar
     LaunchedEffect(quantityError) {
         quantityError?.let { error ->
             snackBarHostState.showSnackbar(
@@ -93,12 +93,11 @@ fun InventoryAdditionView(
         }
     }
 
-    // Main Scaffold
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = "Add Products",
-                onBackClick = onNavigateBack,
+            TopBarWithBack(
+                title = stringResource(R.string.add_products),
+                onBackClick = onNavigateBack
             )
         },
         containerColor = Color(0xFFF4ECEC),
@@ -125,7 +124,6 @@ fun InventoryAdditionView(
                     .padding(16.dp)
                     .background(Color(0xFFF4ECEC))
             ) {
-                // Product Selection Dropdown
                 ProductDoubleSelectorField(
                     products = productsList,
                     inventories = inventories,
@@ -133,30 +131,24 @@ fun InventoryAdditionView(
                     onProductSelected = { viewModel.updateSelectedProductId(it) }
                 )
 
-                // Space between sections
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Input Fields Section
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Quantity to Add Input Field
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     CustomTextField(
                         value = if (quantityToAdd == 0) "" else quantityToAdd.toString(),
                         onValueChange = { newValue ->
                             val intValue = newValue.toIntOrNull() ?: 0
                             viewModel.updateQuantityToAdd(intValue)
                         },
-                        label = "Quantity to Add",
-                        placeholder = "Enter quantity",
+                        label = stringResource(R.string.quantity_to_add),
+                        placeholder = stringResource(R.string.enter_quantity),
                         keyboardType = KeyboardType.Number,
                         isRequired = true,
                         showError = quantityError != null,
                     )
 
-                    // Expiration Date Input Field
                     DateInputField(
-                        label = "Expiration Date (Optional)",
+                        label = stringResource(R.string.expiration_date_optional),
                         isRequired = false,
                         onDateChange = { dateString ->
                             viewModel.updateExpirationDate(stringToDate(dateString))
@@ -164,14 +156,12 @@ fun InventoryAdditionView(
                     )
                 }
 
-                // Space at the bottom
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Save Button
                 Button(
                     onClick = {
                         viewModel.saveInventoryAddition(
-                            warehouseId = warehouseId?:"",
+                            warehouseId = warehouseId ?: "",
                             onSuccess = onNavigateBack
                         )
                     },
@@ -192,7 +182,7 @@ fun InventoryAdditionView(
                         )
                     } else {
                         Text(
-                            text = "Add Products",
+                            text = stringResource(R.string.add_products),
                             fontSize = 16.sp,
                             color = Color.White
                         )

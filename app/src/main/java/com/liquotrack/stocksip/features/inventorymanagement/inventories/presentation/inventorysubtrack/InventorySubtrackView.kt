@@ -29,14 +29,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.components.InventorySelectorField
 import com.liquotrack.stocksip.shared.presentation.components.CustomSpinnerField
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
+import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 
 /**
  * Composable function for the Inventory Subtrack View.
@@ -52,8 +55,6 @@ fun InventorySubtrackView(
     onNavigateBack: () -> Unit
 ) {
 
-    // Navigate back if warehouseId is null or empty
-    // Also load inventory list when warehouseId is valid
     LaunchedEffect(warehouseId) {
         if (warehouseId.isNullOrEmpty()) {
             onNavigateBack()
@@ -63,70 +64,41 @@ fun InventorySubtrackView(
     }
 
     val inventoryList by viewModel.inventoryList.collectAsState()
-
     val selectedProductId by viewModel.selectedProductId.collectAsState()
     val quantityToSubtrack by viewModel.quantityToSubtrack.collectAsState()
     val currentQuantity by viewModel.currentQuantity.collectAsState()
     val expirationDate by viewModel.expirationDate.collectAsState()
     val exitType by viewModel.exitType.collectAsState()
-
     val quantityError by viewModel.quantityError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
     val snackBarHostState = remember { SnackbarHostState() }
 
     val isValidFormat =
-            quantityToSubtrack > 0 &&
-            quantityToSubtrack <= currentQuantity &&
-            selectedProductId != null &&
-            quantityError.isNullOrEmpty()
+        quantityToSubtrack > 0 &&
+                quantityToSubtrack <= currentQuantity &&
+                selectedProductId != null &&
+                quantityError.isNullOrEmpty()
 
-    // Show 'quantity to subtrack' error snack bar
     LaunchedEffect(quantityError) {
         quantityError?.let { error ->
-            snackBarHostState.showSnackbar(
-                message = error,
-                duration = SnackbarDuration.Short
-            )
+            snackBarHostState.showSnackbar(message = error, duration = SnackbarDuration.Short)
             viewModel.clearQuantityError()
         }
     }
 
-    val exitTypeList = listOf(
-        "Sold",
-        "Donated",
-        "Spoiled",
-        "Consumed",
-        "Expired",
-        "Damaged",
-        "Broke"
-    )
+    val exitTypeList = listOf("Sold", "Donated", "Spoiled", "Consumed", "Expired", "Damaged", "Broke")
 
-    // Main Scaffold
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = "Subtrack Products",
-                onBackClick = onNavigateBack,
+            TopBarWithBack(
+                title = stringResource(R.string.subtrack_products),
+                onBackClick = onNavigateBack
             )
         },
         containerColor = Color(0xFFF4ECEC),
-        snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = Color(0xFFB00020),
-                    contentColor = Color.White,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-        }
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -134,7 +106,6 @@ fun InventorySubtrackView(
                     .padding(16.dp)
                     .background(Color(0xFFF4ECEC))
             ) {
-                // Inventory Selector Card
                 InventorySelectorField(
                     inventories = inventoryList,
                     selectedProductId = selectedProductId,
@@ -144,76 +115,42 @@ fun InventorySubtrackView(
                     }
                 )
 
-                // Space between sections
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Input Fields Section
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Quantity to Subtrack Input Field
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     CustomTextField(
                         value = if (quantityToSubtrack == 0) "" else quantityToSubtrack.toString(),
                         onValueChange = { newValue ->
-                            val intValue = newValue.toIntOrNull() ?: 0
-                            viewModel.validateAndUpdateQuantityToDecrease(intValue)
+                            viewModel.validateAndUpdateQuantityToDecrease(newValue.toIntOrNull() ?: 0)
                         },
-                        label = "Quantity to Subtrack",
-                        placeholder = "Enter quantity",
+                        label = stringResource(R.string.quantity_to_subtrack),
+                        placeholder = stringResource(R.string.enter_quantity),
                         keyboardType = KeyboardType.Number,
                         isRequired = true,
                         showError = quantityError != null
                     )
 
-                    // Spacer
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Exit Type Dropdown Field
                     CustomSpinnerField(
                         items = exitTypeList,
-                        onItemSelected = {
-                            viewModel.updateExitType(it)
-                        },
+                        onItemSelected = { viewModel.updateExitType(it) },
                         isRequired = true,
-                        label = "Exit Reason",
+                        label = stringResource(R.string.exit_reason),
                     )
                 }
 
-                // Space at the bottom
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Inventory Summary Card
-                // Shows final details before submission
-
-                // Confirm Action Button
                 Button(
-                    onClick = {
-                        viewModel.saveInventorySubtrack(
-                            warehouseId = warehouseId?:"",
-                            onSuccess = onNavigateBack
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    onClick = { viewModel.saveInventorySubtrack(warehouseId ?: "", onNavigateBack) },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = MaterialTheme.shapes.medium,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2B000D)
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B000D)),
                     enabled = isValidFormat && !isLoading
                 ) {
                     if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp
-                        )
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
                     } else {
-                        Text(
-                            text = "Subtrack",
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
+                        Text(text = stringResource(R.string.subtrack), fontSize = 16.sp, color = Color.White)
                     }
                 }
             }
