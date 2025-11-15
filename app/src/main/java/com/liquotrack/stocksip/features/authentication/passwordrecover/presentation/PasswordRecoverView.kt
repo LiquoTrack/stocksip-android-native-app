@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.authentication.passwordrecover.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,11 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -27,11 +30,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 
@@ -41,10 +49,15 @@ import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
  */
 @Composable
 fun RecoverPassword(
+    viewModel: RecoverPasswordViewModel = hiltViewModel(),
     onNavigateToConfirmation: (String) -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
+
+    var isLoading by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -66,14 +79,16 @@ fun RecoverPassword(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Recover",
+                text = stringResource(R.string.label_recover),
                 fontSize = 40.sp,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                overflow = TextOverflow.Ellipsis
             )
+
             Text(
-                text = "password",
+                text = stringResource(R.string.label_password),
                 fontSize = 40.sp,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold,
@@ -83,7 +98,7 @@ fun RecoverPassword(
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
-                text = "Enter your email address. We'll send you a message to recover your account.",
+                text = stringResource(R.string.label_recover_messsage),
                 color = Color.White.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
@@ -95,7 +110,7 @@ fun RecoverPassword(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("Email", color = Color(0xFF8B7375)) },
+                placeholder = { Text(stringResource(R.string.label_email), color = Color(0xFF8B7375)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
@@ -121,20 +136,39 @@ fun RecoverPassword(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { onNavigateToConfirmation(email) },
+                onClick = {
+                    isLoading = true
+                    viewModel.sendRecoveryCode(email) { result ->
+                        isLoading = false
+                        result.onSuccess { message ->
+                            onNavigateToConfirmation(email)
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        }
+                        result.onFailure { error ->
+                            Toast.makeText(context, error.localizedMessage, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
                 shape = RoundedCornerShape(28.dp),
-                enabled = email.isNotBlank()
+                enabled = email.isNotBlank() && !isLoading,
             ) {
-                Text(
-                    text = "Send",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.label_send_code),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }

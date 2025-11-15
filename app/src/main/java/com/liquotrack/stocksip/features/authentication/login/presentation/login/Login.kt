@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +67,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.liquotrack.stocksip.R
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLight
 import kotlinx.coroutines.launch
@@ -75,8 +77,11 @@ fun Login(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToRegister: () -> Unit = {},
     onNavigateToRecovery: () -> Unit = {},
+    accountViewModel: AccountViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit = {},
-    onGoogleSignInSuccess: (email: String, fullName: String, accountExists: Boolean) -> Unit = { _, _, _ -> }
+    onNavigateToPlans: () -> Unit = {},
+    onNavigateToPending: () -> Unit = {},
+    onGoogleSignInSuccess: (email: String, fullName: String, accountExists: Boolean) -> Unit = { _, _, _ -> },
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -84,6 +89,8 @@ fun Login(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val user by viewModel.user.collectAsState()
+
+    val accountStatus by accountViewModel.accountStatus.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -99,14 +106,21 @@ fun Login(
             .build()
     }
 
-    // Navigate on successful login
     LaunchedEffect(user) {
         user?.let {
-            onLoginSuccess()
+            accountViewModel.fetchAccountStatus()
+            accountViewModel.fetchAccountRole()
         }
     }
 
-    // Show error messages in Snackbar
+    LaunchedEffect(accountStatus) {
+        when(accountStatus) {
+            "Active" -> onLoginSuccess()
+            "Inactive" -> onNavigateToPlans()
+            "Pending" -> onNavigateToPending()
+        }
+    }
+
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackBarHostState.showSnackbar(it)
@@ -175,7 +189,7 @@ fun Login(
                 onValueChange = viewModel::updateEmail,
                 placeholder = {
                     Text(
-                        text = "Email",
+                        text = stringResource(R.string.label_email),
                         color = Color(0xFF8B7375)
                     )
                 },
@@ -210,7 +224,7 @@ fun Login(
                 onValueChange = viewModel::updatePassword,
                 placeholder = {
                     Text(
-                        text = "Password",
+                        text = stringResource(R.string.label_password),
                         color = Color(0xFF8B7375)
                     )
                 },
@@ -251,7 +265,7 @@ fun Login(
 
             // "Forgot Password?" clickable text -> navigates to PasswordRecover screen
             Text(
-                text = "Forgot Password?",
+                text = stringResource(R.string.label_forgot_password),
                 color = Color(0xFFE53E3E),
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
@@ -282,7 +296,7 @@ fun Login(
                     )
                 } else {
                     Text(
-                        text = "Sign In",
+                        text = stringResource(R.string.label_sign_in),
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium
@@ -322,7 +336,7 @@ fun Login(
                 enabled = !isLoading
             ) {
                 Text(
-                    text = "Sign In with Google",
+                    text = stringResource(R.string.label_sign_in_google),
                     color = Color(0xFF4A1B2A),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium
@@ -334,7 +348,7 @@ fun Login(
             // Register text
             val annotatedText = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.Black)) {
-                    append("Don't have an account? ")
+                    append(stringResource(R.string.label_dont_have_an_account))
                 }
                 pushStringAnnotation(tag = "REGISTER", annotation = "register")
                 withStyle(
@@ -343,7 +357,7 @@ fun Login(
                         fontWeight = FontWeight.Medium
                     )
                 ) {
-                    append("Sign Up")
+                    append(" ${stringResource(R.string.label_sign_up)}")
                 }
                 pop()
             }
@@ -394,17 +408,29 @@ private fun handleSignIn(
     ) {
         try {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            val firebaseCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+            val idToken = googleIdTokenCredential.idToken
+            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
             FirebaseAuth.getInstance()
                 .signInWithCredential(firebaseCredential)
                 .addOnSuccessListener { authResult ->
-                    val firebaseUser = authResult.user
-                    val email = firebaseUser?.email.orEmpty()
-                    val fullName = firebaseUser?.displayName.orEmpty()
-                    val accountExists = authResult.additionalUserInfo?.isNewUser == false
-                    firebaseUser?.uid?.let(viewModel::saveGoogleAccountSession)
-                    Toast.makeText(context, "Google Sign-In success", Toast.LENGTH_SHORT).show()
-                    onGoogleSignInSuccess(email, fullName, accountExists)
+                    viewModel.logGoogleIdTokenClaims(idToken)
+
+                    viewModel.authenticateWithGoogle(
+                        idToken = idToken,
+                        clientId = context.getString(R.string.web_client),
+                        accessToken = null
+                    ) { success, error ->
+                        if (success) {
+                            val firebaseUser = authResult.user
+                            val email = firebaseUser?.email.orEmpty()
+                            val fullName = firebaseUser?.displayName.orEmpty()
+                            val accountExists = authResult.additionalUserInfo?.isNewUser == false
+                            Toast.makeText(context, "Google Sign-In success", Toast.LENGTH_SHORT).show()
+                            onGoogleSignInSuccess(email, fullName, accountExists)
+                        } else {
+                            Toast.makeText(context, error ?: "Backend auth failed", Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
                 .addOnFailureListener { error ->
                     Toast.makeText(context, "Firebase sign-in failed: ${error.message}", Toast.LENGTH_LONG).show()

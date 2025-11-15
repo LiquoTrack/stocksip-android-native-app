@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+
     // Material Icons dependency
     implementation(libs.androidx.material.icons.extended)
 
@@ -102,7 +103,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.foundation)
     implementation(libs.googleid)
-    implementation("com.google.android.gms:play-services-auth")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
     ksp(libs.androidx.room.compiler)
@@ -121,6 +122,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Mercado Pago SDK
+    implementation("androidx.browser:browser:1.4.0")
+
     // Firebase dependencies
     // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
@@ -129,6 +133,8 @@ dependencies {
 
     // Add the dependency for the Firebase SDK for Google Analytics
     implementation(libs.firebase.analytics)
+
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     //Google Identity Services
     implementation("androidx.credentials:credentials:1.6.0-beta01")

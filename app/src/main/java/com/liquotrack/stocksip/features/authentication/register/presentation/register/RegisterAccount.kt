@@ -1,4 +1,4 @@
-package com.liquotrack.stocksip.features.authentication.login.presentation.register
+package com.liquotrack.stocksip.features.authentication.register.presentation.register
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.liquotrack.stocksip.features.authentication.register.presentation.register.RegisterAccountViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.theme.StockSipTheme
 
 @Composable
@@ -52,25 +53,16 @@ fun RegisterAccount(
     email: String = "",
     username: String = "",
     password: String = "",
-    viewModel: RegisterAccountViewModel = hiltViewModel(),
-    onRegistrationSuccess: () -> Unit = {}
+    onRegistrationSuccess: () -> Unit = {},
+    viewModel: RegisterAccountViewModel = hiltViewModel()
 ) {
     val selectedRole by viewModel.selectedRole.collectAsState()
     val businessName by viewModel.businessName.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val validationError by viewModel.validationError.collectAsState()
-    val registrationSuccess by viewModel.registrationSuccess.collectAsState()
 
     val snackBarHostState = remember { SnackbarHostState() }
-
-    // Navigate on successful registration
-    LaunchedEffect(registrationSuccess) {
-        if (registrationSuccess) {
-            onRegistrationSuccess()
-            viewModel.resetRegistrationSuccess()
-        }
-    }
 
     // Show error messages
     LaunchedEffect(errorMessage) {
@@ -139,7 +131,7 @@ fun RegisterAccount(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = Color.LightGray, fontWeight = FontWeight.Bold)) {
-                            append("Choose Your Role *")
+                            append("${stringResource(R.string.label_choose_role)} *")
                         }
                     },
                     color = Color.LightGray,
@@ -168,7 +160,7 @@ fun RegisterAccount(
                         enabled = !isLoading
                     ) {
                         Text(
-                            text = "Liquor Store Owner",
+                            text = stringResource(R.string.label_liquor_store_owner),
                             color = Color.White,
                             fontSize = 12.sp,
                             fontWeight = if (selectedRole == "LiquorStoreOwner") FontWeight.Medium else FontWeight.Normal
@@ -190,7 +182,7 @@ fun RegisterAccount(
                         enabled = !isLoading
                     ) {
                         Text(
-                            text = "Supplier",
+                            text = stringResource(R.string.label_supplier),
                             color = Color.White,
                             fontSize = 12.sp,
                             fontWeight = if (selectedRole == "Supplier") FontWeight.Medium else FontWeight.Normal
@@ -204,7 +196,7 @@ fun RegisterAccount(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(color = Color.LightGray, fontWeight = FontWeight.Bold)) {
-                            append("Account Info")
+                            append(stringResource(R.string.label_account_info))
                         }
                     },
                     fontSize = 20.sp,
@@ -220,7 +212,7 @@ fun RegisterAccount(
                     onValueChange = viewModel::updateBusinessName,
                     placeholder = {
                         Text(
-                            text = "Business Name",
+                            text = stringResource(R.string.label_business_name),
                             color = Color(0xFF8B7375)
                         )
                     },
@@ -252,7 +244,9 @@ fun RegisterAccount(
                 // Sign Up Button
                 Button(
                     onClick = {
-                        viewModel.register(email, username, password)
+                        viewModel.register(email, username, password) { success ->
+                            if (success) onRegistrationSuccess()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -270,7 +264,7 @@ fun RegisterAccount(
                         )
                     } else {
                         Text(
-                            text = "Sign Up",
+                            text = stringResource(R.string.label_sign_up),
                             color = Color.White,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Medium

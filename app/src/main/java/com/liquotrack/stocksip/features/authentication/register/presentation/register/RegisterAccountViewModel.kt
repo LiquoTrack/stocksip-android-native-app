@@ -74,7 +74,7 @@ class RegisterAccountViewModel @Inject constructor(
     /**
      * Registers the complete account with user info and business info
      */
-    fun register(email: String, username: String, password: String) {
+    fun register(email: String, username: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             validateFields()
 
@@ -85,11 +85,21 @@ class RegisterAccountViewModel @Inject constructor(
             _isLoading.value = true
             _errorMessage.value = null
 
+            val normalizedEmail = email.trim().lowercase()
+            val normalizedUsername = username.trim()
+            val normalizedPassword = password.trim()
+            val normalizedBusinessName = _businessName.value.trim()
+
+            Log.d(
+                "RegisterAccountViewModel",
+                "Register payload -> email=$normalizedEmail user=$normalizedUsername business=$normalizedBusinessName role=${_selectedRole.value} pwdLen=${normalizedPassword.length}"
+            )
+
             val resource = repository.register(
-                email = email,
-                username = username,
-                password = password,
-                businessName = _businessName.value,
+                email = normalizedEmail,
+                username = normalizedUsername,
+                password = normalizedPassword,
+                businessName = normalizedBusinessName,
                 role = _selectedRole.value
             )
 
@@ -101,6 +111,7 @@ class RegisterAccountViewModel @Inject constructor(
                 is Resource.Success -> {
                     _registrationMessage.value = resource.data
                     _registrationSuccess.value = true
+                    onResult(true)
                 }
                 is Resource.Error -> {
                     _errorMessage.value = resource.message
