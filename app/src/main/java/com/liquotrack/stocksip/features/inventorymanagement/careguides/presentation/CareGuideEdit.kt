@@ -47,11 +47,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -82,6 +83,11 @@ fun CareGuideEdit(
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val fallbackTitle = stringResource(R.string.careguide)
+    val validTempMessage = context.getString(R.string.valid_temp)
+    val guideUpdatedMessage = context.getString(R.string.guide_update)
+    val careGuideDeletedMessage = context.getString(R.string.careguide_deleted)
+    val guideDeleteSuccessMessage = context.getString(R.string.careguide_delete)
 
     LaunchedEffect(careGuideId) {
         formState.reset()
@@ -95,7 +101,7 @@ fun CareGuideEdit(
             }
 
             CareGuideEditUiState.Deleted -> {
-                Toast.makeText(context, "Care guide deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, careGuideDeletedMessage, Toast.LENGTH_SHORT).show()
                 onDeleted()
             }
 
@@ -111,7 +117,7 @@ fun CareGuideEdit(
         containerColor = BackgroundColor,
         topBar = {
             CareGuideEditTopBar(
-                title = if (formState.productName.isNotBlank()) formState.productName else "Care Guide",
+                title = if (formState.productName.isNotBlank()) formState.productName else fallbackTitle,
                 enableDelete = uiState is CareGuideEditUiState.Loaded,
                 onNavigateBack = onNavigateBack,
                 onDeleteClick = { showDeleteDialog = true }
@@ -131,12 +137,12 @@ fun CareGuideEdit(
                 onSave = {
                     val updated = formState.buildUpdatedCareGuide(state.careGuide)
                     if (updated == null) {
-                        Toast.makeText(context, "Enter valid temperatures.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, validTempMessage, Toast.LENGTH_SHORT).show()
                     } else {
                         scope.launch {
                             val success = viewModel.updateCareGuide(updated)
                             if (success) {
-                                Toast.makeText(context, "Guide updated successfully.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, guideUpdatedMessage, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -153,7 +159,7 @@ fun CareGuideEdit(
                     val success = viewModel.deleteCareGuideSuspending(careGuideId)
                     if (success) {
                         showDeleteDialog = false
-                        Toast.makeText(context, "Guide deleted successfully.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, guideDeleteSuccessMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -180,7 +186,7 @@ private fun CareGuideEditTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = AccentColor
                 )
             }
@@ -202,7 +208,7 @@ private fun CareGuideEditTopBar(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = stringResource(R.string.delete),
                     tint = AccentColor.copy(alpha = if (enableDelete) 1f else 0.4f)
                 )
             }
@@ -235,7 +241,7 @@ private fun CareGuideEditError(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "The guide could not be loaded.",
+                text = stringResource(R.string.guide_not_loaded),
                 color = AccentColor,
                 fontWeight = FontWeight.Medium
             )
@@ -244,7 +250,7 @@ private fun CareGuideEditError(
                 onClick = onRetry,
                 colors = ButtonDefaults.buttonColors(containerColor = AccentColor, contentColor = Color.White)
             ) {
-                Text("Retry")
+                Text(stringResource(R.string.retry))
             }
         }
     }
@@ -274,7 +280,7 @@ private fun CareGuideEditFormContent(
         CareGuideEditField(
             value = formState.title,
             onValueChange = { formState.title = it },
-            placeholder = "Title"
+            placeholder = stringResource(R.string.title_label)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -282,7 +288,7 @@ private fun CareGuideEditFormContent(
         CareGuideEditField(
             value = formState.productName,
             onValueChange = { formState.productName = it },
-            placeholder = "Product Name"
+            placeholder = stringResource(R.string.product_name_label)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -290,7 +296,7 @@ private fun CareGuideEditFormContent(
         CareGuideEditField(
             value = formState.summary,
             onValueChange = { formState.summary = it },
-            placeholder = "Comments",
+            placeholder = stringResource(R.string.comments),
             singleLine = false
         )
 
@@ -299,7 +305,7 @@ private fun CareGuideEditFormContent(
         CareGuideEditField(
             value = formState.minTemp,
             onValueChange = { formState.minTemp = it },
-            placeholder = "Min. Temperature"
+            placeholder = stringResource(R.string.min_temp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -307,7 +313,7 @@ private fun CareGuideEditFormContent(
         CareGuideEditField(
             value = formState.maxTemp,
             onValueChange = { formState.maxTemp = it },
-            placeholder = "Max. Temperature"
+            placeholder = stringResource(R.string.max_temp)
         )
 
         Spacer(modifier = Modifier.height(36.dp))
@@ -324,7 +330,7 @@ private fun CareGuideEditFormContent(
             shape = RoundedCornerShape(24.dp)
         ) {
             Text(
-                text = "Save",
+                text = stringResource(R.string.save),
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -488,7 +494,7 @@ private fun CareGuideDeleteDialog(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
-                    text = "Are you sure you want to delete this care guide?",
+                    text = stringResource(R.string.delete_confirmation_message),
                     color = AccentColor,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center
@@ -503,7 +509,7 @@ private fun CareGuideDeleteDialog(
                     ),
                     shape = RoundedCornerShape(24.dp)
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
 
                 Button(
@@ -515,7 +521,7 @@ private fun CareGuideDeleteDialog(
                     ),
                     shape = RoundedCornerShape(24.dp)
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         }

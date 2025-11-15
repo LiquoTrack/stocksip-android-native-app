@@ -1,6 +1,7 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services
 
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.models.WarehouseDto
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.models.WarehouseProductDto
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.models.WarehouseWrapperDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -80,4 +81,15 @@ interface WarehouseService {
     suspend fun deleteWarehouse(
         @Path("warehouseId") warehouseId: String
     ): Response<Unit>
+
+    /**
+     * Retrieves all products stored in a specific warehouse.
+     *
+     * @param warehouseId The unique identifier of the warehouse.
+     * @return A [Response] containing a list of [WarehouseProductDto] objects.
+     */
+    @GET("warehouses/{warehouseId}/products")
+    suspend fun getProductsByWarehouseId(
+        @Path("warehouseId") warehouseId: String
+    ): Response<List<WarehouseProductDto>>
 }

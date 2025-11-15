@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,16 +45,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.R
+import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 
 private val BackgroundColor = Color(0xFFFDF3EA)
 private val AppBarColor = Color(0xFFFDEFE6)
 private val AccentColor = Color(0xFF4A1B2A)
-private val FieldColor = Color(0xFFF6E8D7)
+private val FieldColor = Color(0xFFFFFFFF)
 private val PlaceholderColor = Color(0xFF8E8C89)
 private val IllustrationBorderColor = Color(0xFFE1CBC1)
 private val IllustrationBackgroundColor = Color(0xFFF5E6EC)
@@ -70,14 +72,26 @@ fun CareGuideCreate(
     var comments by remember { mutableStateOf("") }
     var minTemp by remember { mutableStateOf("") }
     var maxTemp by remember { mutableStateOf("") }
+
     val scrollState = rememberScrollState()
+    val bg = Color(0xFFF4ECEC)
+
+    val guideCreatedMessage = stringResource(R.string.guide_create)
+    val newGuideTitle = stringResource(R.string.new_guide)
+    val selectProductPlaceholder = stringResource(R.string.select_product)
+    val typePlaceholder = stringResource(R.string.type)
+    val commentsPlaceholder = stringResource(R.string.comments)
+    val minTempPlaceholder = stringResource(R.string.min_temp)
+    val maxTempPlaceholder = stringResource(R.string.max_temp)
+    val addLabel = stringResource(R.string.add)
+
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(uiState) {
         when (uiState) {
             CareGuideCreateUiState.Success -> {
-                Toast.makeText(context, "Guide created correctly", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, guideCreatedMessage, Toast.LENGTH_SHORT).show()
                 product = ""
                 type = ""
                 comments = ""
@@ -86,13 +100,11 @@ fun CareGuideCreate(
                 viewModel.consumeState()
                 onNavigateBack()
             }
-
             is CareGuideCreateUiState.Error -> {
                 val message = (uiState as CareGuideCreateUiState.Error).message
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 viewModel.consumeState()
             }
-
             else -> Unit
         }
     }
@@ -100,28 +112,11 @@ fun CareGuideCreate(
     val isLoading = uiState is CareGuideCreateUiState.Loading
 
     Scaffold(
-        containerColor = BackgroundColor,
+        containerColor = bg,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "New Guide",
-                        color = AccentColor,
-                        fontWeight = FontWeight.Medium
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = AccentColor
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AppBarColor
-                )
+            TopBarWithBack(
+                title = newGuideTitle,
+                onBackClick = onNavigateBack
             )
         }
     ) { padding ->
@@ -130,63 +125,57 @@ fun CareGuideCreate(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(padding)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(16.dp),
             verticalArrangement = Arrangement.Top
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            CareGuideIllustration()
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            CareGuideInputField(
-                value = product,
-                onValueChange = { product = it },
-                placeholder = "Select Product",
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = null,
-                        tint = AccentColor
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                CareGuideInputField(
+                    value = product,
+                    onValueChange = { product = it },
+                    placeholder = selectProductPlaceholder,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = AccentColor
+                        )
+                    }
+                )
+
+                CareGuideInputField(
+                    value = type,
+                    onValueChange = { type = it },
+                    placeholder = typePlaceholder
+                )
+
+                CareGuideInputField(
+                    value = comments,
+                    onValueChange = { comments = it },
+                    placeholder = commentsPlaceholder,
+                    singleLine = false
+                )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    CareGuideInputField(
+                        value = minTemp,
+                        onValueChange = { minTemp = it },
+                        placeholder = minTempPlaceholder,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    CareGuideInputField(
+                        value = maxTemp,
+                        onValueChange = { maxTemp = it },
+                        placeholder = maxTempPlaceholder,
+                        modifier = Modifier.weight(1f)
                     )
                 }
-            )
+            }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            CareGuideInputField(
-                value = type,
-                onValueChange = { type = it },
-                placeholder = "Type"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            CareGuideInputField(
-                value = comments,
-                onValueChange = { comments = it },
-                placeholder = "Comments",
-                singleLine = false
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            CareGuideInputField(
-                value = minTemp,
-                onValueChange = { minTemp = it },
-                placeholder = "Min. Temperature"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            CareGuideInputField(
-                value = maxTemp,
-                onValueChange = { maxTemp = it },
-                placeholder = "Max. Temperature"
-            )
-
-            Spacer(modifier = Modifier.height(36.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Button(
                 onClick = {
@@ -200,16 +189,11 @@ fun CareGuideCreate(
                     )
                 },
                 modifier = Modifier
-                    .padding(top = 16.dp)
-                    .height(48.dp)
-                    .width(160.dp),
-                enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = AccentColor,
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(24.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 6.dp)
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B000D)),
+                enabled = !isLoading
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -219,8 +203,9 @@ fun CareGuideCreate(
                     )
                 } else {
                     Text(
-                        text = "Add",
-                        fontWeight = FontWeight.SemiBold
+                        text = addLabel,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
                 }
             }
@@ -284,7 +269,7 @@ private fun CareGuideIllustration() {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "Guide illustration",
+                contentDescription = stringResource(R.string.ilustration_guide),
                 modifier = Modifier.fillMaxWidth(0.45f)
             )
         }

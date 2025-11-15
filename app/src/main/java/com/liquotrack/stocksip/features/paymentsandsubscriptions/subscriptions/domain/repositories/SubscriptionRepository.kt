@@ -1,5 +1,6 @@
 package com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.repositories
 
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.AccountSubscription
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.domain.models.Subscription
 
 /**
@@ -26,10 +27,20 @@ interface SubscriptionRepository {
     suspend fun confirmSubscription(preferenceId: String, status: String): Boolean
 
     /**
-     * Fetches the subscription status for the given preference ID.
+     * Fetches the subscription details for the given account ID.
      *
-     * @param preferenceId The ID of the payment preference.
-     * @return A [String] representing the current status of the subscription.
+     * @param accountId The ID of the account whose subscription details are to be fetched.
+     * @return A [Subscription] object containing the subscription information.
      */
-    suspend fun fetchSubscriptionStatus(preferenceId: String): String
+     suspend fun fetchSubscriptionByAccountId(accountId: String): AccountSubscription
+
+    /**
+     * Upgrades the subscription for the given account to a new plan.
+     *
+     * @param accountId The ID of the account whose subscription is to be upgraded.
+     * @param subscriptionId The ID of the subscription to be upgraded.
+     * @param newPlanId The ID of the new subscription plan.
+     * @return A [Subscription] object representing the upgraded subscription.
+     */
+    suspend fun upgradeSubscription(accountId: String, subscriptionId: String, newPlanId: String): Subscription
 }

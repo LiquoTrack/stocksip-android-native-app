@@ -1,6 +1,7 @@
 package com.liquotrack.stocksip.core.navigation
 
 import android.net.Uri
+import java.net.URLEncoder
 
 /**
  * Sealed class defining all navigation routes in the app.
@@ -35,6 +36,11 @@ sealed class Route(val route: String) {
         const val emailArg = "email"
     }
 
+    object UpdatePassword : Route(route = "update_password") {
+        const val routeWithArguments = "update_password/{email}"
+        const val emailArg = "email"
+    }
+
     // Main app routes
     object Main : Route(route = "main")
     object Warehouses : Route(route = "warehouses")
@@ -46,17 +52,89 @@ sealed class Route(val route: String) {
     }
 
     object Products : Route(route = "products_storage")
-    object ProductDetail : Route(route = "product_detail")
+
+    object ProductCreateEdit {
+        const val route = "product_create_edit"
+        const val productIdArg = "productId"
+        val routeWithArgs = "$route/{$productIdArg}"
+    }
+
+    object ProductDetail {
+        const val route = "product_detail"
+        const val productIdArg = "productId"
+        val routeWithArgs = "$route/{$productIdArg}"
+    }
+
     object Alerts : Route(route = "alerts")
-    object Inventory : Route(route = "inventory")
-    object Catalogs : Route(route = "catalogs")
-    object CatalogDetail : Route(route = "catalog_detail")
+    object Addresses : Route(route = "addresses")
+
+    object Inventory {
+        const val route = "warehouse_inventory"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventoryAddition {
+        const val route = "inventory_addition"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventorySubtrack {
+        const val route = "inventory_subtrack"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventoryTransfer {
+        const val route = "inventory_transfer"
+        const val warehouseIdArg = "warehouseId"
+        val routeWithArgs = "$route/{$warehouseIdArg}"
+    }
+
+    object InventoryDetails {
+        const val route = "inventory_detail"
+        const val inventoryIdArg = "inventoryId"
+        val routeWithArgs = "$route/{$inventoryIdArg}"
+    }
+
     object CareGuides : Route(route = "care_guide")
     object CareGuideCreate : Route(route = "care_guide_create")
     object CareGuideEdit : Route(route = "care_guide_edit") {
         const val routeWithArguments = "care_guide_edit/{careGuideId}"
         const val careGuideIdArg = "careGuideId"
         fun buildRoute(careGuideId: String): String = "care_guide_edit/$careGuideId"
+    }
+
+    object Catalogs : Route("catalogs")
+
+    object CatalogDetail : Route("catalog_detail") {
+        const val routeWithArguments = "catalog_detail/{catalogId}"
+        const val catalogIdArg = "catalogId"
+        fun buildRoute(catalogId: String): String = "catalog_detail/$catalogId"
+    }
+
+    object CatalogCreateEdit : Route("catalog_create_edit") {
+        const val routeWithArguments = "catalog_create_edit/{catalogId}"
+        const val catalogIdArg = "catalogId"
+        fun buildRoute(catalogId: String): String = "catalog_create_edit/$catalogId"
+    }
+
+    // Store Owner
+    object SupplierSearch : Route("supplier_search")
+
+    object SupplierCatalogList : Route("supplier_catalog_list") {
+        const val routeWithArguments = "supplier_catalog_list/{supplierId}"
+        const val supplierIdArg = "supplierId"
+        fun buildRoute(supplierId: String): String =
+            "supplier_catalog_list/${Uri.encode(supplierId)}"
+    }
+
+    object CatalogDetailView : Route("catalog_detail_view") {
+        const val routeWithArguments = "catalog_detail_view/{catalogId}"
+        const val catalogIdArg = "catalogId"
+        fun buildRoute(catalogId: String): String =
+            "catalog_detail_view/${Uri.encode(catalogId)}"
     }
 
     object UserManagement : Route(route = "user")
@@ -71,6 +149,7 @@ sealed class Route(val route: String) {
 
     // Payments and Subscriptions Bounded Context
     object Plans : Route(route = "plans")
+    object Subscriptions : Route(route = "subscriptions")
     object Congrats : Route(route = "congrats")
     object Failure : Route(route = "failure")
     object Pending: Route(route = "pending")
@@ -87,7 +166,7 @@ object DrawerRoutes {
     const val ORDERS = "orders"
     const val PRODUCTS = "products"
     const val CATALOG = "catalog"
-    const val PLANS = "plans"
+    const val SUBSCRIPTIONS = "subscriptions"
     const val ADMIN = "admin"
     const val PROFILE = "profile"
     const val LOGOUT = "logout"

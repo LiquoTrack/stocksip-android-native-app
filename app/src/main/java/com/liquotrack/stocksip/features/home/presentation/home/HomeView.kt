@@ -2,39 +2,17 @@ package com.liquotrack.stocksip.features.home.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,7 +34,6 @@ fun HomeView(
     val scope = rememberCoroutineScope()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
 
-    // Listen for logout event
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
             onLogout()
@@ -66,27 +43,27 @@ fun HomeView(
 
     val shortcuts = listOf(
         ShortcutItem(
-            title = "Shall we start by creating a product?",
+            title = stringResource(R.string.shortcut_new_product_title),
             description = "",
-            buttonLabel = "+ New Product",
+            buttonLabel = stringResource(R.string.shortcut_new_product_button),
             iconRes = R.drawable.vino1
         ),
         ShortcutItem(
-            title = "Start recording your purchase orders",
+            title = stringResource(R.string.shortcut_new_order_title),
             description = "",
-            buttonLabel = "+ New Order",
+            buttonLabel = stringResource(R.string.shortcut_new_order_button),
             iconRes = R.drawable.nota1
         ),
         ShortcutItem(
-            title = "Should we complete your employees' data?",
+            title = stringResource(R.string.shortcut_new_user_title),
             description = "",
-            buttonLabel = "+ New User",
+            buttonLabel = stringResource(R.string.shortcut_new_user_button),
             iconRes = R.drawable.perfil1
         ),
         ShortcutItem(
-            title = "Discover how to care for your stock properly",
+            title = stringResource(R.string.shortcut_care_guides_title),
             description = "",
-            buttonLabel = "Care Guides",
+            buttonLabel = stringResource(R.string.shortcut_care_guides_button),
             iconRes = R.drawable.guide1
         )
     )
@@ -98,16 +75,14 @@ fun HomeView(
                 currentRoute = "main",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = {
-                    loginViewModel.logout()
-                }
+                onLogout = { loginViewModel.logout() }
             )
         }
     ) {
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Home",
+                    title = stringResource(R.string.home_title),
                     onNavigationClick = { scope.launch { drawerState.open() } }
                 )
             },
@@ -140,27 +115,27 @@ fun HomeView(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "Upgrade your experience!",
+                                text = stringResource(R.string.home_banner_title),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
                                 color = Color(0xFF4A1B2A)
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "Access premium plans to unlock exclusive features.",
+                                text = stringResource(R.string.home_banner_subtitle),
                                 fontSize = 14.sp,
                                 color = Color(0xFF4A1B2A)
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
-                                onClick = { onNavigate("plans") },
+                                onClick = { onNavigate("subscriptions") },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF4A1B2A),
                                     contentColor = Color.White
                                 ),
                                 shape = RoundedCornerShape(20.dp)
                             ) {
-                                Text("View Plans", fontSize = 14.sp)
+                                Text(stringResource(R.string.home_banner_button), fontSize = 14.sp)
                             }
                         }
 
@@ -168,7 +143,7 @@ fun HomeView(
 
                         Image(
                             painter = painterResource(id = R.drawable.coheteespacial1),
-                            contentDescription = "Rocket illustration",
+                            contentDescription = stringResource(R.string.home_banner_image_desc),
                             modifier = Modifier.size(120.dp)
                         )
                     }

@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.liquotrack.stocksip.R
 
 @Composable
 fun Congrats(
@@ -77,7 +79,7 @@ fun Congrats(
 
             // Congratulations Text
             Text(
-                text = "Congratulations!",
+                text = stringResource(R.string.label_payment_congratulations),
                 fontSize = 42.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White,
@@ -106,7 +108,7 @@ fun Congrats(
 
             // Success Message
             Text(
-                text = "Your subscription was successful!",
+                text = stringResource(R.string.label_subscription_successful),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.9f),
@@ -117,7 +119,7 @@ fun Congrats(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "You now have access to all premium features.",
+                text = "${stringResource(R.string.label_subscriptions_succesful_message)}.",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.White.copy(alpha = 0.7f),
@@ -143,7 +145,7 @@ fun Congrats(
                 )
             ) {
                 Text(
-                    text = "Get Started",
+                    text = stringResource(R.string.label_get_started),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,

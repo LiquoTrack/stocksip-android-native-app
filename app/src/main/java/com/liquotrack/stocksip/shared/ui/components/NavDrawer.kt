@@ -32,12 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.liquotrack.stocksip.R
 
 /**
  * Navigation Drawer Component - Simplified for routes without arguments
@@ -70,7 +72,7 @@ fun NavDrawer(
             // Navigation Items
             NavDrawerItem(
                 icon = Icons.Default.Home,
-                title = "Home",
+                title = stringResource(R.string.label_home),
                 route = "main",
                 currentRoute = currentRoute,
                 onClick = {
@@ -81,7 +83,7 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.Default.Warehouse,
-                title = "Warehouse",
+                title = stringResource(R.string.label_warehouses),
                 route = "warehouses",
                 currentRoute = currentRoute,
                 onClick = {
@@ -92,7 +94,7 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.AutoMirrored.Filled.MenuBook,
-                title = "Care Guides",
+                title = stringResource(R.string.label_care_guides),
                 route = "care_guide",
                 currentRoute = currentRoute,
                 onClick = {
@@ -103,7 +105,7 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.Default.ShoppingCart,
-                title = "Orders",
+                title = stringResource(R.string.label_orders),
                 route = "making_orders",
                 currentRoute = currentRoute,
                 onClick = {
@@ -114,7 +116,7 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.Default.Inventory,
-                title = "Products",
+                title = stringResource(R.string.label_products_storage),
                 route = "products_storage",
                 currentRoute = currentRoute,
                 onClick = {
@@ -125,7 +127,7 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.Default.LocalOffer,
-                title = "Catalog",
+                title = stringResource(R.string.label_catalog),
                 route = "catalogs",
                 currentRoute = currentRoute,
                 onClick = {
@@ -136,18 +138,18 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.Default.CardMembership,
-                title = "Plans",
-                route = "plans",
+                title = stringResource(R.string.label_subscriptions),
+                route = "subscriptions",
                 currentRoute = currentRoute,
                 onClick = {
-                    onNavigate("plans")
+                    onNavigate("subscriptions")
                     onClose()
                 }
             )
 
             NavDrawerItem(
                 icon = Icons.Default.AdminPanelSettings,
-                title = "Admin Panel",
+                title = stringResource(R.string.label_admin_panel),
                 route = "user",
                 currentRoute = currentRoute,
                 onClick = {
@@ -158,7 +160,7 @@ fun NavDrawer(
 
             NavDrawerItem(
                 icon = Icons.Default.Person,
-                title = "Profile",
+                title = stringResource(R.string.label_profile),
                 route = "profile",
                 currentRoute = currentRoute,
                 onClick = {
@@ -172,7 +174,7 @@ fun NavDrawer(
             // Logout Button
             NavDrawerItem(
                 icon = Icons.AutoMirrored.Filled.Logout,
-                title = "Log Out",
+                title = stringResource(R.string.label_log_out),
                 route = "logout",
                 currentRoute = "",
                 onClick = {
