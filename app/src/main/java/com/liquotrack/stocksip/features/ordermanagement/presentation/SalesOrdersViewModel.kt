@@ -39,10 +39,15 @@ class SalesOrdersViewModel @Inject constructor(
             try {
                 val accountId = tokenManager.getAccountId()
                 val allOrders = repository.getAllOrders()
-                val filtered = allOrders.filter { it.supplierId == accountId }
-                _salesOrders.value = filtered
 
-                Log.d("SALES_VM", ">>>: ${filtered.size}")
+                val filtered = if (!accountId.isNullOrEmpty()) {
+                    allOrders.filter { it.supplierId == accountId }
+                } else emptyList()
+
+                val toShow = if (filtered.isNotEmpty()) filtered else allOrders
+                _salesOrders.value = toShow
+
+                Log.d("SALES_VM", ">>> total=${allOrders.size} shown=${toShow.size} (filtered=${filtered.size})")
 
             } catch (e: Exception) {
                 _error.value = e.message ?: "Error fetching sales orders"
