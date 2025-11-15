@@ -121,8 +121,6 @@ fun Login(
         }
     }
 
-
-    // Show error messages in Snackbar
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackBarHostState.showSnackbar(it)
@@ -415,10 +413,8 @@ private fun handleSignIn(
             FirebaseAuth.getInstance()
                 .signInWithCredential(firebaseCredential)
                 .addOnSuccessListener { authResult ->
-                    // Opcional: log de claims para depuración
                     viewModel.logGoogleIdTokenClaims(idToken)
 
-                    // Autenticar contra backend para obtener token y accountId válidos
                     viewModel.authenticateWithGoogle(
                         idToken = idToken,
                         clientId = context.getString(R.string.web_client),

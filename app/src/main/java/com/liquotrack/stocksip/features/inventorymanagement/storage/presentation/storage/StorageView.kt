@@ -89,12 +89,10 @@ fun StorageView(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Storage",
+                    title = stringResource(R.string.storage),
                     showBackButton = false,
                     onNavigationClick = {
-                        scope.launch {
-                            drawerState.open()
-                        }
+                        scope.launch { drawerState.open() }
                     }
                 )
             },
@@ -152,17 +150,15 @@ fun StorageView(
                         }
 
                         Button(
-                            onClick = {
-                                onNavigate("product_create_edit/new")
-                            },
+                            onClick = { onNavigate("product_create_edit/new") },
                             enabled = !isMaxReached,
                             modifier = Modifier.height(36.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = onSurfaceLightMediumContrast,
+                                containerColor = Color(0xFF4A1B2A),
                                 contentColor = onTertiaryContainerLightMediumContrast
                             )
                         ) {
-                            Text(" + New Product")
+                            Text(" + ${stringResource(R.string.new_product)}")
                         }
                     }
                 }

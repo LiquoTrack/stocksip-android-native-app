@@ -1,52 +1,31 @@
 package com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CompareArrows
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.components.InventoryList
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
-import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLightMediumContrast
-import com.liquotrack.stocksip.shared.ui.theme.onTertiaryContainerLightMediumContrast
 import kotlinx.coroutines.launch
 
-/**
- * Composable function to display the Inventory View.
- *
- * This view includes a navigation drawer, a top bar, and a list of inventories.
- * It also handles user logout and navigation events.
- *
- * @param viewModel The ViewModel for managing inventory data. Defaults to Hilt-injected InventoryViewModel.
- * @param loginViewModel The ViewModel for managing login state. Defaults to Hilt-injected LoginViewModel.
- * @param warehouseId The ID of the warehouse to fetch inventories for.
- * @param onNavigate A lambda function to handle navigation events.
- * @param onLogout A lambda function to handle user logout events.
- */
 @Composable
 fun InventoryView(
     viewModel: InventoryViewModel = hiltViewModel(),
@@ -55,13 +34,12 @@ fun InventoryView(
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
-
     val inventories by viewModel.inventories.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
 
-    val backgroundColor  = Color(0xFFF4ECEC)
+    val backgroundColor = Color(0xFFF4ECEC)
 
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
@@ -94,13 +72,9 @@ fun InventoryView(
         Scaffold(
             topBar = {
                 TopBar(
-                    title = "Inventory",
+                    title = stringResource(R.string.inventory),
                     showBackButton = false,
-                    onNavigationClick = {
-                        scope.launch {
-                            drawerState.open()
-                        }
-                    }
+                    onNavigationClick = { scope.launch { drawerState.open() } }
                 )
             },
             containerColor = backgroundColor
@@ -109,88 +83,150 @@ fun InventoryView(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(onTertiaryContainerLightMediumContrast)
-                        .padding(16.dp)
+                // Actions Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // Inventory Addition Button
-                        // Navigates to the inventory addition screen for the specified warehouse
-                        Button(
-                            onClick = {
-                                onNavigate("inventory_addition/${warehouseId}")
-                            },
-                            modifier = Modifier
-                                .height(36.dp)
-                                .width(108.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Green
-                            )
-                        ) {
-                            Text(
-                                text = "+ Add",
-                                color = Color.White
-                            )
-                        }
+                        Text(
+                            text = stringResource(R.string.quick_actions),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2D1B2E)
+                        )
 
-                        // Inventory Subtrack Button
-                        // Navigates to the inventory subtrack screen for the specified warehouse
-                        Button(
-                            onClick = {
-                                onNavigate("inventory_subtrack/${warehouseId}")
-                            },
-                            modifier = Modifier
-                                .height(36.dp)
-                                .width(108.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Red,
-                            )
-                        ) {
-                            Text(
-                                text = "- Subtrack",
-                                color = Color.White
-                            )
-                        }
 
-                        // Inventory Transfer Button
-                        // Navigates to the inventory transfer screen for the specified warehouse
-                        Button(
-                            onClick = {
-                                onNavigate("inventory_transfer/${warehouseId}")
-                            },
-                            modifier = Modifier
-                                .height(36.dp)
-                                .width(108.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = "<-> Transfer",
-                                color = Color.White
+                            // Add Inventory Button
+                            InventoryActionButton(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Default.Add,
+                                label = stringResource(R.string.add),
+                                backgroundColor = Color(0xFF4CAF50),
+                                onClick = { onNavigate("inventory_addition/${warehouseId}") }
+                            )
+
+                            // Subtract Inventory Button
+                            InventoryActionButton(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Default.Remove,
+                                label = stringResource(R.string.subtract),
+                                backgroundColor = Color(0xFFF44336),
+                                onClick = { onNavigate("inventory_subtrack/${warehouseId}") }
+                            )
+
+                            // Transfer Inventory Button
+                            InventoryActionButton(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Default.CompareArrows,
+                                label = stringResource(R.string.transfer),
+                                backgroundColor = Color(0xFF8B4C5C),
+                                onClick = { onNavigate("inventory_transfer/${warehouseId}") }
                             )
                         }
                     }
                 }
 
-                // Inventory List
-                InventoryList(
-                    inventories = inventories,
-                    onClick = { inventory ->
-                        onNavigate("inventory_detail/${inventory.id}")
-                    },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(backgroundColor)
+                // Inventory List Header
+                Text(
+                    text = stringResource(R.string.products_in_stock),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF8B4C5C)
                 )
+
+                // Inventory List
+                if (inventories.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_inventory_found),
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2D1B2E)
+                            )
+                            Text(
+                                text = stringResource(R.string.add_products_to_get_started),
+                                fontSize = 14.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                } else {
+                    InventoryList(
+                        inventories = inventories,
+                        onClick = { inventory ->
+                            onNavigate("inventory_detail/${inventory.id}")
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(backgroundColor)
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun InventoryActionButton(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    label: String,
+    backgroundColor: Color,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .height(72.dp)
+            .shadow(4.dp, RoundedCornerShape(12.dp)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor
+        ),
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(12.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
+            Text(
+                text = label,
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }

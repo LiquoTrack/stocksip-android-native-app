@@ -36,7 +36,6 @@ import com.liquotrack.stocksip.features.authentication.passwordrecover.presentat
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.InventoryView
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventoryaddition.InventoryAdditionView
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorydetail.InventoryDetailView
-import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 import com.liquotrack.stocksip.features.ordermanagement.presentation.PurchaseOrdersView
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
@@ -64,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.liquotrack.stocksip.features.alerts.presentation.alerts.AlertsViewModel
 import com.liquotrack.stocksip.features.alerts.presentation.alerts.components.AlertsOverlay
+import com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productdetail.ProductDetailView
 
 
 /**
@@ -400,10 +400,10 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             } else {
                 ProductDetailView(
                     productId = productId,
-                    onNavigate = { route ->
-                        navController.navigate(route) { launchSingleTop = true }
-                    },
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToEdit = { id ->
+                        navController.navigate("product_create_edit/$id") { launchSingleTop = true }
+                    }
                 )
             }
         }

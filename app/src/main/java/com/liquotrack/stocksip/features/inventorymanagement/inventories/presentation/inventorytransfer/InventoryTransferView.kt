@@ -29,14 +29,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorysubtrack.components.InventorySelectorField
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventorytransfer.components.WarehouseSelectorField
 import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
 import com.liquotrack.stocksip.shared.ui.components.TopAppBar
+import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 
 @Composable
 fun InventoryTransferView(
@@ -47,16 +50,13 @@ fun InventoryTransferView(
 
     val inventoryList by viewModel.inventoryList.collectAsState()
     val warehouseList by viewModel.warehouseList.collectAsState()
-
     val selectedProductId by viewModel.selectedProductId.collectAsState()
     val selectedWarehouseId by viewModel.selectedWarehouseId.collectAsState()
     val quantityToTransfer by viewModel.quantityToTransfer.collectAsState()
     val currentQuantity by viewModel.currentQuantity.collectAsState()
     val expirationDate by viewModel.expirationDate.collectAsState()
-
     val quantityError by viewModel.quantityError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
     val snackBarHostState = remember { SnackbarHostState() }
 
     val isValidFormat =
@@ -66,8 +66,6 @@ fun InventoryTransferView(
                 selectedWarehouseId != null &&
                 quantityError.isNullOrEmpty()
 
-    // Navigate back if warehouseId is null or empty
-    // Also load inventory and warehouse list when warehouseId is valid
     LaunchedEffect(warehouseId) {
         if (warehouseId.isNullOrEmpty()) {
             onNavigateBack()
@@ -77,42 +75,24 @@ fun InventoryTransferView(
         }
     }
 
-    // Show 'quantity to transfer' error snack bar
     LaunchedEffect(quantityError) {
         quantityError?.let { error ->
-            snackBarHostState.showSnackbar(
-                message = error,
-                duration = SnackbarDuration.Short
-            )
+            snackBarHostState.showSnackbar(message = error, duration = SnackbarDuration.Short)
             viewModel.clearQuantityError()
         }
     }
 
-    // Main Scaffold
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = "Transfer Products",
-                onBackClick = onNavigateBack,
+            TopBarWithBack(
+                title = stringResource(R.string.transfer_products),
+                onBackClick = onNavigateBack
             )
         },
         containerColor = Color(0xFFF4ECEC),
-        snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = Color(0xFFB00020),
-                    contentColor = Color.White,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-        }
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -120,7 +100,6 @@ fun InventoryTransferView(
                     .padding(16.dp)
                     .background(Color(0xFFF4ECEC))
             ) {
-                // Inventory Selector Card
                 InventorySelectorField(
                     inventories = inventoryList,
                     selectedProductId = selectedProductId,
@@ -130,75 +109,41 @@ fun InventoryTransferView(
                     }
                 )
 
-                // Space between sections
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Warehouse Selector Card
                 WarehouseSelectorField(
                     warehouses = warehouseList,
                     selectedWarehouseId = selectedWarehouseId,
-                    onWarehouseSelected = { warehouseId ->
-                        viewModel.updateSelectedWarehouseId(warehouseId)
-                    }
+                    onWarehouseSelected = { viewModel.updateSelectedWarehouseId(it) }
                 )
 
-                // Space between sections
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Input Fields Section
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Quantity to Transfer Input Field
-                    CustomTextField(
-                        value = if (quantityToTransfer == 0) "" else quantityToTransfer.toString(),
-                        onValueChange = { newValue ->
-                            val intValue = newValue.toIntOrNull() ?: 0
-                            viewModel.validateAndUpdateQuantityToTransfer(intValue)
-                        },
-                        label = "Quantity to Transfer",
-                        placeholder = "Enter quantity",
-                        keyboardType = KeyboardType.Number,
-                        isRequired = true,
-                        showError = quantityError != null,
-                    )
-                }
+                CustomTextField(
+                    value = if (quantityToTransfer == 0) "" else quantityToTransfer.toString(),
+                    onValueChange = { newValue ->
+                        viewModel.validateAndUpdateQuantityToTransfer(newValue.toIntOrNull() ?: 0)
+                    },
+                    label = stringResource(R.string.quantity_to_transfer),
+                    placeholder = stringResource(R.string.enter_quantity),
+                    keyboardType = KeyboardType.Number,
+                    isRequired = true,
+                    showError = quantityError != null
+                )
 
-                // Space at the bottom
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Inventory Summary Card
-                // Shows final details before submission
-
-                // Confirm Action Button
                 Button(
-                    onClick = {
-                        viewModel.transferProduct(
-                            originWarehouseId = warehouseId?:"",
-                            onSuccess = onNavigateBack
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    onClick = { viewModel.transferProduct(warehouseId ?: "", onNavigateBack) },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = MaterialTheme.shapes.medium,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2B000D)
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B000D)),
                     enabled = isValidFormat && !isLoading
                 ) {
                     if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp
-                        )
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
                     } else {
-                        Text(
-                            text = "Transfer",
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
+                        Text(text = stringResource(R.string.transfer), fontSize = 16.sp, color = Color.White)
                     }
                 }
             }

@@ -14,13 +14,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.presentation.components.*
-import com.liquotrack.stocksip.shared.ui.components.TopAppBar
+import com.liquotrack.stocksip.shared.ui.components.NavDrawer
+import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +39,6 @@ fun StorageCreateOrEditView(
 
     val brands by viewModel.brands.collectAsState()
     val types by viewModel.productTypes.collectAsState()
-
     val name by viewModel.productName.collectAsState()
     val type by viewModel.productType.collectAsState()
     val brand by viewModel.brand.collectAsState()
@@ -51,12 +54,12 @@ fun StorageCreateOrEditView(
     val minimumStockError by viewModel.minimumStockError.collectAsState()
     val contentError by viewModel.contentError.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val bg = Color(0xFFF4ECEC)
 
-    // Load product details if in edit mode
     LaunchedEffect(productId) {
-        if (isEditMode && productId != "new") {
-            viewModel.getProductById(productId)
-        }
+        if (isEditMode && productId != "new") viewModel.getProductById(productId)
     }
 
     LaunchedEffect(selectedProduct) {
@@ -67,11 +70,8 @@ fun StorageCreateOrEditView(
     val currencies = remember(currencyCode) {
         if (currencyCode.isNotBlank() && !baseCurrencies.contains(currencyCode)) {
             listOf(currencyCode) + baseCurrencies
-        } else {
-            baseCurrencies
-        }
+        } else baseCurrencies
     }
-
     var selectedCurrency by remember(currencyCode) { mutableStateOf(currencyCode.ifEmpty { "USD" }) }
 
     val isValidFormat = name.isNotBlank() &&
@@ -82,59 +82,46 @@ fun StorageCreateOrEditView(
             selectedCurrency.isNotBlank() &&
             minimumStock >= 0
 
-    // Show minimum stock error snack bar
     LaunchedEffect(minimumStockError) {
-        minimumStockError?.let { error ->
-            snackBarHostState.showSnackbar(
-                message = error,
-                duration = SnackbarDuration.Short
-            )
+        minimumStockError?.let {
+            snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Short)
             viewModel.clearMinimumStockError()
         }
     }
 
-    // Show product content error snack bar
     LaunchedEffect(contentError) {
-        contentError?.let { error ->
-            snackBarHostState.showSnackbar(
-                message = error,
-                duration = SnackbarDuration.Short
-            )
+        contentError?.let {
+            snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Short)
             viewModel.clearContentError()
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = if (isEditMode) "Edit Product" else "New Product",
-                onBackClick = onNavigateBack,
-                isEditMode = isEditMode
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            NavDrawer(
+                currentRoute = "storage",
+                onNavigate = {},
+                onClose = { scope.launch { drawerState.close() } }
             )
-        },
-        containerColor = Color(0xFFF4ECEC),
-        snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = Color(0xFFB00020),
-                    contentColor = Color.White,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
         }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+    ) {
+        Scaffold(
+            topBar = {
+                TopBarWithBack(
+                    title = if (isEditMode) stringResource(R.string.edit_product) else stringResource(R.string.new_product),
+                    onBackClick = onNavigateBack
+                )
+            },
+            containerColor = bg,
+            snackbarHost = { SnackbarHost(snackBarHostState) }
+        ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .padding(paddingValues)
                     .padding(16.dp)
-                    .background(Color(0xFFF4ECEC))
             ) {
                 // Image Selection Section
                 ImageSelectionSection(
@@ -151,8 +138,8 @@ fun StorageCreateOrEditView(
                 CustomTextField(
                     value = name,
                     onValueChange = viewModel::updateProductName,
-                    label = "Name",
-                    placeholder = "e.g., Blue Label"
+                    label = stringResource(R.string.name),
+                    placeholder = stringResource(R.string.name_product_placeholder)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -162,14 +149,14 @@ fun StorageCreateOrEditView(
                     CustomSpinnerField(
                         items = types,
                         onItemSelected = viewModel::updateProductType,
-                        label = "Type",
+                        label = stringResource(R.string.type_product),
                         modifier = Modifier.weight(1f)
                     )
 
                     CustomSpinnerField(
                         items = brands,
                         onItemSelected = viewModel::updateBrand,
-                        label = "Brand",
+                        label = stringResource(R.string.brand),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -183,13 +170,13 @@ fun StorageCreateOrEditView(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Unit Price",
+                            text = stringResource(R.string.unit_price),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "Currency",
+                            text = stringResource(R.string.currency),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.weight(1f)
@@ -221,14 +208,13 @@ fun StorageCreateOrEditView(
                             )
                         )
 
-                        // Currency Dropdown (corregido)
                         var expanded by remember { mutableStateOf(false) }
                         Column(modifier = Modifier.weight(1f)) {
                             TextField(
                                 value = selectedCurrency,
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Currency *") },
+                                label = { Text(stringResource(R.string.currency_required)) },
                                 trailingIcon = {
                                     IconButton(onClick = { expanded = !expanded }) {
                                         Icon(
@@ -268,8 +254,8 @@ fun StorageCreateOrEditView(
                     CustomTextField(
                         value = if (minimumStock == 0) "" else minimumStock.toString(),
                         onValueChange = { viewModel.updateMinimumStock(it.toIntOrNull() ?: 0) },
-                        label = "Minimum Stock",
-                        placeholder = "e.g., 10",
+                        label = stringResource(R.string.minimum_stock),
+                        placeholder = stringResource(R.string.minimum_stock_placeholder),
                         keyboardType = KeyboardType.Number,
                         showError = minimumStockError != null,
                         isRequired = true,
@@ -279,8 +265,8 @@ fun StorageCreateOrEditView(
                     CustomDoubleTextField(
                         value = content,
                         onValueChange = { viewModel.updateProductContent(it) },
-                        label = "Product Content",
-                        placeholder = "e.g., 750.0",
+                        label = stringResource(R.string.product_content),
+                        placeholder = stringResource(R.string.product_content_placeholder),
                         modifier = Modifier.weight(1f),
                         showError = contentError != null,
                         isRequired = true
@@ -312,7 +298,7 @@ fun StorageCreateOrEditView(
                         )
                     } else {
                         Text(
-                            text = if (isEditMode) "Update Product" else "Add Product",
+                            text = if (isEditMode) stringResource(R.string.update_product) else stringResource(R.string.add_product),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White

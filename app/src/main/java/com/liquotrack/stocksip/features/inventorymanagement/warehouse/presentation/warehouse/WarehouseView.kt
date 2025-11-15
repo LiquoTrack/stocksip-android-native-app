@@ -163,7 +163,7 @@ fun WarehouseView(
                             enabled = !isMaxReached,
                             modifier = Modifier.height(36.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = onSurfaceLightMediumContrast,
+                                containerColor = Color(0xFF4A1B2A),
                                 contentColor = onTertiaryContainerLightMediumContrast
                             )
                         ) {
