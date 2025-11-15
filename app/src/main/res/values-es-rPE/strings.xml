@@ -66,7 +66,6 @@
     <string name="label_catalog">Catálogo</string>
     <string name="label_subscriptions">Suscripciones</string>
     <string name="label_admin_panel">Panel de administración</string>
-    <string name="password_placeholder">Contraseña</string>
     <string name="label_log_out">Cerrar sesión</string>
     <string name="label_your_current_plan">Tu plan actual</string>
     <string name="label_status">Estado</string>
@@ -176,6 +175,7 @@
     <string name="user_info_section">Información del usuario</string>
     <string name="name_placeholder">Nombre</string>
     <string name="email_placeholder">Correo</string>
+    <string name="password_placeholder">Contraseña</string>
     <string name="phone_placeholder">Número de teléfono</string>
     <string name="role_assigned">Rol asignado</string>
     <string name="dropdown_content_description">Desplegable</string>
