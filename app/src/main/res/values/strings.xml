@@ -9,6 +9,7 @@
     <string name="label_sign_in_google">Sign in with Google</string>
     <string name="label_dont_have_an_account">Don\'t have an account?</string>
     <string name="label_warehouses">Warehouses</string>
+    <string name="password_placeholder">Password</string>
     <string name="label_current">Current</string>
     <string name="label_max">Max. Allowed</string>
     <string name="label_new_warehouse">New Warehouse</string>
@@ -161,7 +162,6 @@
     <string name="admin_tab_admin">Admin</string>
     <string name="admin_tab_employee">Employee</string>
     <string name="admin_new_user">+ New User</string>
-    <string name="password_placeholder">Password</string>
     <string name="users_capacity">Users Capacity</string>
     <string name="users_capacity_value">%1$d/%2$s</string>
     <string name="status_max_reached">Max reached</string>
