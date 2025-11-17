@@ -83,9 +83,10 @@ class SubscriptionsViewModel @Inject constructor(
      * @return A formatted [AccountSubscription] object.
      */
     fun formatSubscription(subscription: AccountSubscription): AccountSubscription {
-        val formattedDate =
-            if (subscription.expirationDate == "31/12/9999") "Unlimited"
-            else subscription.expirationDate
+        val formattedDate = when (subscription.expirationDate) {
+            "31/12/9999", "12/31/9999" -> "Unlimited"
+            else -> subscription.expirationDate
+        }
 
         val formattedStatus =
             if (subscription.status == "PendingUpgradePayment") "Active"
