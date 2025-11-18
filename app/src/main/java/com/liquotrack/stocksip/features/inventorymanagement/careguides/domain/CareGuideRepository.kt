@@ -36,4 +36,27 @@ interface CareGuideRepository {
      * @param careGuideId The ID of the care guide to delete.
      */
     suspend fun deleteCareGuide(careGuideId: String)
+
+    /**
+     * Gets a care guide by product type for the specified account.
+     *
+     * @param accountId Account identifier.
+     * @param productType Liquor type associated with the care guide.
+     */
+    suspend fun getCareGuideByProductType(accountId: String, productType: String): CareGuide
+
+    /**
+     * Unassigns the given care guide from its current product.
+     *
+     * @param careGuideId Identifier of the care guide to unassign.
+     */
+    suspend fun unassignCareGuide(careGuideId: String)
+
+    /**
+     * Assigns a care guide to a specific product.
+     *
+     * @param careGuideId Identifier of the care guide to assign.
+     * @param productId Identifier of the product receiving the care guide.
+     */
+    suspend fun assignCareGuide(careGuideId: String, productId: String)
 }

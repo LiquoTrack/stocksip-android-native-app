@@ -1,8 +1,10 @@
 package com.liquotrack.stocksip.features.inventorymanagement.careguides.data.repositories
 
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.data.remote.models.CareGuideDto
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.data.remote.services.CareGuideService
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuideRepository
+
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.data.remote.models.CareGuideCreateDto
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.data.remote.models.CareGuideUpdateDto
 import jakarta.inject.Inject
@@ -18,26 +20,7 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
                 val response = service.getCareGuidesByAccountId(accountId)
                 if (response.isSuccessful) {
                     response.body()?.let { careGuideDtos ->
-                        return@withContext careGuideDtos.map { careGuideDto ->
-                            CareGuide(
-                                careGuideId = careGuideDto.id,
-                                accountId = careGuideDto.accountId,
-                                productAssociated = careGuideDto.productAssociated ?: careGuideDto.productId.orEmpty(),
-                                productId = careGuideDto.productId.orEmpty(),
-                                productName = careGuideDto.productName.orEmpty(),
-                                imageUrl = careGuideDto.imageUrl.orEmpty(),
-                                title = careGuideDto.name,
-                                summary = careGuideDto.description,
-                                recommendedMinTemperature = careGuideDto.recommendedMinTemperature,
-                                recommendedMaxTemperature = careGuideDto.recommendedMaxTemperature,
-                                recommendedPlaceStorage = careGuideDto.recommendedPlaceStorage,
-                                generalRecommendation = careGuideDto.generalRecommendation,
-                                guideFileName = null,
-                                fileName = null,
-                                fileContentType = null,
-                                fileData = null
-                            )
-                        }
+                        return@withContext careGuideDtos.map { it.toDomain() }
                     }
                 }
             } catch (e: Exception) {
@@ -53,24 +36,7 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
                 val response = service.getCareGuideById(careGuideId)
                 if (response.isSuccessful) {
                     response.body()?.let { careGuideDto ->
-                        return@withContext CareGuide(
-                            careGuideId = careGuideDto.id,
-                            accountId = careGuideDto.accountId,
-                            productAssociated = careGuideDto.productAssociated ?: careGuideDto.productId.orEmpty(),
-                            productId = careGuideDto.productId.orEmpty(),
-                            productName = careGuideDto.productName.orEmpty(),
-                            imageUrl = careGuideDto.imageUrl.orEmpty(),
-                            title = careGuideDto.name,
-                            summary = careGuideDto.description,
-                            recommendedMinTemperature = careGuideDto.recommendedMinTemperature,
-                            recommendedMaxTemperature = careGuideDto.recommendedMaxTemperature,
-                            recommendedPlaceStorage = careGuideDto.recommendedPlaceStorage,
-                            generalRecommendation = careGuideDto.generalRecommendation,
-                            guideFileName = null,
-                            fileName = null,
-                            fileContentType = null,
-                            fileData = null
-                        )
+                        return@withContext careGuideDto.toDomain()
                     }
                 }
             } catch (e: Exception) {
@@ -94,24 +60,7 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
             val response = service.createCareGuide(careGuide.accountId, request)
             if (response.isSuccessful) {
                 response.body()?.let { createdDto ->
-                    return@withContext CareGuide(
-                        careGuideId = createdDto.id,
-                        accountId = createdDto.accountId,
-                        productAssociated = createdDto.productAssociated ?: createdDto.productId.orEmpty(),
-                        productId = createdDto.productId.orEmpty(),
-                        productName = createdDto.productName.orEmpty(),
-                        imageUrl = createdDto.imageUrl.orEmpty(),
-                        title = createdDto.name,
-                        summary = createdDto.description,
-                        recommendedMinTemperature = createdDto.recommendedMinTemperature,
-                        recommendedMaxTemperature = createdDto.recommendedMaxTemperature,
-                        recommendedPlaceStorage = createdDto.recommendedPlaceStorage,
-                        generalRecommendation = createdDto.generalRecommendation,
-                        guideFileName = null,
-                        fileName = null,
-                        fileContentType = null,
-                        fileData = null
-                    )
+                    return@withContext createdDto.toDomain()
                 }
                 throw IllegalStateException("Empty response body when creating care guide")
             }
@@ -135,24 +84,7 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
             val response = service.updateCareGuide(careGuide.careGuideId, request)
             if (response.isSuccessful) {
                 response.body()?.let { updatedDto ->
-                    return@withContext CareGuide(
-                        careGuideId = updatedDto.id,
-                        accountId = updatedDto.accountId,
-                        productAssociated = updatedDto.productAssociated ?: updatedDto.productId.orEmpty(),
-                        productId = updatedDto.productId.orEmpty(),
-                        productName = updatedDto.productName.orEmpty(),
-                        imageUrl = updatedDto.imageUrl.orEmpty(),
-                        title = updatedDto.name,
-                        summary = updatedDto.description,
-                        recommendedMinTemperature = updatedDto.recommendedMinTemperature,
-                        recommendedMaxTemperature = updatedDto.recommendedMaxTemperature,
-                        recommendedPlaceStorage = updatedDto.recommendedPlaceStorage,
-                        generalRecommendation = updatedDto.generalRecommendation,
-                        guideFileName = null,
-                        fileName = null,
-                        fileContentType = null,
-                        fileData = null
-                    )
+                    return@withContext updatedDto.toDomain()
                 }
                 throw IllegalStateException("Empty response body when updating care guide")
             }
@@ -169,4 +101,59 @@ class CareGuideRepositoryImpl @Inject constructor(private val service: CareGuide
             }
         }
     }
+
+    override suspend fun getCareGuideByProductType(accountId: String, productType: String): CareGuide {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = service.getCareGuideByProductType(accountId, productType)
+                if (response.isSuccessful) {
+                    response.body()?.let { careGuideDto ->
+                        return@withContext careGuideDto.toDomain()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            throw Exception("CareGuide not found for product type $productType")
+        }
+    }
+
+    override suspend fun unassignCareGuide(careGuideId: String) {
+        return withContext(Dispatchers.IO) {
+            val response = service.unassignCareGuide(careGuideId)
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+        }
+    }
+
+    override suspend fun assignCareGuide(careGuideId: String, productId: String) {
+        return withContext(Dispatchers.IO) {
+            val response = service.assignCareGuide(careGuideId, productId)
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+        }
+    }
+}
+
+private fun CareGuideDto.toDomain(): CareGuide {
+    return CareGuide(
+        careGuideId = id,
+        accountId = accountId,
+        productAssociated = productAssociated ?: productId.orEmpty(),
+        productId = productId.orEmpty(),
+        productName = productName.orEmpty(),
+        imageUrl = imageUrl.orEmpty(),
+        title = name,
+        summary = description,
+        recommendedMinTemperature = recommendedMinTemperature,
+        recommendedMaxTemperature = recommendedMaxTemperature,
+        recommendedPlaceStorage = recommendedPlaceStorage,
+        generalRecommendation = generalRecommendation,
+        guideFileName = null,
+        fileName = null,
+        fileContentType = null,
+        fileData = null
+    )
 }

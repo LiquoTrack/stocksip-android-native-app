@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuideRepository
+import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
+import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.repositories.ProductRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -22,11 +24,19 @@ sealed interface CareGuideCreateUiState {
 @HiltViewModel
 class CareGuideCreateViewModel @Inject constructor(
     private val repository: CareGuideRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val productRepository: ProductRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CareGuideCreateUiState>(CareGuideCreateUiState.Idle)
     val uiState: StateFlow<CareGuideCreateUiState> = _uiState.asStateFlow()
+
+    private val _products = MutableStateFlow<List<ProductResponse>>(emptyList())
+    val products: StateFlow<List<ProductResponse>> = _products.asStateFlow()
+
+    init {
+        loadProducts()
+    }
 
     fun createCareGuide(
         typeOfLiquor: String,
@@ -89,5 +99,21 @@ class CareGuideCreateViewModel @Inject constructor(
 
     fun consumeState() {
         _uiState.value = CareGuideCreateUiState.Idle
+    }
+
+    private fun loadProducts() {
+        viewModelScope.launch {
+            val accountId = tokenManager.getAccountId()
+            if (accountId.isNullOrBlank()) {
+                return@launch
+            }
+
+            try {
+                val data = productRepository.getAllProductsByAccountId(accountId)
+                _products.value = data.products
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 }

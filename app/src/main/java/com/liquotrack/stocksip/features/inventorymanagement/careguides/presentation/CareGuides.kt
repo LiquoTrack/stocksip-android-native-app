@@ -7,9 +7,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocalDrink
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +32,7 @@ import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuideViewModel
+import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -44,11 +47,27 @@ fun CareGuides(
 ) {
     val search = remember { mutableStateOf("") }
     val careGuides = viewModel.careGuides.collectAsState()
+    val products = viewModel.products.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedGuide by remember { mutableStateOf<CareGuide?>(null) }
-    val showDialog = selectedGuide != null
+    val showDetailDialog = selectedGuide != null
+    val context = LocalContext.current
+    var assignGuide by remember { mutableStateOf<CareGuide?>(null) }
+    var selectedProductId by remember { mutableStateOf<String?>(null) }
+    var isAssigning by remember { mutableStateOf(false) }
+    var assignError by remember { mutableStateOf<String?>(null) }
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+
+    val selectedProduct = products.value.firstOrNull { it.id == selectedProductId }
+
+    LaunchedEffect(products.value) {
+        selectedProductId?.let { currentId ->
+            if (products.value.none { it.id == currentId }) {
+                selectedProductId = null
+            }
+        }
+    }
 
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
@@ -138,7 +157,13 @@ fun CareGuides(
                             careGuide = careGuide,
                             onClick = {},
                             onSeeGuide = { selectedGuide = it },
-                            onEdit = { onNavigate(Route.CareGuideEdit.buildRoute(it.careGuideId)) }
+                            onEdit = { onNavigate(Route.CareGuideEdit.buildRoute(it.careGuideId)) },
+                            onAssign = {
+                                viewModel.loadProducts()
+                                assignGuide = it
+                                selectedProductId = null
+                                assignError = null
+                            }
                         )
                     }
                 }
@@ -146,10 +171,50 @@ fun CareGuides(
         }
     }
 
-    if (showDialog) {
+    if (showDetailDialog) {
         CareGuideDetailDialog(
             careGuide = selectedGuide!!,
             onDismiss = { selectedGuide = null }
+        )
+    }
+
+    if (assignGuide != null) {
+        AssignCareGuideDialog(
+            careGuide = assignGuide!!,
+            products = products.value,
+            selectedProduct = selectedProduct,
+            isLoading = isAssigning,
+            errorMessage = assignError,
+            onProductSelected = { selectedProductId = it.id },
+            onDismiss = {
+                assignGuide = null
+                selectedProductId = null
+                assignError = null
+            },
+            onConfirm = {
+                if (products.value.isEmpty()) {
+                    assignError = context.getString(R.string.error_no_products_available)
+                    return@AssignCareGuideDialog
+                }
+
+                val chosenProduct = selectedProduct
+                if (chosenProduct == null) {
+                    assignError = context.getString(R.string.error_empty_product_id)
+                    return@AssignCareGuideDialog
+                }
+                scope.launch {
+                    isAssigning = true
+                    val success = viewModel.assignCareGuide(assignGuide!!.careGuideId, chosenProduct.id)
+                    isAssigning = false
+                    if (success) {
+                        assignGuide = null
+                        selectedProductId = null
+                        assignError = null
+                    } else {
+                        assignError = context.getString(R.string.error_assign_care_guide)
+                    }
+                }
+            }
         )
     }
 }
@@ -234,5 +299,120 @@ private fun DetailRow(title: String, value: String) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(title, fontWeight = FontWeight.SemiBold, color = Color(0xFF3B2B2B))
         Text(value, color = Color(0xFF737373))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AssignCareGuideDialog(
+    careGuide: CareGuide,
+    products: List<ProductResponse>,
+    selectedProduct: ProductResponse?,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onProductSelected: (ProductResponse) -> Unit,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            color = Color.White
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.assign_care_guide_title, careGuide.productName),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color(0xFF3B2B2B)
+                )
+
+                var expanded by remember { mutableStateOf(false) }
+
+                if (products.isEmpty()) {
+                    OutlinedTextField(
+                        value = stringResource(R.string.no_products_found),
+                        onValueChange = {},
+                        label = { Text(stringResource(R.string.select_product)) },
+                        readOnly = true,
+                        enabled = false,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                } else {
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedProduct?.name.orEmpty(),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.select_product)) },
+                            placeholder = { Text(stringResource(R.string.select_product)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            products.forEach { product ->
+                                DropdownMenuItem(
+                                    text = { Text(product.name) },
+                                    onClick = {
+                                        onProductSelected(product)
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (!errorMessage.isNullOrBlank()) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(stringResource(R.string.cancel))
+                    }
+
+                    Button(
+                        onClick = onConfirm,
+                        enabled = !isLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4A1B2A),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(stringResource(R.string.assign))
+                        }
+                    }
+                }
+            }
+        }
     }
 }

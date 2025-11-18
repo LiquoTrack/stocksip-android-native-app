@@ -4,15 +4,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -39,7 +45,8 @@ fun CareGuideCard(
     careGuide: CareGuide,
     onClick: () -> Unit,
     onSeeGuide: (CareGuide) -> Unit,
-    onEdit: (CareGuide) -> Unit
+    onEdit: (CareGuide) -> Unit,
+    onAssign: (CareGuide) -> Unit
 ) {
     val displayName = careGuide.productName
 
@@ -88,25 +95,45 @@ fun CareGuideCard(
                 )
             }
 
-            Text(
-                text = displayName,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onEdit(careGuide) },
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF737373),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            TextButton(onClick = { onSeeGuide(careGuide) }) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Text(
-                    text = stringResource(R.string.see_guide),
-                    color = Color(0xFF8A3040),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    text = displayName,
+                    modifier = Modifier.clickable { onEdit(careGuide) },
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF737373),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    TextButton(onClick = { onSeeGuide(careGuide) }) {
+                        Text(
+                            text = stringResource(R.string.see_guide),
+                            color = Color(0xFF8A3040),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Button(
+                        onClick = { onAssign(careGuide) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4A1B2A),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.assign),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
         }
     }

@@ -17,7 +17,13 @@ interface CareGuideService {
 
     @GET("care-guides/{careGuideId}")
     suspend fun getCareGuideById(@Path("careGuideId") careGuideId: String): retrofit2.Response<CareGuideDto>
-    
+
+    @GET("care-guides/{accountId}/{productType}")
+    suspend fun getCareGuideByProductType(
+        @Path("accountId") accountId: String,
+        @Path("productType") productType: String
+    ): retrofit2.Response<CareGuideDto>
+
     @POST("care-guides/{accountId}")
     suspend fun createCareGuide(
         @Path("accountId") accountId: String,
@@ -32,5 +38,14 @@ interface CareGuideService {
 
     @DELETE("care-guides/{careGuideId}")
     suspend fun deleteCareGuide(@Path("careGuideId") careGuideId: String): retrofit2.Response<Unit>
-    
+
+    @PUT("care-guides/{careGuideId}/deallocations")
+    suspend fun unassignCareGuide(@Path("careGuideId") careGuideId: String): retrofit2.Response<Unit>
+
+    @PUT("care-guides/{careGuideId}/allocations/{productId}")
+    suspend fun assignCareGuide(
+        @Path("careGuideId") careGuideId: String,
+        @Path("productId") productId: String
+    ): retrofit2.Response<Unit>
+
 }
