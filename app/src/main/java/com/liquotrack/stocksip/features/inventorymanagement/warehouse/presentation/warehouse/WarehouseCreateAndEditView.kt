@@ -1,37 +1,34 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse
 
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
-import com.liquotrack.stocksip.shared.ui.components.TopAppBar
 import java.io.File
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomTextField
-import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.CustomDoubleTextField
+import com.liquotrack.stocksip.shared.presentation.components.CustomTextField
+import com.liquotrack.stocksip.shared.presentation.components.CustomDoubleTextField
 import androidx.core.net.toUri
+import com.liquotrack.stocksip.shared.presentation.components.ImageSelectionSection
+import com.liquotrack.stocksip.shared.ui.components.NavDrawer
+import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
+import kotlinx.coroutines.launch
+import com.liquotrack.stocksip.R
 
 @Composable
 fun WarehouseCreateAndEditView(
@@ -40,7 +37,6 @@ fun WarehouseCreateAndEditView(
     warehouse: WarehouseResponse? = null,
     onNavigateBack: () -> Unit
 ) {
-
     val name by viewModel.warehouseName.collectAsState()
     val street by viewModel.street.collectAsState()
     val city by viewModel.cityState.collectAsState()
@@ -53,10 +49,15 @@ fun WarehouseCreateAndEditView(
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageFile by remember { mutableStateOf<File?>(null) }
 
-
     val isEditMode = warehouseId != null && warehouseId != "new" && warehouseId.isNotBlank()
-
     val isLoading by viewModel.isLoading.collectAsState()
+    val selectedWarehouse by viewModel.selectedWarehouse.collectAsState()
+    val temperatureError by viewModel.temperatureError.collectAsState()
+
+    val snackBarHostState = remember { SnackbarHostState() }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val bg = Color(0xFFF4ECEC)
 
     val isValidFormat = name.isNotBlank() &&
             street.isNotBlank() &&
@@ -73,37 +74,66 @@ fun WarehouseCreateAndEditView(
         }
     }
 
-    val selectedWarehouse by viewModel.selectedWarehouse.collectAsState()
-
-    LaunchedEffect(selectedWarehouse?.imageUrl) {
-        if (isEditMode && selectedWarehouse?.imageUrl?.isNotBlank() == true) {
-            selectedImageUri = selectedWarehouse!!.imageUrl.toUri()
+    LaunchedEffect(selectedWarehouse) {
+        selectedWarehouse?.let { warehouse ->
+            viewModel.loadWarehouseForEdit(warehouse)
+            if (warehouse.imageUrl.isNotBlank()) {
+                selectedImageUri = warehouse.imageUrl.toUri()
+            }
         }
     }
 
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = if (isEditMode) "Edit Warehouse" else "New Warehouse",
-                onBackClick = onNavigateBack
+    LaunchedEffect(temperatureError) {
+        temperatureError?.let { error ->
+            snackBarHostState.showSnackbar(
+                message = error,
+                duration = SnackbarDuration.Short
             )
-        },
-        containerColor = Color(0xFFF4ECEC)
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+            viewModel.clearTemperatureError()
+        }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            NavDrawer(
+                currentRoute = "warehouse",
+                onNavigate = {},
+                onClose = { scope.launch { drawerState.close() } }
+            )
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopBarWithBack(
+                    title = if (isEditMode)
+                        stringResource(R.string.label_edit_warehouse)
+                    else
+                        stringResource(R.string.label_new_warehouse),
+                    onBackClick = onNavigateBack,
+                    actions = {
+                        if (isEditMode) {
+                            IconButton(onClick = { viewModel.showDeleteConfirmationDialog(true) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.label_delete),
+                                    tint = Color(0xFFE8B4BE)
+                                )
+                            }
+                        }
+                    }
+                )
+            },
+            containerColor = bg,
+            snackbarHost = { SnackbarHost(snackBarHostState) }
+        ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .padding(padding)
                     .padding(16.dp)
-                    .background(Color(0xFFF4ECEC))
             ) {
-
                 ImageSelectionSection(
                     selectedImage = selectedImageUri,
                     onImageSelected = { file, uri ->
@@ -112,114 +142,102 @@ fun WarehouseCreateAndEditView(
                     }
                 )
 
-
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Form Fields
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Warehouse Name
                     CustomTextField(
                         value = name,
                         onValueChange = viewModel::updateWarehouseName,
-                        label = "Name",
-                        placeholder = "Enter warehouse name"
+                        label = stringResource(R.string.label_warehouse_name),
+                        placeholder = "e.g., Main Warehouse"
                     )
 
-                    // Street
                     CustomTextField(
                         value = street,
                         onValueChange = viewModel::updateStreet,
-                        label = "Street",
-                        placeholder = "Enter street address"
+                        label = stringResource(R.string.label_warehouse_street),
+                        placeholder = "e.g., 123 Main St"
                     )
 
-                    // City and District in Row
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomTextField(
                             value = city,
                             onValueChange = viewModel::updateCity,
-                            label = "City",
-                            placeholder = "City",
+                            label = stringResource(R.string.label_warehouse_city),
+                            placeholder = "e.g., Lima",
                             modifier = Modifier.weight(1f)
                         )
 
                         CustomTextField(
                             value = district,
                             onValueChange = viewModel::updateDistrict,
-                            label = "District",
-                            placeholder = "District",
+                            label = stringResource(R.string.label_warehouse_district),
+                            placeholder = "e.g., Chorrillos",
                             modifier = Modifier.weight(1f)
                         )
                     }
 
-                    // Postal Code and Country
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomTextField(
                             value = postalCode,
                             onValueChange = viewModel::updatePostalCode,
-                            label = "Postal Code",
-                            placeholder = "Postal code",
+                            label = stringResource(R.string.label_warehouse_postal_code),
+                            placeholder = "e.g., 15063",
                             modifier = Modifier.weight(1f)
                         )
 
                         CustomTextField(
                             value = country,
                             onValueChange = viewModel::updateCountry,
-                            label = "Country",
-                            placeholder = "Country",
+                            label = stringResource(R.string.label_warehouse_country),
+                            placeholder = "e.g., Perú",
                             modifier = Modifier.weight(1f)
                         )
                     }
 
-                    // Capacity
                     CustomDoubleTextField(
                         value = capacity,
                         onValueChange = viewModel::updateCapacity,
-                        label = "Capacity",
-                        placeholder = "Enter capacity",
+                        label = stringResource(R.string.label_warehouse_capacity),
+                        placeholder = "e.g., 5000.0",
                         keyboardType = KeyboardType.Decimal
                     )
 
-                    // Temperature Range
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         CustomDoubleTextField(
                             value = minTemp,
                             onValueChange = viewModel::updateMinTemp,
-                            label = "Min Temperature (°C)",
-                            placeholder = "Min °C",
+                            label = stringResource(R.string.label_warehouse_min_temperature),
+                            placeholder = "e.g., -5.0",
                             modifier = Modifier.weight(1f),
-                            keyboardType = KeyboardType.Decimal
+                            keyboardType = KeyboardType.Number,
+                            showError = temperatureError != null
                         )
 
                         CustomDoubleTextField(
                             value = maxTemp,
                             onValueChange = viewModel::updateMaxTemp,
-                            label = "Max Temperature (°C)",
-                            placeholder = "Max °C",
+                            label = stringResource(R.string.label_warehouse_max_temperature),
+                            placeholder = "e.g., 25.0",
                             modifier = Modifier.weight(1f),
-                            keyboardType = KeyboardType.Decimal
+                            keyboardType = KeyboardType.Number,
+                            showError = temperatureError != null
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Save button
                 Button(
                     onClick = {
                         viewModel.updateImageFile(selectedImageFile)
-                        viewModel.saveWarehouse {
-                            onNavigateBack()
-                        }
-
+                        viewModel.saveWarehouse(
+                            isEditing = isEditMode,
+                            warehouseId = warehouseId,
+                            onSuccess = { onNavigateBack() }
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -238,7 +256,10 @@ fun WarehouseCreateAndEditView(
                         )
                     } else {
                         Text(
-                            text = if (isEditMode) "Update Warehouse" else "Add Warehouse",
+                            text = if (isEditMode)
+                                stringResource(R.string.label_update_warehouse)
+                            else
+                                stringResource(R.string.label_add_warehouse),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -247,7 +268,35 @@ fun WarehouseCreateAndEditView(
                 }
             }
 
-            // Overlay Loading Indicator
+            if (viewModel.showDeleteDialog.collectAsState().value) {
+                AlertDialog(
+                    onDismissRequest = { viewModel.showDeleteConfirmationDialog(false) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            viewModel.showDeleteConfirmationDialog(false)
+                            warehouseId?.let { id ->
+                                viewModel.deleteWarehouseById(id) {
+                                    onNavigateBack()
+                                }
+                            }
+                        }) {
+                            Text(
+                                stringResource(R.string.label_delete),
+                                color = Color.Red
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { viewModel.showDeleteConfirmationDialog(false) }) {
+                            Text(stringResource(R.string.label_cancel))
+                        }
+                    },
+                    title = { Text(stringResource(R.string.label_delete_warehouse)) },
+                    text = { Text(stringResource(R.string.label_delete_confirmation_message)) },
+                    containerColor = Color.White
+                )
+            }
+
             if (isLoading) {
                 Box(
                     modifier = Modifier
@@ -261,69 +310,3 @@ fun WarehouseCreateAndEditView(
         }
     }
 }
-
-@Composable
-fun ImageSelectionSection(
-    selectedImage: Uri?,
-    onImageSelected: (File?, Uri?) -> Unit
-) {
-    val context = LocalContext.current
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            try {
-                val inputStream = context.contentResolver.openInputStream(it)
-                val tempFile = File.createTempFile("warehouse_image", ".jpg", context.cacheDir)
-                inputStream?.use { input ->
-                    tempFile.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                onImageSelected(tempFile, uri)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                onImageSelected(null, null)
-            }
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(160.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.LightGray)
-                .clickable { imagePicker.launch("image/*") },
-            contentAlignment = Alignment.Center
-        ) {
-            if (selectedImage != null) {
-                AsyncImage(
-                    model = selectedImage,
-                    contentDescription = "Selected Image",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Select Image",
-                    modifier = Modifier.size(48.dp),
-                    tint = Color.DarkGray
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Select an image",
-            color = Color.Gray,
-            fontSize = 14.sp
-        )
-    }
-}
-

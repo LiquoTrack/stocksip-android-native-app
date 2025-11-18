@@ -2,6 +2,7 @@ package com.liquotrack.stocksip.shared.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,8 +22,9 @@ fun TopAppBar(
     title: String,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isEditMode: Boolean = false,
     navigationIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack,
-    actions: () -> Unit = {}
+    onDeleteClick: (() -> Unit)? = null
 ) {
     TopAppBar(
         title = {
@@ -40,11 +42,22 @@ fun TopAppBar(
                 )
             }
         },
+        actions = {
+            if (isEditMode && onDeleteClick != null) {
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = Color.Red
+                    )
+                }
+            }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xFFF4ECEC),
             titleContentColor = Color.Black,
             navigationIconContentColor = Color.Black,
             actionIconContentColor = Color.Black
-        ),
+        )
     )
 }

@@ -1,7 +1,9 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.repositories
 
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseProduct
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseRequest
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
+import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehousesWithCount
 import java.io.File
 
 /**
@@ -11,12 +13,12 @@ import java.io.File
 interface WarehouseRepository {
 
     /**
-     * Retrieves all warehouses associatead with a specific account ID.
+     * Retrieves all warehouses associated with a specific account ID.
      * @param accountId The unique identifier of the account.
      *
-     * @return A list of Warehouse entities associated with the given account ID.
+     * @return A WarehouseWithCount object containing the total count and list of Warehouse entities.
      */
-    suspend fun getAllWarehousesByAccountId(accountId: String): List<WarehouseResponse>
+    suspend fun getAllWarehousesByAccountId(accountId: String): WarehousesWithCount
 
     /**
      * Retrieves a warehouse by its unique identifier.
@@ -40,7 +42,7 @@ interface WarehouseRepository {
      * @param warehouse The Warehouse entity with updated information.
      * @return The updated Warehouse entity.
      */
-    suspend fun updateWarehouse(warehouse: WarehouseResponse): WarehouseResponse
+    suspend fun updateWarehouse(warehouse: WarehouseRequest, warehouseId: String, imageFile: File?): WarehouseResponse
 
     /**
      * Deletes a warehouse by its unique identifier.
@@ -48,4 +50,12 @@ interface WarehouseRepository {
      * @param warehouseId The unique identifier of the warehouse to be deleted.
      */
     suspend fun deleteWarehouse(warehouseId: String)
+
+    /**
+     * Retrieves all products stored in a specific warehouse.
+     * @param warehouseId The unique identifier of the warehouse.
+     *
+     * @return A list of WarehouseProduct entities stored in the specified warehouse.
+     */
+    suspend fun getProductsByWarehouseId(warehouseId: String): List<WarehouseProduct>
 }

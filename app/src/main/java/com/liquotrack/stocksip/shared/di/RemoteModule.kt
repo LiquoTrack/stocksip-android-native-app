@@ -1,12 +1,23 @@
 package com.liquotrack.stocksip.shared.di
 
 import com.liquotrack.stocksip.BuildConfig
-import com.liquotrack.stocksip.features.adminpanel.data.remote.services.UserService
+import com.liquotrack.stocksip.features.authentication.adminpanel.data.remote.services.UserService
 import com.liquotrack.stocksip.features.authentication.login.data.remote.services.AuthService
-import com.liquotrack.stocksip.features.careguides.data.remote.services.CareGuideService
+import com.liquotrack.stocksip.features.authentication.passwordrecover.data.remote.services.RecoverPasswordService
+import com.liquotrack.stocksip.features.inventorymanagement.careguides.data.remote.services.CareGuideService
+import com.liquotrack.stocksip.features.inventorymanagement.inventories.data.remote.services.InventoryService
+import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.BrandService
 import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.ProductService
+import com.liquotrack.stocksip.features.inventorymanagement.storage.data.remote.services.ProductTypeService
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.data.remote.services.WarehouseService
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.data.remote.services.AccountService
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.plans.data.remote.services.PlanService
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.data.remote.services.SubscriptionService
+import com.liquotrack.stocksip.features.procurementordering.suppliercatalogs.data.remote.services.CatalogService
 import com.liquotrack.stocksip.features.profilemanagement.profile.data.remote.services.ProfileService
+import com.liquotrack.stocksip.features.ordermanagement.data.remote.services.SalesOrderService
+import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.data.remote.services.PurchaseOrderService
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.addresses.data.remote.services.AddressService
 import com.liquotrack.stocksip.shared.data.local.AuthInterceptor
 import dagger.Module
 import dagger.Provides
@@ -19,17 +30,14 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 /**
- * Module to provide remote dependencies like Retrofit instance.
- * Configures Retrofit with the base API URL and gson converter.
+ * Dagger Hilt module that provides remote data source dependencies such as Retrofit and API services.
+ * This module is installed in the SingletonComponent, making the provided dependencies available
+ * throughout the entire application lifecycle.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object RemoteModule {
 
-    /**
-     * Provides the base URL for the API.
-     * Change this URL to point to the desired API endpoint.
-     */
     @Provides
     @Singleton
     @Named("url")
@@ -37,14 +45,11 @@ object RemoteModule {
         return BuildConfig.BASE_URL
     }
 
-    /**
-     * Provides a singleton Retrofit instance configured with the base URL and gson converter.
-     */
     @Provides
     @Singleton
     fun provideRetrofit(
         @Named("url") baseUrl: String,
-        okHttpClient: OkHttpClient
+        okHttpClient: OkHttpClient,
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -95,5 +100,72 @@ object RemoteModule {
     @Singleton
     fun provideProductService(retrofit: Retrofit): ProductService {
         return retrofit.create(ProductService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePlanService(retrofit: Retrofit): PlanService {
+        return retrofit.create(PlanService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSubscriptionService(retrofit: Retrofit) : SubscriptionService {
+        return retrofit.create(SubscriptionService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountService(retrofit: Retrofit) : AccountService {
+        return retrofit.create(AccountService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSalesOrderService(retrofit: Retrofit): SalesOrderService {
+        return retrofit.create(SalesOrderService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRecoverPasswordService(retrofit: Retrofit): RecoverPasswordService {
+        return retrofit.create(RecoverPasswordService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCatalogService(retrofit: Retrofit): CatalogService {
+        return retrofit.create(CatalogService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAddressService(retrofit: Retrofit): AddressService {
+        return retrofit.create(AddressService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePurchaseOrderService(retrofit: Retrofit): PurchaseOrderService {
+        return retrofit.create(PurchaseOrderService::class.java)
+    }
+        
+    @Provides
+    @Singleton
+    fun provideInventoryService(retrofit: Retrofit): InventoryService {
+        return retrofit.create(InventoryService::class.java)
+
+    }
+
+    @Provides
+    @Singleton
+    fun provideBrandService(retrofit: Retrofit): BrandService {
+        return retrofit.create(BrandService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductTypeService(retrofit: Retrofit): ProductTypeService {
+        return retrofit.create(ProductTypeService::class.java)
     }
 }
