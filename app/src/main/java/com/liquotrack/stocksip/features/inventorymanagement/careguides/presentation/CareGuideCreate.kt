@@ -23,7 +23,10 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -86,6 +89,8 @@ fun CareGuideCreate(
     val addLabel = stringResource(R.string.add)
 
     val uiState by viewModel.uiState.collectAsState()
+    val products by viewModel.products.collectAsState()
+
     val context = LocalContext.current
 
     LaunchedEffect(uiState) {
@@ -132,18 +137,29 @@ fun CareGuideCreate(
             Spacer(modifier = Modifier.height(24.dp))
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                CareGuideInputField(
-                    value = product,
-                    onValueChange = { product = it },
-                    placeholder = selectProductPlaceholder,
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = AccentColor
-                        )
-                    }
-                )
+                val productOptions = remember(products) { products.map { it.name }.sorted() }
+
+                if (productOptions.isEmpty()) {
+                    CareGuideInputField(
+                        value = product,
+                        onValueChange = { product = it },
+                        placeholder = selectProductPlaceholder,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = AccentColor
+                            )
+                        }
+                    )
+                } else {
+                    CareGuideProductSelector(
+                        value = product,
+                        onValueChange = { product = it },
+                        placeholder = selectProductPlaceholder,
+                        options = productOptions
+                    )
+                }
 
                 CareGuideInputField(
                     value = type,
@@ -208,6 +224,68 @@ fun CareGuideCreate(
                         color = Color.White
                     )
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CareGuideProductSelector(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    options: List<String>,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            modifier = modifier
+                .menuAnchor()
+                .fillMaxWidth()
+                .height(58.dp),
+            placeholder = { Text(placeholder, color = PlaceholderColor) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            shape = RoundedCornerShape(18.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = FieldColor,
+                unfocusedContainerColor = FieldColor,
+                disabledContainerColor = FieldColor,
+                errorContainerColor = FieldColor,
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                disabledBorderColor = Color.Transparent,
+                errorBorderColor = Color.Transparent,
+                focusedTextColor = AccentColor,
+                unfocusedTextColor = AccentColor,
+                cursorColor = AccentColor,
+                focusedTrailingIconColor = AccentColor,
+                unfocusedTrailingIconColor = AccentColor
+            )
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onValueChange(option)
+                        expanded = false
+                    }
+                )
             }
         }
     }
