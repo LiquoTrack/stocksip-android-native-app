@@ -4,5 +4,6 @@ data class ShortcutItem(
     val title: String,
     val description: String,
     val buttonLabel: String,
-    val iconRes: Int
+    val iconRes: Int,
+    val route: String = "" // Navigation route for this shortcut
 )

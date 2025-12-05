@@ -483,8 +483,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
 
-            LaunchedEffect(role) {
-                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            LaunchedEffect(Unit) {
+                // Always ensure role is loaded from storage on first composition
+                if (role == null) {
+                    accountViewModel.loadAccountRoleFromStorage()
+                }
             }
 
             val roleNormalized = role?.trim()?.lowercase()
@@ -558,8 +561,10 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
 
-            LaunchedEffect(role) {
-                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            LaunchedEffect(Unit) {
+                if (role == null) {
+                    accountViewModel.loadAccountRoleFromStorage()
+                }
             }
 
             val roleNormalized = role?.trim()?.lowercase()
@@ -584,7 +589,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                         }
                     )
                 }
-
 
                 else -> {
                     CatalogDetailViewScreen(
@@ -700,8 +704,11 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
             val role by accountViewModel.accountRole.collectAsState()
 
-            LaunchedEffect(role) {
-                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            LaunchedEffect(Unit) {
+                // Always ensure role is loaded from storage on first composition
+                if (role == null) {
+                    accountViewModel.loadAccountRoleFromStorage()
+                }
             }
 
             val roleNormalized = role?.trim()?.lowercase()

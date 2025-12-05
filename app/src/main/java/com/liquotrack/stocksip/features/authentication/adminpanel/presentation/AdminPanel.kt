@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -29,7 +30,8 @@ fun AdminPanel(
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: AdminPanelViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
     val bg = Color(0xFFF5EFED)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -41,6 +43,7 @@ fun AdminPanel(
     val userToDelete by viewModel.userToDelete.collectAsState()
     val userToEdit by viewModel.userToEdit.collectAsState()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     val accountStats = users.firstOrNull()
     val displayedUsers = accountStats?.users ?: emptyList()
@@ -57,6 +60,10 @@ fun AdminPanel(
         }
     }
 
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -64,7 +71,8 @@ fun AdminPanel(
                 currentRoute = "user",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         }
     ) {

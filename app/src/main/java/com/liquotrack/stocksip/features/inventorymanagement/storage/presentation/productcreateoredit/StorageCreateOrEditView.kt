@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.R
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.presentation.components.*
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
@@ -31,6 +32,7 @@ import java.io.File
 @Composable
 fun StorageCreateOrEditView(
     viewModel: StorageCreateOrEditViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel(),
     productId: String?,
     onNavigateBack: () -> Unit
 ) {
@@ -57,6 +59,7 @@ fun StorageCreateOrEditView(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val bg = Color(0xFFF4ECEC)
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     LaunchedEffect(productId) {
         if (isEditMode && productId != "new") viewModel.getProductById(productId)
@@ -64,6 +67,19 @@ fun StorageCreateOrEditView(
 
     LaunchedEffect(selectedProduct) {
         selectedProduct?.let { viewModel.loadProductForEdit(it) }
+    }
+
+    LaunchedEffect(Unit) {
+        if (userRole == null) {
+            accountViewModel.loadAccountRoleFromStorage()
+        }
+    }
+
+    // Ensure role is always available even on redeploy
+    LaunchedEffect(userRole) {
+        if (userRole == null) {
+            accountViewModel.fetchAccountRole()
+        }
     }
 
     val baseCurrencies = listOf("USD", "EUR", "INR", "GBP", "JPY")
@@ -102,7 +118,8 @@ fun StorageCreateOrEditView(
             NavDrawer(
                 currentRoute = "storage",
                 onNavigate = {},
-                onClose = { scope.launch { drawerState.close() } }
+                onClose = { scope.launch { drawerState.close() } },
+                userRole = userRole
             )
         }
     ) {

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -36,6 +37,7 @@ fun CatalogListScreen(
     onCatalogClick: (String) -> Unit,
     onLogout: () -> Unit = {},
     loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel(),
     catalogViewModel: CatalogViewModel = hiltViewModel()
 ) {
     val bg = Color(0xFFF4ECEC)
@@ -48,6 +50,7 @@ fun CatalogListScreen(
     val isLoading by catalogViewModel.isLoading.collectAsState()
     val catalogs by catalogViewModel.catalogs.collectAsState()
     val error by catalogViewModel.error.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     LaunchedEffect(Unit) {
         catalogViewModel.loadCatalogsByAccount()
@@ -58,6 +61,10 @@ fun CatalogListScreen(
             onLogout()
             loginViewModel.resetLogoutState()
         }
+    }
+
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
     }
 
     val filteredCatalogs = catalogs.filter {
@@ -71,7 +78,8 @@ fun CatalogListScreen(
                 currentRoute = "catalogs",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         }
     ) {

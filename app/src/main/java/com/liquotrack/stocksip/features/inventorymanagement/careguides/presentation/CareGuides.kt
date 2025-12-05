@@ -39,6 +39,7 @@ import com.liquotrack.stocksip.features.authentication.login.presentation.login.
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuideViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.storage.domain.models.ProductResponse
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -49,7 +50,8 @@ fun CareGuides(
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: CareGuideViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
     val search = remember { mutableStateOf("") }
 
@@ -59,6 +61,7 @@ fun CareGuides(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     // Dialog / assignment state
     var selectedGuide by remember { mutableStateOf<CareGuide?>(null) }
@@ -80,6 +83,9 @@ fun CareGuides(
         }
     }
 
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
+    }
 
     LaunchedEffect(isSelectionMode) {
         if (!isSelectionMode) {
@@ -103,7 +109,8 @@ fun CareGuides(
                 currentRoute = "care_guide",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         }
     ) {

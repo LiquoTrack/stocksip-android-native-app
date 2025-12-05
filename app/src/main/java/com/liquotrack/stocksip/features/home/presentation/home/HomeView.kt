@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.home.domain.model.ShortcutItem
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -28,11 +29,13 @@ import kotlinx.coroutines.launch
 fun HomeView(
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {},
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
@@ -41,30 +44,38 @@ fun HomeView(
         }
     }
 
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
+    }
+
     val shortcuts = listOf(
         ShortcutItem(
             title = stringResource(R.string.shortcut_new_product_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_new_product_button),
-            iconRes = R.drawable.vino1
+            iconRes = R.drawable.vino1,
+            route = "products_storage"
         ),
         ShortcutItem(
             title = stringResource(R.string.shortcut_new_order_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_new_order_button),
-            iconRes = R.drawable.nota1
+            iconRes = R.drawable.nota1,
+            route = "making_orders"
         ),
         ShortcutItem(
             title = stringResource(R.string.shortcut_new_user_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_new_user_button),
-            iconRes = R.drawable.perfil1
+            iconRes = R.drawable.perfil1,
+            route = "user"
         ),
         ShortcutItem(
             title = stringResource(R.string.shortcut_care_guides_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_care_guides_button),
-            iconRes = R.drawable.guide1
+            iconRes = R.drawable.guide1,
+            route = "care_guide"
         )
     )
 
@@ -75,7 +86,8 @@ fun HomeView(
                 currentRoute = "main",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         }
     ) {
@@ -184,7 +196,7 @@ fun HomeView(
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Button(
-                                        onClick = { /* TODO: navigation logic */ },
+                                        onClick = { onNavigate(item.route) },
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color(0xFF4A1B2A),
                                             contentColor = Color.White
