@@ -39,6 +39,7 @@ import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components.WarehouseList
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import com.liquotrack.stocksip.shared.ui.theme.onSurfaceLightMediumContrast
@@ -52,12 +53,14 @@ fun WarehouseView(
     viewModel: WarehouseViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {},
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
     val warehouses by viewModel.warehouses.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     val backgroundColor = Color(0xFFF4ECEC)
     val isMaxReached by viewModel.isMaxReached.collectAsState()
@@ -70,6 +73,10 @@ fun WarehouseView(
             onLogout()
             loginViewModel.resetLogoutState()
         }
+    }
+
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
     }
 
     LaunchedEffect(Unit) {
@@ -87,7 +94,8 @@ fun WarehouseView(
                 currentRoute = "warehouse",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         }
     ) {

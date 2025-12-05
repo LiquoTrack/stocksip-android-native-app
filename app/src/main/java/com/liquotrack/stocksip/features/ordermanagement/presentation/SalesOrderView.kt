@@ -24,6 +24,7 @@ import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.core.navigation.Route
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.OrderItemUi
 import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.presentation.PurchaseOrdersViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.DrawerScaffold
 
 @Composable
@@ -34,11 +35,19 @@ fun PurchaseOrdersView(
 ) {
     val bg = Color(0xFFF8F3F2)
     val viewModel: PurchaseOrdersViewModel = hiltViewModel()
+    val accountViewModel: AccountViewModel = hiltViewModel()
     val ordersUi by viewModel.ordersUi.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val createdId by viewModel.createdPurchaseOrderId.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.loadOrders() }
+    LaunchedEffect(Unit) {
+        viewModel.loadOrders()
+        // Ensure role is loaded from storage on first composition
+        if (userRole == null) {
+            accountViewModel.loadAccountRoleFromStorage()
+        }
+    }
 
     LaunchedEffect(createdId) {
         if (!createdId.isNullOrEmpty()) {
@@ -53,7 +62,8 @@ fun PurchaseOrdersView(
         currentRoute = Route.MakingOrders.route,
         onNavigate = onNavigate,
         onLogout = onLogout,
-        backgroundColor = bg
+        backgroundColor = bg,
+        userRole = userRole
     ) { padding ->
         Column(
             modifier = Modifier

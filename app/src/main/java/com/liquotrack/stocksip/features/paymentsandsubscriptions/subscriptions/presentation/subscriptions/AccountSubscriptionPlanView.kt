@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.AvailablePlansSection
 import com.liquotrack.stocksip.features.paymentsandsubscriptions.subscriptions.presentation.subscriptions.components.SubscriptionPlanCard
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
@@ -49,6 +50,7 @@ fun AccountSubscriptionPlanView(
     subscriptionsViewModel: SubscriptionsViewModel = hiltViewModel(),
     onLogout: () -> Unit = {},
     loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit = {},
 ) {
 
@@ -57,6 +59,7 @@ fun AccountSubscriptionPlanView(
 
     val scope = rememberCoroutineScope()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     LaunchedEffect(isLoggedOut) {
@@ -64,6 +67,10 @@ fun AccountSubscriptionPlanView(
             onLogout()
             loginViewModel.resetLogoutState()
         }
+    }
+
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
     }
 
     LaunchedEffect(Unit) {
@@ -77,7 +84,8 @@ fun AccountSubscriptionPlanView(
                 currentRoute = "subscription",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         }
     ) {

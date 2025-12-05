@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
  * @param topBarActions Optional actions for TopBar (search, filter, etc)
  * @param enableDrawerGestures Enable swipe gesture to open drawer
  * @param backgroundColor Background color for the screen
+ * @param userRole User's account role for filtering menu items
  * @param content Screen content
  */
 @Composable
@@ -35,6 +36,7 @@ fun DrawerScaffold(
     topBarActions: @Composable () -> Unit = {},
     enableDrawerGestures: Boolean = true,
     backgroundColor: Color = Color(0xFFF4ECEC),
+    userRole: String? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -51,7 +53,8 @@ fun DrawerScaffold(
                     scope.launch {
                         drawerState.close()
                     }
-                }
+                },
+                userRole = userRole
             )
         },
         gesturesEnabled = enableDrawerGestures

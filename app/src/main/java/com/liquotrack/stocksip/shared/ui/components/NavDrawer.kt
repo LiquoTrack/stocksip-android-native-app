@@ -47,13 +47,15 @@ import com.liquotrack.stocksip.R
  * @param onNavigate Callback for navigation with route destination
  * @param onClose Callback to close the drawer
  * @param onLogout Callback for logout action
+ * @param userRole User's account role (e.g., "liquorstoreowner", "supplier")
  */
 @Composable
 fun NavDrawer(
     currentRoute: String,
     onNavigate: (String) -> Unit = {},
     onClose: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    userRole: String? = null
 ) {
     ModalDrawerSheet(
         drawerContainerColor = Color(0xFF4A1B2A),
@@ -69,7 +71,7 @@ fun NavDrawer(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Navigation Items
+            // Navigation Items - Show all items for all roles
             NavDrawerItem(
                 icon = Icons.Default.Home,
                 title = stringResource(R.string.label_home),
