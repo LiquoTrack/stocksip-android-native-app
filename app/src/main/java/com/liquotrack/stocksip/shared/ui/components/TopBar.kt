@@ -34,8 +34,8 @@ fun TopBar(
     onNavigationClick: () -> Unit = {},
     actions: @Composable () -> Unit = {},
     navigationIcon: ImageVector? = null,
-    backgroundColor: Color = Color(0xFFF4ECEC),
-    contentColor: Color = Color(0xFF4A1B2A)
+    backgroundColor: Color = Color.Transparent,
+    contentColor: Color = Color(0xFF4A2B2B)
 ) {
     TopAppBar(
         title = {

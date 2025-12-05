@@ -1,17 +1,22 @@
 package com.liquotrack.stocksip.features.inventorymanagement.careguides.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -46,33 +52,47 @@ fun CareGuides(
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val search = remember { mutableStateOf("") }
-    val careGuides = viewModel.careGuides.collectAsState()
-    val products = viewModel.products.collectAsState()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    val careGuides by viewModel.careGuides.collectAsState(initial = emptyList())
+    val products by viewModel.products.collectAsState(initial = emptyList())
+
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var selectedGuide by remember { mutableStateOf<CareGuide?>(null) }
-    val showDetailDialog = selectedGuide != null
     val context = LocalContext.current
+
+    // Dialog / assignment state
+    var selectedGuide by remember { mutableStateOf<CareGuide?>(null) }
     var assignGuide by remember { mutableStateOf<CareGuide?>(null) }
     var selectedProductId by remember { mutableStateOf<String?>(null) }
     var isAssigning by remember { mutableStateOf(false) }
     var assignError by remember { mutableStateOf<String?>(null) }
+
+
+    var selectedCareGuides by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var isSelectionMode by remember { mutableStateOf(false) }
+
+
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
-
-    val selectedProduct = products.value.firstOrNull { it.id == selectedProductId }
-
-    LaunchedEffect(products.value) {
-        selectedProductId?.let { currentId ->
-            if (products.value.none { it.id == currentId }) {
-                selectedProductId = null
-            }
-        }
-    }
-
     LaunchedEffect(isLoggedOut) {
         if (isLoggedOut) {
             onLogout()
             loginViewModel.resetLogoutState()
+        }
+    }
+
+
+    LaunchedEffect(isSelectionMode) {
+        if (!isSelectionMode) {
+            selectedCareGuides = emptySet()
+        }
+    }
+
+
+    LaunchedEffect(products) {
+        selectedProductId?.let { currentId ->
+            if (products.none { it.id == currentId }) {
+                selectedProductId = null
+            }
         }
     }
 
@@ -95,127 +115,246 @@ fun CareGuides(
                     onNavigationClick = { scope.launch { drawerState.open() } }
                 )
             },
-            containerColor = Color(0xFFF4ECEC)
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 16.dp, vertical = 24.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(64.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = search.value,
-                        onValueChange = { search.value = it },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                tint = Color.Gray
-                            )
-                        },
-                        placeholder = {
-                            Text(stringResource(R.string.placeholder_search), color = Color.Gray)
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.White,
-                            focusedContainerColor = Color.White,
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedBorderColor = Color.Transparent
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Button(
+            containerColor = Color(0xFFF5EFED),
+            floatingActionButton = {
+                if (!isSelectionMode) {
+                    FloatingActionButton(
                         onClick = { onNavigate(Route.CareGuideCreate.route) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A1B2A),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(20.dp)
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                        containerColor = Color(0xFF4A2B2B),
+                        contentColor = Color.White,
+                        elevation = FloatingActionButtonDefaults.elevation(8.dp)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(stringResource(R.string.new_button))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(careGuides.value.size) { index ->
-                        val careGuide = careGuides.value[index]
-                        CareGuideCard(
-                            careGuide = careGuide,
-                            onClick = {},
-                            onSeeGuide = { selectedGuide = it },
-                            onEdit = { onNavigate(Route.CareGuideEdit.buildRoute(it.careGuideId)) },
-                            onAssign = {
-                                viewModel.loadProducts()
-                                assignGuide = it
-                                selectedProductId = null
-                                assignError = null
-                            }
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = stringResource(R.string.new_button),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
             }
-        }
-    }
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 24.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = search.value,
+                            onValueChange = { search.value = it },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = null,
+                                    tint = Color(0xFF4A2B2B)
+                                )
+                            },
+                            placeholder = {
+                                Text(stringResource(R.string.placeholder_search), color = Color(0xFF4A2B2B))
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = Color.White,
+                                focusedContainerColor = Color.White,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedTextColor = Color(0xFF4A2B2B),
+                                focusedTextColor = Color(0xFF4A2B2B),
+                                cursorColor = Color(0xFF4A2B2B)
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    }
 
-    if (showDetailDialog) {
-        CareGuideDetailDialog(
-            careGuide = selectedGuide!!,
-            onDismiss = { selectedGuide = null }
-        )
-    }
+                    Spacer(modifier = Modifier.height(24.dp))
 
-    if (assignGuide != null) {
-        AssignCareGuideDialog(
-            careGuide = assignGuide!!,
-            products = products.value,
-            selectedProduct = selectedProduct,
-            isLoading = isAssigning,
-            errorMessage = assignError,
-            onProductSelected = { selectedProductId = it.id },
-            onDismiss = {
-                assignGuide = null
-                selectedProductId = null
-                assignError = null
-            },
-            onConfirm = {
-                if (products.value.isEmpty()) {
-                    assignError = context.getString(R.string.error_no_products_available)
-                    return@AssignCareGuideDialog
-                }
+                    LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        itemsIndexed(careGuides) { _, careGuide ->
+                            val isSelected = selectedCareGuides.contains(careGuide.careGuideId)
 
-                val chosenProduct = selectedProduct
-                if (chosenProduct == null) {
-                    assignError = context.getString(R.string.error_empty_product_id)
-                    return@AssignCareGuideDialog
-                }
-                scope.launch {
-                    isAssigning = true
-                    val success = viewModel.assignCareGuide(assignGuide!!.careGuideId, chosenProduct.id)
-                    isAssigning = false
-                    if (success) {
-                        assignGuide = null
-                        selectedProductId = null
-                        assignError = null
-                    } else {
-                        assignError = context.getString(R.string.error_assign_care_guide)
+                            CareGuideCard(
+                                careGuide = careGuide,
+                                onClick = { guide ->
+                                    if (isSelectionMode) {
+                                        selectedCareGuides = if (isSelected) {
+                                            selectedCareGuides - guide.careGuideId
+                                        } else {
+                                            selectedCareGuides + guide.careGuideId
+                                        }
+                                        if (selectedCareGuides.isEmpty()) {
+                                            isSelectionMode = false
+                                        }
+                                    } else {
+                                        selectedGuide = guide
+                                    }
+                                },
+                                onSeeGuide = { selectedGuide = it },
+                                onEdit = { onNavigate(Route.CareGuideEdit.buildRoute(it.careGuideId)) },
+                                onAssign = {
+                                    viewModel.loadProducts() // assume this exists
+                                    assignGuide = it
+                                    selectedProductId = null
+                                    assignError = null
+                                },
+                                onLongClick = { guide ->
+                                    isSelectionMode = true
+                                    selectedCareGuides = selectedCareGuides + guide.careGuideId
+                                },
+                                isSelected = isSelected
+                            )
+                        }
                     }
                 }
+
+                if (isSelectionMode && selectedCareGuides.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF5EFED))
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
+                            .navigationBarsPadding()
+                            .align(Alignment.BottomCenter)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${selectedCareGuides.size} seleccionado${if (selectedCareGuides.size > 1) "s" else ""}",
+                                modifier = Modifier.weight(1f),
+                                color = Color(0xFF4A2B2B),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Button(
+                                onClick = {
+                                    selectedCareGuides = emptySet()
+                                    isSelectionMode = false
+                                },
+                                shape = RoundedCornerShape(0.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = Color(0xFF4A2B2B)
+                                ),
+                                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Eliminar",
+                                        tint = Color(0xFF4A2B2B)
+                                    )
+                                    Text(text = "Eliminar", color = Color(0xFF4A2B2B), fontSize = 12.sp)
+                                }
+                            }
+
+                            Button(
+                                enabled = selectedCareGuides.size == 1,
+                                onClick = {
+                                    if (selectedCareGuides.size == 1) {
+                                        val id = selectedCareGuides.first()
+                                        onNavigate(Route.CareGuideEdit.buildRoute(id))
+                                        selectedCareGuides = emptySet()
+                                        isSelectionMode = false
+                                    }
+                                },
+                                shape = RoundedCornerShape(0.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = Color(0xFF4A2B2B),
+                                    disabledContainerColor = Color.Transparent,
+                                    disabledContentColor = Color(0xFF4A2B2B).copy(alpha = 0.4f)
+                                ),
+                                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    val enabled = selectedCareGuides.size == 1
+                                    val tintColor = if (enabled) Color(0xFF4A2B2B) else Color(0xFF4A2B2B).copy(alpha = 0.4f)
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Editar",
+                                        tint = tintColor
+                                    )
+                                    Text(
+                                        text = "Editar",
+                                        color = tintColor,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (selectedGuide != null) {
+                    CareGuideDetailDialog(
+                        careGuide = selectedGuide!!,
+                        onDismiss = { selectedGuide = null }
+                    )
+                }
+
+                if (assignGuide != null) {
+                    val selectedProduct = products.firstOrNull { it.id == selectedProductId }
+                    AssignCareGuideDialog(
+                        careGuide = assignGuide!!,
+                        products = products,
+                        selectedProduct = selectedProduct,
+                        isLoading = isAssigning,
+                        errorMessage = assignError,
+                        onProductSelected = { product -> selectedProductId = product.id },
+                        onDismiss = {
+                            assignGuide = null
+                            selectedProductId = null
+                            assignError = null
+                        },
+                        onConfirm = {
+                            if (products.isEmpty()) {
+                                assignError = context.getString(R.string.error_no_products_available)
+                                return@AssignCareGuideDialog
+                            }
+                            val chosenProduct = selectedProduct
+                            if (chosenProduct == null) {
+                                assignError = context.getString(R.string.error_empty_product_id)
+                                return@AssignCareGuideDialog
+                            }
+
+                            scope.launch {
+                                isAssigning = true
+
+                                val success = try {
+                                    viewModel.assignCareGuide(assignGuide!!.careGuideId, chosenProduct.id)
+                                } catch (e: Exception) {
+                                    false
+                                }
+                                isAssigning = false
+                                if (success) {
+                                    assignGuide = null
+                                    selectedProductId = null
+                                    assignError = null
+                                } else {
+                                    assignError = context.getString(R.string.error_assign_care_guide)
+                                }
+                            }
+                        }
+                    )
+                }
             }
-        )
+        }
     }
 }
 
@@ -229,7 +368,7 @@ private fun CareGuideDetailDialog(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(32.dp),
-            color = Color.White
+            color = Color(0xFFF5EFED)
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 32.dp, vertical = 28.dp),
@@ -254,13 +393,13 @@ private fun CareGuideDetailDialog(
                             .height(140.dp)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(20.dp))
-                            .background(Color(0xFFE9D9CA)),
+                            .background(Color(0xFFF0E0D8)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.LocalDrink,
                             contentDescription = careGuide.productName,
-                            tint = Color(0xFF8A3040)
+                            tint = Color(0xFF4A2B2B)
                         )
                     }
                 }
@@ -285,7 +424,7 @@ private fun CareGuideDetailDialog(
                 TextButton(onClick = onDismiss) {
                     Text(
                         text = stringResource(R.string.close),
-                        color = Color(0xFF8A3040),
+                        color = Color(0xFF4A2B2B),
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -318,7 +457,7 @@ private fun AssignCareGuideDialog(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            color = Color.White
+            color = Color(0xFFF5EFED)
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
@@ -327,7 +466,7 @@ private fun AssignCareGuideDialog(
                 Text(
                     text = stringResource(R.string.assign_care_guide_title, careGuide.productName),
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF3B2B2B)
+                    color = Color(0xFF4A2B2B),
                 )
 
                 var expanded by remember { mutableStateOf(false) }

@@ -56,13 +56,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
 
-private val BackgroundColor = Color(0xFFFDF3EA)
-private val AppBarColor = Color(0xFFFDEFE6)
-private val AccentColor = Color(0xFF4A1B2A)
-private val FieldColor = Color(0xFFFFFFFF)
+private val BackgroundColor = Color(0xFFF5EFED)
+private val AppBarColor = Color.Transparent
+private val AccentColor = Color(0xFF4A2B2B)
+private val FieldColor = Color.White
 private val PlaceholderColor = Color(0xFF8E8C89)
 private val IllustrationBorderColor = Color(0xFFE1CBC1)
-private val IllustrationBackgroundColor = Color(0xFFF5E6EC)
+private val IllustrationBackgroundColor = Color(0xFFF0E0D8)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +77,7 @@ fun CareGuideCreate(
     var maxTemp by remember { mutableStateOf("") }
 
     val scrollState = rememberScrollState()
-    val bg = Color(0xFFF4ECEC)
+    val bg = Color(0xFFF5EFED)
 
     val guideCreatedMessage = stringResource(R.string.guide_create)
     val newGuideTitle = stringResource(R.string.new_guide)
@@ -208,7 +208,7 @@ fun CareGuideCreate(
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2B000D)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A2B2B)),
                 enabled = !isLoading
             ) {
                 if (isLoading) {
