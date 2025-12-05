@@ -53,25 +53,29 @@ fun HomeView(
             title = stringResource(R.string.shortcut_new_product_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_new_product_button),
-            iconRes = R.drawable.vino1
+            iconRes = R.drawable.vino1,
+            route = "products_storage"
         ),
         ShortcutItem(
             title = stringResource(R.string.shortcut_new_order_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_new_order_button),
-            iconRes = R.drawable.nota1
+            iconRes = R.drawable.nota1,
+            route = "making_orders"
         ),
         ShortcutItem(
             title = stringResource(R.string.shortcut_new_user_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_new_user_button),
-            iconRes = R.drawable.perfil1
+            iconRes = R.drawable.perfil1,
+            route = "user"
         ),
         ShortcutItem(
             title = stringResource(R.string.shortcut_care_guides_title),
             description = "",
             buttonLabel = stringResource(R.string.shortcut_care_guides_button),
-            iconRes = R.drawable.guide1
+            iconRes = R.drawable.guide1,
+            route = "care_guide"
         )
     )
 
@@ -192,7 +196,7 @@ fun HomeView(
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Button(
-                                        onClick = { /* TODO: navigation logic */ },
+                                        onClick = { onNavigate(item.route) },
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color(0xFF4A1B2A),
                                             contentColor = Color.White
