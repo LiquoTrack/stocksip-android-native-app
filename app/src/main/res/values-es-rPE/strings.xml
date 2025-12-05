@@ -369,4 +369,5 @@
     <string name="delete_inventory">Eliminar inventario</string>
     <string name="confirm_deletion_message">¿Está seguro que desea eliminar este producto de este almacén? Esta acción no se puede deshacer.</string>
     <string name="cannot_delete_stock_available">Este producto no puede eliminarse del almacén porque aún tiene stock disponible.</string>
+    <string name="label_edit">Editar</string>
 </resources>

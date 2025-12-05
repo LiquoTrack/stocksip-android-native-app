@@ -1,5 +1,7 @@
 package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components
 
+import WarehouseCard
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,11 +30,11 @@ import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.mod
 fun WarehouseList(
     warehouse: List<WarehouseResponse>,
     onClick: (WarehouseResponse) -> Unit,
-    onEditClick : (WarehouseResponse) -> Unit,
+    onEditClick: (WarehouseResponse) -> Unit,
+    onLongPress: (WarehouseResponse) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (warehouse.isEmpty()) {
-
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -60,16 +62,18 @@ fun WarehouseList(
         }
     } else {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Fixed(1),
             modifier = modifier
-                .padding(8.dp)
-                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(warehouse) { warehouseItem ->
                 WarehouseCard(
                     warehouse = warehouseItem,
                     onClick = { onClick(warehouseItem) },
-                    onEditClick = { onEditClick(warehouseItem) }
+                    onEditClick = { onEditClick(warehouseItem) },
+                    onLongPress = { onLongPress(warehouseItem) }
                 )
             }
         }
