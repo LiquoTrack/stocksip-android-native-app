@@ -1,7 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit
 
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +12,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -123,13 +123,16 @@ fun StorageCreateOrEditView(
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
-                // Image Selection Section
                 ImageSelectionSection(
                     selectedImage = selectedImageUri,
                     onImageSelected = { file, uri ->
                         selectedImageFile = file
                         selectedImageUri = uri
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

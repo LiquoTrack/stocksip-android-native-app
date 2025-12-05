@@ -1,108 +1,76 @@
-package com.liquotrack.stocksip.features.inventorymanagement.warehouse.presentation.warehouse.components
-
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.features.inventorymanagement.warehouse.domain.models.WarehouseResponse
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun WarehouseCard(
     warehouse: WarehouseResponse,
     onClick: () -> Unit,
-    onEditClick: (WarehouseResponse) -> Unit = {}
+    onEditClick: (WarehouseResponse) -> Unit = {},
+    onDeleteClick: (WarehouseResponse) -> Unit = {},
+    onLongPress: (WarehouseResponse) -> Unit = {}
 ) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 4.dp)
             .fillMaxWidth()
-            .height(200.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .border(
-                width = 2.dp,
-                color = Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(16.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { onLongPress(warehouse) }
             ),
-        colors = CardDefaults.cardColors(Color(0xFFFFFFFF)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        onClick = onClick
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+
             AsyncImage(
                 model = warehouse.imageUrl,
                 contentDescription = "Warehouse Image",
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 120.dp)
+                    .background(Color.LightGray),
+                contentScale = ContentScale.FillWidth
             )
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 Text(
                     text = warehouse.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4A1B2A),
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                    color = Color(0xFF4A1B2A)
                 )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 0.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = warehouse.street,
-                        fontSize = 14.sp,
-                        color = Color(0xFF5E5E5E),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    IconButton(
-                        onClick = { onEditClick(warehouse) },
-                        modifier = Modifier
-                            .size(25.dp)
-                            .padding(end = 4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit warehouse",
-                            tint = Color(0xFF4A1B2A)
-                        )
-                    }
-                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = warehouse.city,
+                    fontSize = 14.sp,
+                    color = Color(0xFF333333)
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "${warehouse.capacity} m\u00B3",
+                    fontSize = 14.sp,
+                    color = Color(0xFF333333),
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }
 }
+
