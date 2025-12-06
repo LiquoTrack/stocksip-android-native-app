@@ -37,7 +37,8 @@ import java.io.File
 @Composable
 fun ImageSelectionSection(
     selectedImage: Uri?,
-    onImageSelected: (File?, Uri?) -> Unit
+    onImageSelected: (File?, Uri?) -> Unit,
+    modifier: Modifier
 ) {
     val context = LocalContext.current
     val imagePicker = rememberLauncherForActivityResult(

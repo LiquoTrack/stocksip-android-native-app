@@ -133,6 +133,12 @@
     <string name="care_guides_title">Care Guides</string>
     <string name="menu_content_description">Menu</string>
     <string name="new_button">New</string>
+    <string name="assign">Assign</string>
+    <string name="assign_care_guide_title">Assign %1$s</string>
+    <string name="product_id_label">Product ID</string>
+    <string name="error_empty_product_id">Enter a product ID.</string>
+    <string name="error_assign_care_guide">We couldn\'t assign the care guide. Please try again.</string>
+    <string name="error_no_products_available">No products available. Please create one first.</string>
     <string name="product_name_label">Product Name</string>
     <string name="close">Close</string>
     <string name="not_available">N/A</string>
@@ -357,4 +363,5 @@
     <string name="delete_inventory">Delete Inventory</string>
     <string name="confirm_deletion_message">Are you sure you want to delete this product from this warehouse? This action cannot be undone.</string>
     <string name="cannot_delete_stock_available">This product cannot be deleted from this warehouse because it still has stock available.</string>
+    <string name="label_edit">Edit</string>
 </resources>

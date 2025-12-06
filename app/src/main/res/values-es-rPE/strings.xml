@@ -135,6 +135,12 @@
     <string name="care_guides_title">Guías de cuidado</string>
     <string name="menu_content_description">Menú</string>
     <string name="new_button">Nuevo</string>
+    <string name="assign">Asignar</string>
+    <string name="assign_care_guide_title">Asignar %1$s</string>
+    <string name="product_id_label">ID del producto</string>
+    <string name="error_empty_product_id">Ingrese un ID de producto.</string>
+    <string name="error_assign_care_guide">No se pudo asignar la guía de cuidado. Inténtelo de nuevo.</string>
+    <string name="error_no_products_available">No hay productos disponibles. Cree uno primero.</string>
     <string name="product_name_label">Nombre del producto</string>
     <string name="close">Cerrar</string>
     <string name="not_available">N/D</string>
@@ -363,4 +369,5 @@
     <string name="delete_inventory">Eliminar inventario</string>
     <string name="confirm_deletion_message">¿Está seguro que desea eliminar este producto de este almacén? Esta acción no se puede deshacer.</string>
     <string name="cannot_delete_stock_available">Este producto no puede eliminarse del almacén porque aún tiene stock disponible.</string>
+    <string name="label_edit">Editar</string>
 </resources>

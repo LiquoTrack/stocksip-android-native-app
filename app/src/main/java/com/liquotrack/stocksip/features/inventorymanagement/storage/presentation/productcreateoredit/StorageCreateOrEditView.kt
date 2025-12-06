@@ -1,7 +1,6 @@
 package com.liquotrack.stocksip.features.inventorymanagement.storage.presentation.productcreateoredit
 
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +12,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.R
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.presentation.components.*
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBarWithBack
@@ -31,6 +32,7 @@ import java.io.File
 @Composable
 fun StorageCreateOrEditView(
     viewModel: StorageCreateOrEditViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel(),
     productId: String?,
     onNavigateBack: () -> Unit
 ) {
@@ -57,6 +59,7 @@ fun StorageCreateOrEditView(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val bg = Color(0xFFF4ECEC)
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     LaunchedEffect(productId) {
         if (isEditMode && productId != "new") viewModel.getProductById(productId)
@@ -64,6 +67,19 @@ fun StorageCreateOrEditView(
 
     LaunchedEffect(selectedProduct) {
         selectedProduct?.let { viewModel.loadProductForEdit(it) }
+    }
+
+    LaunchedEffect(Unit) {
+        if (userRole == null) {
+            accountViewModel.loadAccountRoleFromStorage()
+        }
+    }
+
+    // Ensure role is always available even on redeploy
+    LaunchedEffect(userRole) {
+        if (userRole == null) {
+            accountViewModel.fetchAccountRole()
+        }
     }
 
     val baseCurrencies = listOf("USD", "EUR", "INR", "GBP", "JPY")
@@ -102,7 +118,8 @@ fun StorageCreateOrEditView(
             NavDrawer(
                 currentRoute = "storage",
                 onNavigate = {},
-                onClose = { scope.launch { drawerState.close() } }
+                onClose = { scope.launch { drawerState.close() } },
+                userRole = userRole
             )
         }
     ) {
@@ -123,13 +140,16 @@ fun StorageCreateOrEditView(
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
-                // Image Selection Section
                 ImageSelectionSection(
                     selectedImage = selectedImageUri,
                     onImageSelected = { file, uri ->
                         selectedImageFile = file
                         selectedImageUri = uri
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

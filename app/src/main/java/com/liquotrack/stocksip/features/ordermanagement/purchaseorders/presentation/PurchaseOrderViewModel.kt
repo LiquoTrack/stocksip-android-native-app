@@ -149,7 +149,21 @@ class PurchaseOrdersViewModel @Inject constructor(
             try {
                 Log.d("CONVERSION", ">>> Convirtiendo $purchaseOrderId a SalesOrder…")
 
-                val response = salesOrderRepository.createSalesOrderFromPurchaseOrder(purchaseOrderId)
+                // Get the purchase order to get catalogIdBuyFrom
+                val purchaseOrderResult = purchaseOrderRepository.getPurchaseOrderById(purchaseOrderId)
+
+                val catalogIdBuyFrom = purchaseOrderResult
+                    .getOrNull()
+                    ?.catalogIdBuyFrom
+                    ?: throw IllegalStateException("Catalog ID not found in purchase order")
+
+                Log.d("CONVERSION", ">>> Catalog ID: $catalogIdBuyFrom")
+
+                // Now create the sales order with the catalog ID
+                val response = salesOrderRepository.createSalesOrderFromPurchaseOrder(
+                    purchaseOrderId,
+                    catalogIdBuyFrom
+                )
 
                 Log.d("CONVERSION", ">>> SalesOrder creada: ${response.id}")
 

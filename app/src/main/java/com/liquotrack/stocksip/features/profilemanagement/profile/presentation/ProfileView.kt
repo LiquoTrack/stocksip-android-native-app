@@ -47,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -56,7 +57,8 @@ fun Profile(
     viewModel: ProfileViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {},
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
     val firstName by viewModel.firstName.collectAsState()
     val lastName by viewModel.lastName.collectAsState()
@@ -70,6 +72,7 @@ fun Profile(
     val isSaving by viewModel.isSaving.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val successMessage by viewModel.successMessage.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -81,6 +84,10 @@ fun Profile(
             onLogout()
             loginViewModel.resetLogoutState()
         }
+    }
+
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
     }
 
     LaunchedEffect(errorMessage) {
@@ -108,7 +115,8 @@ fun Profile(
                 currentRoute = "profile",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         },
         gesturesEnabled = !isEditMode

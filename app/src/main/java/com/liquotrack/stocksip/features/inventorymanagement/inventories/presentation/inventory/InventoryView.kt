@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
 import com.liquotrack.stocksip.features.inventorymanagement.inventories.presentation.inventory.components.InventoryList
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -30,6 +31,7 @@ import kotlinx.coroutines.launch
 fun InventoryView(
     viewModel: InventoryViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel(),
     warehouseId: String? = null,
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {}
@@ -38,6 +40,7 @@ fun InventoryView(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     val backgroundColor = Color(0xFFF4ECEC)
 
@@ -46,6 +49,10 @@ fun InventoryView(
             onLogout()
             loginViewModel.resetLogoutState()
         }
+    }
+
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
     }
 
     LaunchedEffect(Unit) {
@@ -65,7 +72,8 @@ fun InventoryView(
                 },
                 onLogout = {
                     loginViewModel.logout()
-                }
+                },
+                userRole = userRole
             )
         }
     ) {

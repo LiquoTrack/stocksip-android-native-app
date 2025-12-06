@@ -5,7 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -422,12 +424,17 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // User Management
+        // User Management (Admin Panel)
         composable(route = Route.UserManagement.route) {
             AdminPanel(
                 onNavigate = { route ->
                     navController.navigate(route) {
                         launchSingleTop = true
+                    }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
@@ -476,10 +483,15 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         // Catalogs
         composable(route = Route.Catalogs.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
-            val role by accountViewModel.accountRole.collectAsState()
+            var role by remember { mutableStateOf<String?>(null) }
 
-            LaunchedEffect(role) {
-                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            LaunchedEffect(Unit) {
+                // Load role from storage immediately and wait for it
+                accountViewModel.loadAccountRoleFromStorage()
+                // Collect the first emission to get the loaded role
+                accountViewModel.accountRole.collect { loadedRole ->
+                    role = loadedRole
+                }
             }
 
             val roleNormalized = role?.trim()?.lowercase()
@@ -514,12 +526,12 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                 )
             }
             else {
-                CatalogListScreen(
+                // Default to SupplierSearchScreen for other roles
+                SupplierSearchScreen(
                     onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
                     onMenuClick = {  },
-                    onCreateCatalog = { navController.navigate(Route.CatalogCreateEdit.buildRoute("new")) },
-                    onCatalogClick = { catalogId ->
-                        navController.navigate(Route.CatalogDetail.buildRoute(catalogId))
+                    onSupplierSelected = { supplierId ->
+                        navController.navigate(Route.SupplierCatalogList.buildRoute(supplierId))
                     },
                     onLogout = {
                         navController.navigate(Route.Login.route) {
@@ -551,10 +563,15 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
         ) { backStackEntry ->
             val catalogId = backStackEntry.arguments?.getString("catalogId") ?: ""
             val accountViewModel: AccountViewModel = hiltViewModel()
-            val role by accountViewModel.accountRole.collectAsState()
+            var role by remember { mutableStateOf<String?>(null) }
 
-            LaunchedEffect(role) {
-                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            LaunchedEffect(Unit) {
+                // Load role from storage immediately
+                accountViewModel.loadAccountRoleFromStorage()
+                // Collect to get the loaded role
+                accountViewModel.accountRole.collect { loadedRole ->
+                    role = loadedRole
+                }
             }
 
             val roleNormalized = role?.trim()?.lowercase()
@@ -579,7 +596,6 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
                         }
                     )
                 }
-
 
                 else -> {
                     CatalogDetailViewScreen(
@@ -693,10 +709,15 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
 
         composable(Route.MakingOrders.route) {
             val accountViewModel: AccountViewModel = hiltViewModel()
-            val role by accountViewModel.accountRole.collectAsState()
+            var role by remember { mutableStateOf<String?>(null) }
 
-            LaunchedEffect(role) {
-                if (role == null) accountViewModel.loadAccountRoleFromStorage()
+            LaunchedEffect(Unit) {
+                // Load role from storage immediately
+                accountViewModel.loadAccountRoleFromStorage()
+                // Collect to get the loaded role
+                accountViewModel.accountRole.collect { loadedRole ->
+                    role = loadedRole
+                }
             }
 
             val roleNormalized = role?.trim()?.lowercase()

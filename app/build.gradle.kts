@@ -106,6 +106,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.runtime)
     ksp(libs.androidx.room.compiler)
 
     // Hilt dependency for injection of dependencies in the app

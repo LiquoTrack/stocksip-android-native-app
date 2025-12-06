@@ -26,6 +26,11 @@ class AccountViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    init {
+        // Load role from storage on ViewModel initialization to ensure persistence
+        loadAccountRoleFromStorage()
+    }
+
     fun fetchAccountStatus() {
         viewModelScope.launch {
             try {

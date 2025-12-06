@@ -60,13 +60,13 @@ import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.inventorymanagement.careguides.domain.CareGuide
 import kotlinx.coroutines.launch
 
-private val BackgroundColor = Color(0xFFFDF3EA)
-private val AppBarColor = Color(0xFFFDEFE6)
-private val AccentColor = Color(0xFF4A1B2A)
-private val FieldColor = Color(0xFFF6E8D7)
+private val BackgroundColor = Color(0xFFF5EFED)
+private val AppBarColor = Color.Transparent
+private val AccentColor = Color(0xFF4A2B2B)
+private val FieldColor = Color.White
 private val PlaceholderColor = Color(0xFF8E8C89)
 private val IllustrationBorderColor = Color(0xFFE1CBC1)
-private val IllustrationBackgroundColor = Color(0xFFF5E6EC)
+private val IllustrationBackgroundColor = Color(0xFFF0E0D8)
 private val DeleteColor = Color(0xFFE53E3E)
 private val CancelColor = Color(0xFFE6E0DC)
 
@@ -504,7 +504,7 @@ private fun CareGuideDeleteDialog(
                     onClick = onConfirm,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = DeleteColor,
+                        containerColor = Color(0xFF4A2B2B),
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(24.dp)

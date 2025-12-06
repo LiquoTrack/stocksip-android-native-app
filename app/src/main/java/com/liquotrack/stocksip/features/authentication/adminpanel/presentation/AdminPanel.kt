@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.liquotrack.stocksip.R
 import com.liquotrack.stocksip.features.authentication.login.presentation.login.LoginViewModel
+import com.liquotrack.stocksip.features.paymentsandsubscriptions.accounts.presentation.account.AccountViewModel
 import com.liquotrack.stocksip.shared.ui.components.NavDrawer
 import com.liquotrack.stocksip.shared.ui.components.TopBar
 import kotlinx.coroutines.launch
@@ -29,9 +30,10 @@ fun AdminPanel(
     onNavigate: (String) -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: AdminPanelViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
-    val bg = Color(0xFFF4ECEC)
+    val bg = Color(0xFFF5EFED)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -41,6 +43,7 @@ fun AdminPanel(
     val userToDelete by viewModel.userToDelete.collectAsState()
     val userToEdit by viewModel.userToEdit.collectAsState()
     val isLoggedOut by loginViewModel.isLoggedOut.collectAsState()
+    val userRole by accountViewModel.accountRole.collectAsState()
 
     val accountStats = users.firstOrNull()
     val displayedUsers = accountStats?.users ?: emptyList()
@@ -57,6 +60,10 @@ fun AdminPanel(
         }
     }
 
+    LaunchedEffect(userRole) {
+        if (userRole == null) accountViewModel.loadAccountRoleFromStorage()
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -64,7 +71,8 @@ fun AdminPanel(
                 currentRoute = "user",
                 onNavigate = onNavigate,
                 onClose = { scope.launch { drawerState.close() } },
-                onLogout = { loginViewModel.logout() }
+                onLogout = { loginViewModel.logout() },
+                userRole = userRole
             )
         }
     ) {
@@ -76,7 +84,16 @@ fun AdminPanel(
                     onNavigationClick = { scope.launch { drawerState.open() } }
                 )
             },
-            containerColor = bg
+            containerColor = bg,
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { showNewUserDialog = true },
+                    containerColor = Color(0xFF4A1B2A),
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                }
+            }
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -107,22 +124,6 @@ fun AdminPanel(
                         onClick = { viewModel.selectTab(AdminTab.EMPLOYEE) },
                         modifier = Modifier.weight(1f)
                     )
-                    Button(
-                        onClick = { showNewUserDialog = true },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(40.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1B2A)),
-                        shape = RoundedCornerShape(24.dp),
-                        enabled = !isMaxUsersReached
-                    ) {
-                        Text(
-                            stringResource(id = R.string.admin_new_user),
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -132,51 +133,61 @@ fun AdminPanel(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(Color(0xFFEADFE0), RoundedCornerShape(16.dp))
-                            .padding(16.dp)
+                            .padding(horizontal = 16.dp, vertical = 14.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
+                            Text(
+                                stringResource(id = R.string.users_capacity),
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 14.sp,
+                                color = Color(0xFF4A1B2A)
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    stringResource(id = R.string.users_capacity),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 16.sp,
+                                    text = "${currentUsersCount}/${maxUsersAllowed?.toString() ?: "--"}",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp,
                                     color = Color(0xFF4A1B2A)
                                 )
+                                Spacer(Modifier.width(8.dp))
                                 Text(
-                                    stringResource(
-                                        id = R.string.users_capacity_value,
-                                        currentUsersCount,
-                                        maxUsersAllowed?.toString() ?: "--"
-                                    ),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp,
-                                    color = Color(0xFF4A1B2A)
+                                    text = if (isMaxUsersReached)
+                                        stringResource(id = R.string.status_max_reached)
+                                    else stringResource(id = R.string.status_available),
+                                    color = if (isMaxUsersReached) Color(0xFFD32F2F) else Color(0xFF2E7D32),
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
-                            Text(
-                                text = if (isMaxUsersReached)
-                                    stringResource(id = R.string.status_max_reached)
-                                else stringResource(id = R.string.status_available),
-                                color = if (isMaxUsersReached) Color(0xFFD32F2F) else Color(0xFF2E7D32),
-                                fontWeight = FontWeight.Medium
-                            )
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Box(modifier = Modifier.fillMaxSize()) {
-                    UsersList(
-                        users = displayedUsers,
-                        isLoading = isLoading,
-                        onEditUser = { viewModel.selectUserForEdit(it) },
-                        onDeleteUser = { viewModel.selectUserForDelete(it) }
-                    )
+                Card(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.dp, Color(0xFFE7DCDC))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFFFF2F2))
+                            .padding(12.dp)
+                    ) {
+                        UsersList(
+                            users = displayedUsers,
+                            isLoading = isLoading,
+                            onEditUser = { viewModel.selectUserForEdit(it) },
+                            onDeleteUser = { viewModel.selectUserForDelete(it) }
+                        )
+                    }
                 }
             }
         }
