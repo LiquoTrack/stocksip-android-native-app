@@ -424,48 +424,20 @@ fun AppNavigation(startDestination: String = Route.Login.route) {
             )
         }
 
-        // User Management (Admin Panel) - With role-based access control
+        // User Management (Admin Panel)
         composable(route = Route.UserManagement.route) {
-            val accountViewModel: AccountViewModel = hiltViewModel()
-            val userRole by accountViewModel.accountRole.collectAsState()
-
-            // ALWAYS redirect immediately if no admin access
-            LaunchedEffect(Unit) {
-                accountViewModel.loadAccountRoleFromStorage()
-            }
-
-            // Check on every recomposition if user has access
-            LaunchedEffect(userRole) {
-                val roleNormalized = userRole?.trim()?.lowercase()
-                val hasAdminAccess = roleNormalized == "admin" || roleNormalized == "superadmin"
-
-                // Redirect if NO admin access
-                if (!hasAdminAccess && !userRole.isNullOrEmpty()) {
-                    navController.navigate(Route.Main.route) {
-                        popUpTo(Route.UserManagement.route) { inclusive = true }
+            AdminPanel(
+                onNavigate = { route ->
+                    navController.navigate(route) {
                         launchSingleTop = true
                     }
-                }
-            }
-
-            // Only render AdminPanel if explicitly has admin role
-            val roleNormalized = userRole?.trim()?.lowercase()
-            val isAdmin = roleNormalized == "admin" || roleNormalized == "superadmin"
-
-            if (isAdmin) {
-                AdminPanel(
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onLogout = {
-                        navController.navigate(Route.Login.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
-                )
-            }
+                }
+            )
         }
 
         // Care Guides
