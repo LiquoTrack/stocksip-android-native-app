@@ -14,11 +14,14 @@ class SalesOrderRepositoryImpl @Inject constructor(
     private val service: SalesOrderService
 ) : SalesOrderRepository {
 
-    override suspend fun createSalesOrderFromPurchaseOrder(purchaseOrderId: String): SalesOrderResponse =
+    override suspend fun createSalesOrderFromPurchaseOrder(purchaseOrderId: String, catalogIdBuyFrom: String?): SalesOrderResponse =
         withContext(Dispatchers.IO) {
             println(">>> [Repo] POST /orders/from-procurement/$purchaseOrderId")
+            if (catalogIdBuyFrom != null) {
+                println(">>> [Repo] Catalog ID: $catalogIdBuyFrom")
+            }
 
-            val response = service.createSalesOrderFromPurchaseOrder(purchaseOrderId)
+            val response = service.createSalesOrderFromPurchaseOrder(purchaseOrderId, catalogIdBuyFrom)
 
             if (!response.isSuccessful) {
                 println(">>> [Repo] Error: ${response.code()} - ${response.message()}")

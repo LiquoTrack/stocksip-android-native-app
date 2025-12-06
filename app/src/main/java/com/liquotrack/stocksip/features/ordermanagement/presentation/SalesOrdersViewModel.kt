@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderRepository
 import com.liquotrack.stocksip.features.ordermanagement.domain.SalesOrderResponse
+import com.liquotrack.stocksip.features.ordermanagement.purchaseorders.domain.repositories.PurchaseOrderRepository
 import com.liquotrack.stocksip.shared.data.local.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SalesOrdersViewModel @Inject constructor(
     private val repository: SalesOrderRepository,
+    private val purchaseOrderRepository: PurchaseOrderRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
@@ -63,13 +65,27 @@ class SalesOrdersViewModel @Inject constructor(
             _error.value = null
 
             try {
-                val response = repository.createSalesOrderFromPurchaseOrder(purchaseOrderId)
+                // Get the purchase order to extract catalogIdBuyFrom
+                val purchaseOrderResult = purchaseOrderRepository.getPurchaseOrderById(purchaseOrderId)
+                val catalogIdBuyFrom = purchaseOrderResult
+                    .getOrNull()
+                    ?.catalogIdBuyFrom
+                    ?: throw IllegalStateException("Catalog ID not found in purchase order")
+
+                Log.d("SALES_VM", "Creating sales order with catalogId: $catalogIdBuyFrom")
+
+                // Create sales order with catalog ID
+                val response = repository.createSalesOrderFromPurchaseOrder(
+                    purchaseOrderId,
+                    catalogIdBuyFrom
+                )
                 _salesOrder.value = response
 
                 getSalesOrdersForAccount()
 
             } catch (e: Exception) {
                 _error.value = e.message ?: "Error creating sales order"
+                Log.e("SALES_VM", "Error creating sales order", e)
             } finally {
                 _isLoading.value = false
             }
